@@ -1,2 +1,0 @@
-/usr/bin/ar qc libcppgear.a  CMakeFiles/cppgear-static.dir/options/options.cpp.o
-/usr/bin/ranlib libcppgear.a

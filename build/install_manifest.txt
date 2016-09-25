@@ -1,3 +1,0 @@
-/usr/local/include/cppgear/options/options.h
-/usr/local/lib/libcppgear.a
-/usr/local/lib/libcppgear.so
