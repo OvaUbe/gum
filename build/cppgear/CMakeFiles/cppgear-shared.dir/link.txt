@@ -1,0 +1,1 @@
+/usr/bin/c++  -fPIC -O3 -DNDEBUG  -shared -Wl,-soname,libcppgear.so -o libcppgear.so CMakeFiles/cppgear-shared.dir/options/options.cpp.o 

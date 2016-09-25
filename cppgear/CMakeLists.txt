@@ -1,0 +1,22 @@
+cmake_minimum_required(VERSION 2.8)
+
+project(cppgear)
+
+# Project
+file(GLOB_RECURSE SOURCES ${CMAKE_CURRENT_LIST_DIR}/*.cpp)
+include_directories(${CMAKE_CURRENT_LIST_DIR}/..)
+
+set(COMPILEFLAGS "-std=c++14 -Wall -Wextra -Wpedantic")
+
+add_library(cppgear-static STATIC ${SOURCES})
+set_target_properties(cppgear-static PROPERTIES
+	COMPILE_FLAGS ${COMPILEFLAGS}
+	OUTPUT_NAME cppgear CLEAN_DIRECT_OUTPUT 1)
+
+add_library(cppgear-shared SHARED ${SOURCES})
+set_target_properties(cppgear-shared PROPERTIES
+	COMPILE_FLAGS ${COMPILEFLAGS}
+	OUTPUT_NAME cppgear CLEAN_DIRECT_OUTPUT 1)
+
+install(DIRECTORY ../cppgear DESTINATION include FILES_MATCHING PATTERN "*.h")
+install(TARGETS cppgear-static cppgear-shared DESTINATION lib)

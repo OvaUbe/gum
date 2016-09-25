@@ -1,0 +1,24 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+../cppgear/../cppgear/options/options.h
+experimental/optional
+-
+vector
+-
+unordered_map
+-
+
+/media/dev/C++/cppgear/cppgear/options/options.cpp
+cppgear/options/options.h
+-
+cassert
+-
+iostream
+-
+
