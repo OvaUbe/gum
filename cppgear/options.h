@@ -22,19 +22,21 @@
 
 #pragma once
 
-#include <experimental/optional>
+#include <cppgear/types.h>
+
 #include <vector>
 #include <unordered_map>
 
 namespace cppgear {
 
-template <typename T>
-using optional = std::experimental::optional<T>;
-
 class Options {
     /* Inner types */
 public:
     using ArgList = std::vector<std::string>;
+
+private:
+    template <typename T>
+    using optional = std::experimental::optional<T>;
 
     /* Methods */
 public:
@@ -53,8 +55,8 @@ public:
     ArgList const* get(char unix_flag) const;
     ArgList const* get(std::string const& gnu_flag) const;
 
-    optional<ArgList> remove(char unix_flag);
-    optional<ArgList> remove(std::string const& gnu_flag);
+    std::experimental::optional<ArgList> remove(char unix_flag);
+    std::experimental::optional<ArgList> remove(std::string const& gnu_flag);
 
 private:
     bool _scroll(optional<char>& unix_flag,

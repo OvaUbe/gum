@@ -20,7 +20,7 @@
  * THE SOFTWARE.
  */
 
-#include <cppgear/options/options.h>
+#include <cppgear/options.h>
 
 #include <cassert>
 #include <iostream>
@@ -92,7 +92,7 @@ Options::ArgList const* Options::get(std::string const& gnu_flag) const {
     return (m_gnu_options.end() != iter) ? &(iter->second) : nullptr;
 }
 
-optional<Options::ArgList> Options::remove(char unix_flag) {
+Options::optional<Options::ArgList> Options::remove(char unix_flag) {
     auto const iter = m_unix_options.find(unix_flag);
     if (m_unix_options.end() == iter) {
         return std::experimental::nullopt;
@@ -103,7 +103,7 @@ optional<Options::ArgList> Options::remove(char unix_flag) {
     return std::move(result);
 }
 
-optional<Options::ArgList> Options::remove(std::string const& gnu_flag) {
+Options::optional<Options::ArgList> Options::remove(std::string const& gnu_flag) {
     auto const iter = m_gnu_options.find(gnu_flag);
     if (m_gnu_options.end() == iter) {
         return std::experimental::nullopt;
