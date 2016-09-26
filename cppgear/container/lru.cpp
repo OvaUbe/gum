@@ -20,6 +20,6 @@
  * THE SOFTWARE.
  */
 
-#include <cppgear/container/dynarray.h>
+#include <cppgear/container/lru.h>
 
 namespace cppgear { }

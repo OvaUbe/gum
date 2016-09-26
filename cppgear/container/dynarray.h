@@ -1,3 +1,25 @@
+/*
+ * Copyright (c) 2016 Vladimir Golubev
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
 #pragma once
 
 #include <iterator>
@@ -26,72 +48,157 @@ public:
     using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
 private:
-    struct Deallocator {
-        size_type const size;
-        Allocator const allocator;
+    struct _deallocator {
+        size_type size;
+        Allocator mutable allocator;
 
-        Deallocator(Allocator const& allocator, size_type size) noexcept
+        _deallocator(Allocator const& allocator, size_type size) noexcept
             : allocator(allocator), size(size) { }
 
         void operator()(T* p) const noexcept { allocator.deallocate(p, size); }
 
     };
 
-    using base_holder = std::unique_ptr<value_type[], Deallocator>;
+    using base_holder = std::unique_ptr<value_type, _deallocator>;
 
     /* Methods */
 public:
-    explicit dynarray(size_type count, Allocator const& alloc = Allocator());
+    explicit dynarray(size_type count, Allocator alloc = Allocator())
+        : m_base(alloc.allocate(count), _deallocator(alloc, count)) { }
 
-    explicit dynarray(size_type count, T const& value, Allocator const& alloc = Allocator());
+    explicit dynarray(size_type count, T const& value, Allocator alloc = Allocator())
+        : m_base(alloc.allocate(count), _deallocator(alloc, count)) {
+        fill(value);
+    }
 
-    explicit dynarray(std::initializer_list<T> init, Allocator const& alloc = Allocator());
+    explicit dynarray(std::initializer_list<T> init, Allocator alloc = Allocator())
+        : m_base(alloc.allocate(init.size()), _deallocator(alloc, init.size())) {
+        std::copy(init.begin(), init.end(), m_base.get());
+    }
 
-    explicit dynarray(dynarray const& other);
+    explicit dynarray(dynarray const& other)
+        : m_base(_copy_base(other.m_base)) { }
 
     explicit dynarray(dynarray&& other) = default;
 
     ~dynarray() = default;
 
-    dynarray& operator=(dynarray const& other);
+    dynarray& operator=(dynarray const& other) {
+        m_base = _copy_base(other);
+        return *this;
+    }
 
     dynarray& operator=(dynarray&& other) = default;
 
-    reference at(size_type pos);
-    const_reference at(size_type pos) const;
+    reference at(size_type pos){
+        if (pos >= size()) {
+            throw std::out_of_range();
+        }
+        return *(data() + pos);
+    }
 
-    reference operator[](size_type pos) noexcept;
-    const_reference operator[](size_type pos) const noexcept;
+    const_reference at(size_type pos) const {
+        if (pos >= size()) {
+            throw std::out_of_range();
+        }
+        return *(data() + pos);
+    }
 
-    reference back() noexcept;
-    const_reference back() const noexcept;
+    reference operator[](size_type pos) noexcept {
+        return *(data() + pos);
+    }
 
-    pointer data() noexcept;
-    const_pointer data() const noexcept;
+    const_reference operator[](size_type pos) const noexcept {
+        return *(data() + pos);
+    }
 
-    iterator begin() noexcept;
-    const_iterator begin() const noexcept;
-    const_iterator cbegin() const noexcept;
+    reference back() noexcept {
+        return *(data() + size() - 1);
+    }
 
-    iterator end() noexcept;
-    const_iterator end() const noexcept;
-    const_iterator cend() const noexcept;
+    const_reference back() const noexcept {
+        return *(data() + size() - 1);
+    }
 
-    reverse_iterator rbegin() noexcept;
-    const_reverse_iterator rbegin() const noexcept;
-    const_reverse_iterator crbegin() const noexcept;
+    pointer data() noexcept {
+        return m_base.get();
+    }
 
-    reverse_iterator rend() noexcept;
-    const_reverse_iterator rend() const noexcept;
-    const_reverse_iterator crend() const noexcept;
+    const_pointer data() const noexcept {
+        return m_base.get();
+    }
 
-    bool empty() const noexcept;
-    size_type size() const noexcept;
+    iterator begin() noexcept {
+        return data();
+    }
 
-    void fill(const_reference value);
+    const_iterator begin() const noexcept {
+        return data();
+    }
+
+    const_iterator cbegin() const noexcept {
+        return data();
+    }
+
+    iterator end() noexcept {
+        return begin() + size();
+    }
+
+    const_iterator end() const noexcept {
+        return begin() + size();
+    }
+
+    const_iterator cend() const noexcept {
+        return begin() + size();
+    }
+
+    reverse_iterator rbegin() noexcept {
+        return end() - 1;
+    }
+
+    const_reverse_iterator rbegin() const noexcept {
+        return end() - 1;
+    }
+
+    const_reverse_iterator crbegin() const noexcept {
+        return end() - 1;
+    }
+
+    reverse_iterator rend() noexcept {
+        return begin() - 1;
+    }
+
+    const_reverse_iterator rend() const noexcept {
+        return begin() - 1;
+    }
+
+    const_reverse_iterator crend() const noexcept {
+        return begin() - 1;
+    }
+
+    bool empty() const noexcept {
+        return 0 == size();
+    }
+
+    size_type size() const noexcept {
+        return m_base.get_deleter().size;
+    }
+
+    void fill(const_reference value) {
+        std::fill(begin(), end(), value);
+    }
 
 private:
-    static base_holder _copy_base(base_holder const& other);
+    static base_holder _copy_base(base_holder const& other) {
+        _deallocator const& deleter = other.get_deleter();
+        pointer p = deleter.allocator.allocate(deleter.size);
+        base_holder result(p, deleter);
+
+        pointer begin = other.get();
+        std::copy(begin, begin + deleter.size, result.get());
+
+        return result;
+    }
 
     /* Fields */
 private:
@@ -99,166 +206,167 @@ private:
 
 };
 
-template <typename T, typename Allocator>
-dynarray<T, Allocator>::dynarray(size_type count, Allocator const& alloc)
-    : m_base(alloc.allocate(count), Deallocator(alloc, count)) {
-}
+template <typename T>
+class dynarray<T, std::allocator<T>> {
+    /* Inner types */
+public:
+    using value_type = T;
+    using size_type = std::size_t;
+    using difference_type = std::ptrdiff_t;
+    using reference = value_type&;
+    using const_reference  = value_type const&;
+    using pointer = value_type*;
+    using const_pointer = value_type const*;
+    using iterator = pointer;
+    using const_iterator = const_pointer;
+    using reverse_iterator = std::reverse_iterator<iterator>;
+    using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
-template <typename T, typename Allocator>
-dynarray<T, Allocator>::dynarray(size_type count, T const& value, Allocator const& alloc)
-    : m_base(alloc.allocate(count), Deallocator(alloc, count)) {
+private:
+    using base_holder = std::unique_ptr<value_type[]>;
 
-    pointer begin = m_base.get();
-    std::fill(begin, begin + count, value);
-}
+    /* Methods */
+public:
+    explicit dynarray(size_type count)
+        : m_base(new value_type[count])
+        , m_size(count) { }
 
-template <typename T, typename Allocator>
-dynarray<T, Allocator>::dynarray(dynarray const& other)
-    : m_base(_copy_base(other.m_base)) { }
-
-template <typename T, typename Allocator>
-dynarray<T, Allocator>::dynarray(std::initializer_list<T> init, Allocator const& alloc)
-    : m_base(alloc.allocate(init.size()), Deallocator(alloc, init.size())) {
-
-    std::copy(init.begin(), init.end(), m_base.get());
-}
-
-template <typename T, typename Allocator>
-dynarray<T, Allocator>& dynarray<T, Allocator>::operator=(dynarray const& other) {
-    m_base.reset(_copy_base(other));
-    return *this;
-}
-
-template <typename T, typename Allocator>
-typename dynarray<T, Allocator>::reference dynarray<T, Allocator>::at(size_type pos) {
-    if (pos >= size()) {
-        throw std::out_of_range();
+    explicit dynarray(size_type count, T const& value)
+        : m_base(new value_type[count])
+        , m_size(count) {
+        fill(value);
     }
-    return m_base[pos];
-}
 
-template <typename T, typename Allocator>
-typename dynarray<T, Allocator>::const_reference dynarray<T, Allocator>::at(size_type pos) const {
-    if (pos >= size()) {
-        throw std::out_of_range();
+    explicit dynarray(std::initializer_list<T> init)
+        : m_base(new value_type[init.size()])
+        , m_size(init.size()) {
+        std::copy(init.begin(), init.end(), m_base.get());
     }
-    return m_base[pos];
-}
 
-template <typename T, typename Allocator>
-typename dynarray<T, Allocator>::reference dynarray<T, Allocator>::operator[](size_type pos) noexcept {
-    return m_base[pos];
-}
+    explicit dynarray(dynarray const& other)
+        : m_base(new value_type[other.m_size])
+        , m_size(other.m_size) {
+        std::copy(other.begin(), other.end(), begin());
+    }
 
-template <typename T, typename Allocator>
-typename dynarray<T, Allocator>::const_reference dynarray<T, Allocator>::operator[](size_type pos) const noexcept {
-    return m_base[pos];
-}
+    explicit dynarray(dynarray&& other) = default;
 
-template <typename T, typename Allocator>
-typename dynarray<T, Allocator>::reference dynarray<T, Allocator>::back() noexcept {
-    return m_base[size() - 1];
-}
+    ~dynarray() = default;
 
-template <typename T, typename Allocator>
-typename dynarray<T, Allocator>::const_reference dynarray<T, Allocator>::back() const noexcept {
-    return m_base[size() - 1];
-}
+    dynarray& operator=(dynarray const& other) {
+        m_base.reset(new value_type[other.m_size]);
+        m_size = other.m_size;
 
-template <typename T, typename Allocator>
-typename dynarray<T, Allocator>::pointer dynarray<T, Allocator>::data() noexcept {
-    return m_base.get();
-}
+        std::copy(other.begin(), other.end(), begin());
 
-template <typename T, typename Allocator>
-typename dynarray<T, Allocator>::const_pointer dynarray<T, Allocator>::data() const noexcept {
-    return m_base.get();
-}
+        return *this;
+    }
 
-template <typename T, typename Allocator>
-typename dynarray<T, Allocator>::iterator dynarray<T, Allocator>::begin() noexcept {
-    return data();
-}
+    dynarray& operator=(dynarray&& other) = default;
 
-template <typename T, typename Allocator>
-typename dynarray<T, Allocator>::const_iterator dynarray<T, Allocator>::begin() const noexcept {
-    return data();
-}
+    reference at(size_type pos) {
+        if (pos >= size()) {
+            throw std::out_of_range();
+        }
+        return m_base[pos];
+    }
 
-template <typename T, typename Allocator>
-typename dynarray<T, Allocator>::const_iterator dynarray<T, Allocator>::cbegin() const noexcept {
-    return data();
-}
+    const_reference at(size_type pos) const {
+        if (pos >= size()) {
+            throw std::out_of_range();
+        }
+        return m_base[pos];
+    }
 
-template <typename T, typename Allocator>
-typename dynarray<T, Allocator>::iterator dynarray<T, Allocator>::end() noexcept {
-    return data() + size();
-}
+    reference operator[](size_type pos) noexcept {
+        return m_base[pos];
+    }
 
-template <typename T, typename Allocator>
-typename dynarray<T, Allocator>::const_iterator dynarray<T, Allocator>::end() const noexcept {
-    return data() + size();
-}
+    const_reference operator[](size_type pos) const noexcept {
+        return m_base[pos];
+    }
 
-template <typename T, typename Allocator>
-typename dynarray<T, Allocator>::const_iterator dynarray<T, Allocator>::cend() const noexcept {
-    return data() + size();
-}
+    reference back() noexcept {
+        return m_base[size() - 1];
+    }
 
-template <typename T, typename Allocator>
-typename dynarray<T, Allocator>::reverse_iterator dynarray<T, Allocator>::rbegin() noexcept {
-    return &back();
-}
+    const_reference back() const noexcept {
+        return m_base[size() - 1];
+    }
 
-template <typename T, typename Allocator>
-typename dynarray<T, Allocator>::const_reverse_iterator dynarray<T, Allocator>::rbegin() const noexcept {
-    return &back();
-}
+    pointer data() noexcept {
+        return m_base.get();
+    }
 
-template <typename T, typename Allocator>
-typename dynarray<T, Allocator>::const_reverse_iterator dynarray<T, Allocator>::crbegin() const noexcept {
-    return &back();
-}
+    const_pointer data() const noexcept {
+        return m_base.get();
+    }
 
-template <typename T, typename Allocator>
-typename dynarray<T, Allocator>::reverse_iterator dynarray<T, Allocator>::rend() noexcept {
-    return data() - 1;
-}
+    iterator begin() noexcept {
+        return data();
+    }
 
-template <typename T, typename Allocator>
-typename dynarray<T, Allocator>::const_reverse_iterator dynarray<T, Allocator>::rend() const noexcept {
-    return data() - 1;
-}
+    const_iterator begin() const noexcept {
+        return data();
+    }
 
-template <typename T, typename Allocator>
-typename dynarray<T, Allocator>::const_reverse_iterator dynarray<T, Allocator>::crend() const noexcept {
-    return data() - 1;
-}
+    const_iterator cbegin() const noexcept {
+        return data();
+    }
 
-template <typename T, typename Allocator>
-bool dynarray<T, Allocator>::empty() const noexcept {
-    return 0 == size();
-}
+    iterator end() noexcept {
+        return begin() + size();
+    }
 
-template <typename T, typename Allocator>
-typename dynarray<T, Allocator>::size_type dynarray<T, Allocator>::size() const noexcept {
-    return m_base.get_deleter().size;
-}
+    const_iterator end() const noexcept {
+        return begin() + size();
+    }
 
-template <typename T, typename Allocator>
-void dynarray<T, Allocator>::fill(const_reference value) {
-    std::fill(begin(), end(), value);
-}
+    const_iterator cend() const noexcept {
+        return begin() + size();
+    }
 
-template <typename T, typename Allocator>
-typename dynarray<T, Allocator>::base_holder dynarray<T, Allocator>::_copy_base(base_holder const& other) {
-    Deallocator const& d = other.get_deleter();
-    base_holder result(d.allocator.allocate(d.size), d);
+    reverse_iterator rbegin() noexcept {
+        return end() - 1;
+    }
 
-    pointer begin = other.get();
-    std::copy(begin, begin + d.size, result.get());
+    const_reverse_iterator rbegin() const noexcept {
+        return end() - 1;
+    }
 
-    return result;
-}
+    const_reverse_iterator crbegin() const noexcept {
+        return end() - 1;
+    }
+
+    reverse_iterator rend() noexcept {
+        return begin() - 1;
+    }
+
+    const_reverse_iterator rend() const noexcept {
+        return begin() - 1;
+    }
+
+    const_reverse_iterator crend() const noexcept {
+        return begin() - 1;
+    }
+
+    bool empty() const noexcept {
+        return 0 == size();
+    }
+
+    size_type size() const noexcept {
+        return m_size;
+    }
+
+    void fill(const_reference value) {
+        std::fill(begin(), end(), value);
+    }
+
+    /* Fields */
+private:
+    base_holder m_base;
+    size_type m_size;
+
+};
 
 } // cppgear
