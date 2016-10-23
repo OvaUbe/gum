@@ -47,8 +47,8 @@ public:
         switch (byte_order()) {
             case ByteOrder::Little : return m_split[final - index];
             case ByteOrder::Big    : return m_split[index];
-            /* If index is even, final - (index + 1), else final - (index - 1) */
-            case ByteOrder::PDP    : return m_split[final - (0 == (index << 7) ? index + 1 : index - 1)];
+            /* If index is odd, final - (index - 1), else final - (index + 1) */
+            case ByteOrder::PDP    : return m_split[final - ((index & 1) ? (index - 1) : (index + 1))];
             default                : assert(false);
         }
     }
