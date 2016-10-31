@@ -252,7 +252,7 @@ const V* TwoQ<K, V>::get(const K& key) {
     for (auto iter = m_a_out.begin(); iter != m_a_out.end(); ++iter) {
         if (key == iter->first) {
             /* Transfer from Aout to Am */
-            assert(!m_a_m.insert(std::move(iter->first), std::move(iter->second)));
+            m_a_m.insert(std::move(iter->first), std::move(iter->second));
             m_a_out.erase(iter);
             return m_a_m.peek_mut(key);
         }

@@ -90,7 +90,7 @@ public:
 
     dynarray& operator=(dynarray&& other) = default;
 
-    reference at(size_type pos){
+    reference at(size_type pos) {
         if (pos >= size()) {
             throw std::out_of_range();
         }
@@ -153,27 +153,27 @@ public:
     }
 
     reverse_iterator rbegin() noexcept {
-        return end() - 1;
+        return reverse_iterator(end());
     }
 
     const_reverse_iterator rbegin() const noexcept {
-        return end() - 1;
+        return const_reverse_iterator(end());
     }
 
     const_reverse_iterator crbegin() const noexcept {
-        return end() - 1;
+        return const_reverse_iterator(end());
     }
 
     reverse_iterator rend() noexcept {
-        return begin() - 1;
+        return reverse_iterator(begin());
     }
 
     const_reverse_iterator rend() const noexcept {
-        return begin() - 1;
+        return const_reverse_iterator(begin());
     }
 
     const_reverse_iterator crend() const noexcept {
-        return begin() - 1;
+        return const_reverse_iterator(begin());
     }
 
     bool empty() const noexcept {
