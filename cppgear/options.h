@@ -34,10 +34,6 @@ class Options {
 public:
     using ArgList = std::vector<std::string>;
 
-private:
-    template <typename T>
-    using optional = std::experimental::optional<T>;
-
     /* Methods */
 public:
     Options(int argc, char** argv);
@@ -55,8 +51,8 @@ public:
     ArgList const* get(char unix_flag) const;
     ArgList const* get(std::string const& gnu_flag) const;
 
-    std::experimental::optional<ArgList> remove(char unix_flag);
-    std::experimental::optional<ArgList> remove(std::string const& gnu_flag);
+    optional<ArgList> remove(char unix_flag);
+    optional<ArgList> remove(std::string const& gnu_flag);
 
 private:
     bool _scroll(optional<char>& unix_flag,
