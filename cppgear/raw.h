@@ -2,6 +2,8 @@
 
 #include <stdint.h>
 #include <cassert>
+#include <utility>
+#include <type_traits>
 
 #ifdef __GNUC__
     #include <endian.h>
@@ -37,8 +39,8 @@ public:
     using ByteType  = uint8_t;
 
 public:
-    Split() : m_value() { }
-    Split(ValueType value) : m_value(value) { }
+    template <typename ...Args>
+    Split(Args&&... args) : m_value(std::forward<Args>(args)...) { }
 
     operator ValueType&() { return m_value; }
 
@@ -47,8 +49,7 @@ public:
         switch (byte_order()) {
             case ByteOrder::Little : return m_split[final - index];
             case ByteOrder::Big    : return m_split[index];
-            /* If index is even, final - (index + 1), else final - (index - 1) */
-            case ByteOrder::PDP    : return m_split[final - (0 == (index << 7) ? index + 1 : index - 1)];
+            case ByteOrder::PDP    : return m_split[final - (index & 1) ? (index - 1) : (index + 1)];
             default                : assert(false);
         }
     }
@@ -56,6 +57,37 @@ public:
 private:
     ValueType m_value;
     ByteType  m_split[sizeof(ValueType)];
+
+};
+
+template <typename T>
+using RawMemory = typename std::aligned_storage<sizeof(T), alignof(T)>::type;
+
+template <typename T>
+class StorageFor
+{
+    /* Methods */
+public:
+    template <typename ...Args>
+    void ctor(Args&&... args) {
+        new(ptr()) T(std::forward<T>(args)...);
+    }
+
+    void dtor() {
+        ref().~T();
+    }
+
+    T& ref() {
+        return *ptr();
+    }
+
+    T* ptr() {
+        return reinterpret_cast<T*>(&m_storage);
+    }
+
+    /* Fields */
+private:
+    RawMemory<T> m_storage;
 
 };
 
