@@ -39,8 +39,7 @@ namespace cppgear {
           typename Allocator_ = std::allocator<std::pair<Key_, Value_>>,
           template <typename, typename> class Vector_ = std::vector
         >
-    class flat_map
-    {
+    class flat_map {
     public:
         using key_type = Key_;
         using mapped_type = Value_;
@@ -59,8 +58,7 @@ namespace cppgear {
         using reverse_iterator = std::reverse_iterator<iterator>;
         using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
-        class value_compare
-        {
+        class value_compare {
         public:
             using result_type = bool;
             using first_argument_type = value_type;
