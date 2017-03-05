@@ -111,7 +111,7 @@ namespace cppgear {
                  key_compare const& compare = key_compare(), allocator_type const& allocator = allocator_type()) :
             flat_map(initializer_list.begin(), initializer_list.end(), compare, allocator) { }
 
-        flat_map(std::initializer_list<value_type> initializer_list, allocator_type const& allocator = allocator_type()) :
+        flat_map(std::initializer_list<value_type> initializer_list, allocator_type const& allocator) :
             flat_map(initializer_list, key_compare(), allocator) { }
 
         ~flat_map() = default;
