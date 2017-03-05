@@ -22,61 +22,119 @@
 
 #pragma once
 
+#include <cppgear/misc.h>
+
 #include <iterator>
 
 namespace cppgear {
 
-    template < typename Wrapped_ >
-    class KeyIterator {
+    template < typename Derived_,
+               typename Category_,
+               typename Value_,
+               typename Difference_ = std::ptrdiff_t,
+               typename Pointer_ = Value_*,
+               typename Reference_ = Value_&,
+               typename Base_ = std::iterator<Category_, Value_, Difference_, Pointer_, Reference_>
+             >
+    class IteratorBase : public Base_ {
     public:
-        using value_type = typename std::iterator_traits<Wrapped_>::value_type::first_type;
-        using difference_type = typename std::iterator_traits<Wrapped_>::difference_type;
-        using pointer = value_type*;
-        using reference = value_type&;
-        using iterator_category = typename std::iterator_traits<Wrapped_>::iterator_category;
+        using value_type = typename Base_::value_type;
+        using difference_type = typename Base_::difference_type;
+        using pointer = typename Base_::value_type*;
+        using reference = typename Base_::value_type&;
+        using iterator_category = typename Base_::iterator_category;
+
+    public:
+        bool operator==(Derived_ const& other) const {
+            return derived_self.equals(other);
+        }
+
+        bool operator!=(Derived_ const& other) const {
+            return !operator==(other);
+        }
+
+        reference operator*() {
+            return derived_self.dereference();
+        }
+
+        pointer operator->() {
+            return &operator*();
+        }
+
+        Derived_& operator++() {
+            derived_self.increment();
+            return derived_self;
+        }
+
+        Derived_ operator++(int) {
+            Derived_ tmp(derived_self);
+            derived_self.increment();
+            return tmp;
+        }
+
+        Derived_& operator--() {
+            derived_self.decrement();
+            return derived_self;
+        }
+
+        Derived_ operator--(int) {
+            Derived_ tmp(derived_self);
+            derived_self.decrement();
+            return tmp;
+        }
+    };
+
+    namespace detail {
+
+        template < typename Iterator_ >
+        class IteratorToValue {
+            using Pointer = typename Iterator_::pointer;
+            using Pair = typename std::remove_pointer<Pointer>::type;
+            using PairFirst = typename Pair::first_type;
+
+        public:
+            using Type = typename std::conditional<std::is_const<Pair>::value, PairFirst const, PairFirst>::type;
+        };
+
+    }
+
+    template < typename Wrapped_ >
+    class KeyIterator : public IteratorBase<KeyIterator<Wrapped_>,
+                                            std::bidirectional_iterator_tag,
+                                            typename detail::IteratorToValue<Wrapped_>::Type,
+                                            typename Wrapped_::difference_type
+                                           > {
+        using Base = IteratorBase<KeyIterator<Wrapped_>,
+                                  std::bidirectional_iterator_tag,
+                                  typename detail::IteratorToValue<Wrapped_>::Type,
+                                  typename Wrapped_::difference_type
+                                 >;
+
+    public:
+        using value_type = typename Base::value_type;
+        using difference_type = typename Base::difference_type;
+        using pointer = typename Base::value_type*;
+        using reference = typename Base::value_type&;
+        using iterator_category = typename Base::iterator_category;
 
     public:
         KeyIterator(Wrapped_ const& wrapped) :
             m_wrapped(wrapped) { }
 
-        KeyIterator(KeyIterator const& copy) = default;
-        KeyIterator(KeyIterator&& move) = default;
-
-        ~KeyIterator() = default;
-
-        KeyIterator& operator=(KeyIterator const& copy) = default;
-        KeyIterator& operator=(KeyIterator&& move) = default;
-
-        bool operator==(KeyIterator const& other) {
-            return m_wrapped->first == other.m_wrapped->first;
+        bool equals(KeyIterator const& other) const {
+            return m_wrapped == other.m_wrapped;
         }
 
-        bool operator!=(KeyIterator const& other) {
-            return !operator==(other);
-        }
-
-        value_type& operator*() {
+        reference dereference() {
             return m_wrapped->first;
         }
 
-        value_type& operator++() {
-            return (++m_wrapped)->first;
+        void increment() {
+            ++m_wrapped;
         }
 
-        value_type operator++(int) {
-            return (m_wrapped++)->first;
-        }
-
-        value_type& operator--() {
-            return (--m_wrapped)->first;
-        }
-
-        value_type operator--(int) {
-            return (m_wrapped--)->first;
-        }
-
-        value_type* operator->() {
-            return &operator*();
+        void decrement() {
+            --m_wrapped;
         }
 
         Wrapped_ get_wrapped() const {
@@ -85,27 +143,11 @@ namespace cppgear {
 
     private:
         Wrapped_ m_wrapped;
-
     };
 
     template < typename Wrapped_ >
     KeyIterator<Wrapped_> make_key_iterator(Wrapped_ const& wrapped) {
         return KeyIterator<Wrapped_>(wrapped);
     }
-
-}
-
-namespace std {
-
-    template < typename Wrapped_ >
-    struct iterator_traits<cppgear::KeyIterator<Wrapped_>> {
-        using Iterator = cppgear::KeyIterator<Wrapped_>;
-
-        using value_type = typename Iterator::value_type;
-        using difference_type = typename Iterator::difference_type;
-        using pointer = typename Iterator::pointer;
-        using reference = typename Iterator::reference;
-        using iterator_category = typename Iterator::iterator_category;
-    };
 
 }
