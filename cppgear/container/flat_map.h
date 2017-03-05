@@ -23,12 +23,12 @@
 #pragma once
 
 #include <cppgear/container/iterator.h>
+#include <cppgear/misc.h>
 
 #include <algorithm>
 #include <functional>
 #include <type_traits>
 #include <vector>
-
 
 namespace cppgear {
 
@@ -122,7 +122,7 @@ namespace cppgear {
         flat_map& operator=(std::initializer_list<value_type> initializer_list) {
             m_underlying = vector_type(initializer_list);
             _sort();
-            return *this;
+            return self;
         }
 
         allocator_type get_allocator() const {
@@ -130,11 +130,7 @@ namespace cppgear {
         }
 
         mapped_type& at(key_type const& key) {
-            iterator iter = find(key);
-            if (iter != end()) {
-                return iter->second;
-            }
-            throw std::out_of_range("flat_map::at(...): key not found");
+            return const_cast<mapped_type&>(const_self.at(key));
         }
 
         const mapped_type& at(key_type const& key) const {
@@ -147,7 +143,7 @@ namespace cppgear {
 
         template < typename K >
         mapped_type& operator[](K&& key) {
-            return emplace(std::piecewise_construct, std::forward_as_tuple(key), std::tuple<>()).first->second;
+            return emplace(std::piecewise_construct, std::forward_as_tuple(std::forward<K>(key)), std::tuple<>()).first->second;
         }
 
         iterator begin() noexcept {
@@ -226,11 +222,6 @@ namespace cppgear {
             return _insert(begin(), end(), value);
         }
 
-        template < typename P >
-        std::pair<iterator, bool> insert(P&& value, std::enable_if_t<std::is_constructible<value_type, P&&>::value>* = 0) {
-            return emplace(std::forward<P>(value));
-        }
-
         iterator insert(const_iterator hint, value_type const& value) {
             if (empty()) {
                 return _insert_prior_to(hint, value);
@@ -249,11 +240,6 @@ namespace cppgear {
                 return _insert(begin(), previous, value).first;
             }
             return previous;
-        }
-
-        template < typename P >
-        iterator insert(const_iterator hint, P&& value, std::enable_if_t<std::is_constructible<value_type, P&&>::value>* = 0) {
-            return emplace_hint(hint, std::forward<P>(value));
         }
 
         template < typename InputIterator_ >
@@ -307,12 +293,7 @@ namespace cppgear {
         size_type count(K const& key) const;
 
         iterator find(key_type const& key) {
-            iterator iter = lower_bound(key);
-            iterator last = end();
-            if (iter != last && !_less(key, iter->first)) {
-                return iter;
-            }
-            return last;
+            return _const_iterator_cast(const_self.find(key));
         }
 
         const_iterator find(key_type const& key) const {
@@ -331,15 +312,8 @@ namespace cppgear {
         const_iterator find(K const& key) const;
         
         std::pair<iterator, iterator> equal_range(key_type const& key) {
-            iterator iter = lower_bound(key);
-            iterator last = end();
-            if (iter == last) {
-                return std::make_pair(last, last);
-            }
-            if (!_less(key, iter->first)) {
-                return std::make_pair(iter, iter + 1);
-            }
-            return std::make_pair(iter, iter);
+            auto range = const_self.equal_range(key);
+            return { _const_iterator_cast(range.first), _const_iterator_cast(range.second) };
         }
 
         std::pair<const_iterator, const_iterator> equal_range(key_type const& key) const {
@@ -375,7 +349,7 @@ namespace cppgear {
         const_iterator lower_bound(K const& key) const;
 
         iterator upper_bound(key_type const& key) {
-            return std::upper_bound(make_key_iterator(begin()), make_key_iterator(end()), key, m_comparator).get_wrapped();
+            return _const_iterator_cast(const_self.upper_bound(key));
         }
 
         const_iterator upper_bound(key_type const& key) const {
@@ -398,7 +372,7 @@ namespace cppgear {
 
     private:
         iterator _lower_bound(iterator first, iterator last, key_type const& key) {
-            return std::lower_bound(make_key_iterator(first), make_key_iterator(last), key, m_comparator).get_wrapped();
+            return _const_iterator_cast(const_self.lower_bound(first, last, key));
         }
 
         const_iterator _lower_bound(const_iterator first, const_iterator last, key_type const& key) const {
@@ -408,7 +382,7 @@ namespace cppgear {
         std::pair<iterator, bool> _insert(const_iterator first, const_iterator last, value_type const& value) {
             const_iterator iter = _lower_bound(first, last, value.first);
             if (iter != end() && !_less(value, *iter)) {
-                return std::make_pair(iter, false);
+                return std::make_pair(_const_iterator_cast(iter), false);
             }
             return std::make_pair(_insert_prior_to(iter, value), true);
         }
@@ -427,6 +401,16 @@ namespace cppgear {
 
         void _sort() {
             std::sort(begin(), end(), value_comp());
+        }
+
+        template < typename Pointer_ = pointer >
+        iterator _const_iterator_cast(const_iterator it, typename std::enable_if<std::is_constructible<iterator, Pointer_>::value>::type* = 0) {
+            return iterator(const_cast<Pointer_>(&*it));
+        }
+
+        template < typename Pointer_ = pointer >
+        iterator _const_iterator_cast(const_iterator it, typename std::enable_if<!std::is_constructible<iterator, Pointer_>::value>::type* = 0) {
+            return m_underlying.erase(it, it);
         }
 
     private:
