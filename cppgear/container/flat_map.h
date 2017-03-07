@@ -253,7 +253,7 @@ namespace cppgear {
 
         template < typename InputIterator_ >
         void insert(InputIterator_ first, InputIterator_ last) {
-            m_underlying.insert(first, last);
+            m_underlying.insert(end(), first, last);
             _sort();
         }
 
