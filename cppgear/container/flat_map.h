@@ -223,23 +223,32 @@ namespace cppgear {
         }
 
         iterator insert(const_iterator hint, value_type const& value) {
-            if (empty()) {
-                return _insert_prior_to(hint, value);
+            const_iterator first = begin();
+            const_iterator final = end();
+
+            if (first == final) {
+                return _insert_prior_to(final, value);
             }
 
-            const_iterator last = end();
-            if (hint != last && !_less(value, *hint)) {
-                return _insert(hint, last, value).first;
+            if (hint == first) {
+                if (_less(value, *first)) {
+                    return _insert_prior_to(first, value);
+                }
+                return _insert(first, final, value).first;
             }
 
-            const_iterator previous = hint - 1;
-            if (_less(*previous, value)) {
+            if (hint != final && !_less(value, *hint)) {
+                return _insert(hint, final, value).first;
+            }
+
+            const_iterator prior = hint - 1;
+            if (_less(*prior, value)) {
                 return _insert_prior_to(hint, value);
             }
-            if (_less(value, *previous)) {
-                return _insert(begin(), previous, value).first;
+            if (_less(value, *prior)) {
+                return _insert(first, prior, value).first;
             }
-            return previous;
+            return _const_iterator_cast(prior);
         }
 
         template < typename InputIterator_ >
