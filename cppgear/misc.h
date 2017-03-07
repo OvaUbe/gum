@@ -26,21 +26,21 @@
 
 namespace cppgear {
 
-#   define DETAIL_CPPGEAR_SELF_TYPE(...) \
-        typename std::remove_reference<decltype(self)>::type
+#   define SelfType \
+        std::remove_reference<decltype(self)>::type
 
 #   define self \
         (*this)
 
 #   define const_self \
-        (static_cast<DETAIL_CPPGEAR_SELF_TYPE() const&>(self))
+        (static_cast<typename SelfType const&>(self))
 
 #   define const_this \
         (&const_self)
 
 #   define derived_self \
         (static_cast<typename std::conditional \
-                        <std::is_const<DETAIL_CPPGEAR_SELF_TYPE()>::value, \
+                        <std::is_const<typename SelfType>::value, \
                          Derived_ const&, \
                          Derived_& \
                         >::type \
