@@ -289,9 +289,6 @@ namespace cppgear {
             return iter != end() ? 1 : 0;
         }
 
-        template < typename K >
-        size_type count(K const& key) const;
-
         iterator find(key_type const& key) {
             return _const_iterator_cast(const_self.find(key));
         }
@@ -304,12 +301,6 @@ namespace cppgear {
             }
             return last;
         }
-
-        template < typename K >
-        iterator find(K const& key);
-
-        template < typename K >
-        const_iterator find(K const& key) const;
         
         std::pair<iterator, iterator> equal_range(key_type const& key) {
             auto range = const_self.equal_range(key);
@@ -328,12 +319,6 @@ namespace cppgear {
             return std::make_pair(iter, iter);
         }
 
-        template < typename K >
-        std::pair<iterator, iterator> equal_range(K const& key);
-
-        template < typename K >
-        std::pair<const_iterator, const_iterator> equal_range(K const& key) const;
-
         iterator lower_bound(key_type const& key) {
             return _lower_bound(begin(), end(), key);
         }
@@ -342,12 +327,6 @@ namespace cppgear {
             return _lower_bound(begin(), end(), key);
         }
 
-        template < typename K >
-        iterator lower_bound(K const& key);
-
-        template < typename K >
-        const_iterator lower_bound(K const& key) const;
-
         iterator upper_bound(key_type const& key) {
             return _const_iterator_cast(const_self.upper_bound(key));
         }
@@ -355,12 +334,6 @@ namespace cppgear {
         const_iterator upper_bound(key_type const& key) const {
             return std::upper_bound(make_key_iterator(begin()), make_key_iterator(end()), key, m_comparator).get_wrapped();
         }
-
-        template < typename K >
-        iterator upper_bound(K const& key);
-
-        template < typename K >
-        const_iterator upper_bound(K const& key) const;
 
         key_compare key_comp() const {
             return m_comparator;
