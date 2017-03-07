@@ -21,15 +21,34 @@
  */
 
 #include <cppgear/container/flat_map.h>
+#include <cppgear/optional.h>
 
+#include <functional>
 #include <random>
 
 #include <gtest/gtest.h>
 
 namespace cppgear {
 
-    template < typename >
-    struct Generator;
+    using namespace std::placeholders;
+
+    template < typename Value_ >
+    class Generator {
+    public:
+        using Result = Value_;
+
+        Generator(Result min = std::numeric_limits<Result>::min(), Result max = std::numeric_limits<Result>::max()) :
+            m_dist(min, max),
+            m_engine(std::random_device()()) { }
+
+        Result operator()() {
+            return m_dist(m_engine);
+        }
+
+    private:
+        std::uniform_int_distribution<Result> m_dist;
+        std::mt19937 m_engine;
+    };
 
     template < >
     struct Generator<std::string> {
@@ -39,13 +58,11 @@ namespace cppgear {
             using Char = Result::value_type;
             Result result;
 
-            std::mt19937 engine((std::random_device()()));
+            Generator<Char> generator;
 
-            std::uniform_int_distribution<Char> generator(std::numeric_limits<Char>::min(), std::numeric_limits<Char>::max());
-
-            const size_t size = std::uniform_int_distribution<size_t>(10, 50)(engine);
+            size_t const size = Generator<size_t>(10, 50)();
             for (size_t i = 0; i < size; ++i) {
-                result.push_back(generator(engine));
+                result.push_back(generator());
             }
 
             return result;
@@ -59,8 +76,7 @@ namespace cppgear {
         Result operator()() const {
             Result result;
 
-            std::mt19937 engine((std::random_device()()));
-            const size_t size = std::uniform_int_distribution<size_t>(1000, 10000)(engine);
+            const size_t size = Generator<size_t>(1000, 10000)();
             for (size_t i = 0; i < size; ++i) {
                 result.emplace(Generator<Key_>()(), Generator<Value_>()());
             }
@@ -76,8 +92,7 @@ namespace cppgear {
         Result operator()() const {
             Result result;
 
-            std::mt19937 engine((std::random_device()()));
-            const size_t size = std::uniform_int_distribution<size_t>(1000, 10000)(engine);
+            const size_t size = Generator<size_t>(1000, 10000)();
             for (size_t i = 0; i < size; ++i) {
                 result.emplace_back(Generator<Key_>()(), Generator<Value_>()());
             }
@@ -93,8 +108,7 @@ namespace cppgear {
         Result operator()() const {
             Result result;
 
-            std::mt19937 engine((std::random_device()()));
-            const size_t size = std::uniform_int_distribution<size_t>(1000, 10000)(engine);
+            const size_t size = Generator<size_t>(1000, 10000)();
             for (size_t i = 0; i < size; ++i) {
                 result.emplace(Generator<Key_>()(), Generator<Value_>()());
             }
@@ -253,6 +267,115 @@ namespace cppgear {
             EXPECT_TRUE(sample.count(kv.first));
             auto& value = sample[kv.first];
             EXPECT_EQ(value, kv.second);
+        }
+    }
+
+    enum class MapOperation {
+        Insert,
+        InsertRange,
+        Remove
+    };
+
+    template < typename, MapOperation >
+    struct MapOperationTag { };
+
+    template < typename Map_ >
+    class Generator<MapOperationTag<Map_, MapOperation::Insert>> {
+        using Value = typename Map_::value_type;
+        using Iterator = typename Map_::iterator;
+        using Result = std::function<Optional<Value&>(Map_&, Value const&)>;
+
+    public:
+        Result operator()() const {
+            std::array<Result, 5> arr = {{
+                &SelfType::_insert,
+                &SelfType::_insert_hint,
+                &SelfType::_emplace,
+                &SelfType::_emplace_hint,
+                &SelfType::_operator_subscript,
+            }};
+            return arr[Generator<size_t>(0, arr.size() - 1)()];
+        }
+
+    private:
+        static Optional<Value&> _optional_from_pair(std::pair<Iterator, bool> pair) {
+            if (pair.second) {
+                return nullptr;
+            }
+            return make_optional<Value&>(*pair.first);
+        }
+
+        static Optional<Value&> _find(Map_& map, Value const& value) {
+            auto iter = map.find(value.first);
+            if (iter == map.end()) {
+                return nullptr;
+            }
+            return make_optional<Value&>(*iter);
+        }
+
+        static Iterator _iterator_at(Map_& map, size_t pos) {
+            for (auto iter = map.begin(); ; ++iter) {
+                if (!pos) {
+                    return iter;
+                }
+                if (iter == map.end()) {
+                    break;
+                }
+                --pos;
+            }
+            throw std::logic_error("Cound not find iterator");
+        }
+
+        static Optional<Value&> _insert(Map_& map, Value const& value) {
+            return _optional_from_pair(map.insert(value));
+        }
+
+        static Optional<Value&> _insert_hint(Map_& map, Value const& value) {
+            return _find(map, value)
+                .or_else([&] {
+                    auto const pos = Generator<size_t>(0, map.size())();
+                    map.insert(_iterator_at(map, pos), value);
+                });
+        }
+
+        static Optional<Value&> _emplace(Map_& map, Value const& value) {
+            return _optional_from_pair(map.emplace(value.first, value.second));
+        }
+
+        static Optional<Value&> _emplace_hint(Map_& map, Value const& value) {
+            return _find(map, value)
+                .or_else([&] {
+                    auto const pos = Generator<size_t>(0, map.size())();
+                    map.emplace_hint(_iterator_at(map, pos), value.first, value.second);
+                });
+        }
+
+        static Optional<Value&> _operator_subscript(Map_& map, Value const& value) {
+            return _find(map, value)
+                .or_else([&] {
+                    map[value.first] = value.second;
+                });
+        }
+    };
+
+    TEST(FlatMapTest, Insertion) {
+        using Unordered = std::vector<std::pair<std::string, std::string>>;
+        using Sample = std::map<std::string, std::string>;
+        using Testee = flat_map<std::string, std::string>;
+
+        Testee testee;
+        Sample sample;
+
+        auto unordered = Generator<Unordered>()();
+        for (auto const& kv : unordered) {
+            auto testee_result = Generator<MapOperationTag<Testee, MapOperation::Insert>>()()(testee, kv);
+            auto sample_result = Generator<MapOperationTag<Sample, MapOperation::Insert>>()()(sample, kv);
+
+            ASSERT_EQ((bool)testee_result, (bool)sample_result);
+            testee_result.map([&](auto result) { ASSERT_TRUE(PairComparator()(result, *sample_result)); });
+
+            ASSERT_TRUE(std::is_sorted(testee.begin(), testee.end(), testee.value_comp()));
+            ASSERT_TRUE(std::equal(sample.begin(), sample.end(), testee.begin(), testee.end(), PairComparator()));
         }
     }
 }
