@@ -70,6 +70,36 @@ namespace cppgear {
     };
 
     template < typename Key_, typename Value_ >
+    struct Generator<std::pair<Key_, Value_>> {
+        using Result = std::pair<Key_, Value_>;
+
+        Result operator()() const {
+            return { Generator<Key_>()(), Generator<Value_>()() };
+        }
+    };
+
+    template < typename Value_ >
+    struct Generator<std::vector<Value_>> {
+        using Result = std::vector<Value_>;
+
+        Generator(size_t min, size_t max) :
+            m_size(Generator<size_t>(min, max)()) { }
+
+        Result operator()() const {
+            Result result;
+
+            for (size_t i = 0; i < m_size; ++i) {
+                result.push_back(Generator<Value_>()());
+            }
+
+            return result;
+        }
+
+    private:
+        size_t m_size;
+    };
+
+    template < typename Key_, typename Value_ >
     struct Generator<std::map<Key_, Value_>> {
         using Result = std::map<Key_, Value_>;
 
@@ -79,22 +109,6 @@ namespace cppgear {
             const size_t size = Generator<size_t>(1000, 10000)();
             for (size_t i = 0; i < size; ++i) {
                 result.emplace(Generator<Key_>()(), Generator<Value_>()());
-            }
-
-            return result;
-        }
-    };
-
-    template < typename Key_, typename Value_ >
-    struct Generator<std::vector<std::pair<Key_, Value_>>> {
-        using Result = std::vector<std::pair<Key_, Value_>>;
-
-        Result operator()() const {
-            Result result;
-
-            const size_t size = Generator<size_t>(1000, 10000)();
-            for (size_t i = 0; i < size; ++i) {
-                result.emplace_back(Generator<Key_>()(), Generator<Value_>()());
             }
 
             return result;
@@ -163,7 +177,7 @@ namespace cppgear {
         {
             using Sample = std::vector<std::pair<std::string, std::string>>;
 
-            auto sample = Generator<Sample>()();
+            auto sample = Generator<Sample>(1000, 10000)();
             Testee testee(sample.begin(), sample.end(), Testee::allocator_type());
             EXPECT_EQ(sample.size(), testee.size());
             EXPECT_TRUE(std::is_sorted(testee.begin(), testee.end(), testee.value_comp()));
@@ -195,7 +209,7 @@ namespace cppgear {
         using Sample = std::map<std::string, std::string>;
         using Testee = flat_map<std::string, std::string>;
 
-        auto unordered = Generator<Unordered>()();
+        auto unordered = Generator<Unordered>(1000, 10000)();
 
         Sample sample(unordered.begin(), unordered.end());
         Testee testee(unordered.begin(), unordered.end());
@@ -360,19 +374,92 @@ namespace cppgear {
 
     TEST(FlatMapTest, Insertion) {
         using Unordered = std::vector<std::pair<std::string, std::string>>;
-        using Sample = std::map<std::string, std::string>;
         using Testee = flat_map<std::string, std::string>;
+        using Sample = std::map<std::string, std::string>;
 
         Testee testee;
         Sample sample;
 
-        auto unordered = Generator<Unordered>()();
+        auto unordered = Generator<Unordered>(1000, 10000)();
         for (auto const& kv : unordered) {
             auto testee_result = Generator<MapOperationTag<Testee, MapOperation::Insert>>()()(testee, kv);
             auto sample_result = Generator<MapOperationTag<Sample, MapOperation::Insert>>()()(sample, kv);
 
             ASSERT_EQ((bool)testee_result, (bool)sample_result);
             testee_result.map([&](auto result) { ASSERT_TRUE(PairComparator()(result, *sample_result)); });
+
+            ASSERT_TRUE(std::is_sorted(testee.begin(), testee.end(), testee.value_comp()));
+            ASSERT_TRUE(std::equal(sample.begin(), sample.end(), testee.begin(), testee.end(), PairComparator()));
+        }
+    }
+
+    template < typename Map_ >
+    class Generator<MapOperationTag<Map_, MapOperation::InsertRange>> {
+    public:
+        using Value = typename Map_::value_type;
+        using Range = std::vector<Value>;
+        using Iterator = typename Map_::iterator;
+        using Result = std::function<void(Map_&, Range const&)>;
+
+    public:
+        Result operator()() const {
+            std::array<Result, 3> arr = {{
+                &SelfType::_medley_insert,
+                &SelfType::_iterator_insert,
+                &SelfType::_initializer_list_insert,
+            }};
+            return arr[Generator<size_t>(0, arr.size() - 1)()];
+        }
+
+    private:
+        static void _medley_insert(Map_& map, Range const& range) {
+            for (auto const& kv : range) {
+                Generator<MapOperationTag<Map_, MapOperation::Insert>>()()(map, kv);
+            }
+        }
+
+        static void _iterator_insert(Map_& map, Range const& range) {
+            map.insert(range.begin(), range.end());
+        }
+
+        static void _initializer_list_insert(Map_& map, Range const& range) {
+            if (0 == range.size() % 5) {
+                for (size_t i = 0; i < range.size(); i += 5)
+                    map.insert({ range[i], range[i+1], range[i+2], range[i+3], range[i+4] });
+            } else if (0 == range.size() % 4) {
+                for (size_t i = 0; i < range.size(); i += 4)
+                    map.insert({ range[i], range[i+1], range[i+2], range[i+3] });
+            } else if (0 == range.size() % 3) {
+                for (size_t i = 0; i < range.size(); i += 3)
+                    map.insert({ range[i], range[i+1], range[i+2]});
+            } else if (0 == range.size() % 2) {
+                for (size_t i = 0; i < range.size(); i += 2)
+                    map.insert({ range[i], range[i+1]});
+            } else {
+                for (size_t i = 0; i < range.size(); ++i)
+                    map.insert({ range[i] });
+            }
+        }
+    };
+
+    TEST(FlatMapTest, RangeInsertion) {
+        using Testee = flat_map<std::string, std::string>;
+        using Sample = std::map<std::string, std::string>;
+
+        Testee testee;
+        Sample sample;
+
+        for (auto i : Generator<std::vector<size_t>>(300, 500)()) {
+            (void)i;
+
+            using TesteeOpGenerator = Generator<MapOperationTag<Testee, MapOperation::InsertRange>>;
+            using SampleOpGenerator = Generator<MapOperationTag<Sample, MapOperation::InsertRange>>;
+
+            auto testee_range = Generator<TesteeOpGenerator::Range>(10, 50)();
+            SampleOpGenerator::Range sample_range(testee_range.begin(), testee_range.end());
+
+            TesteeOpGenerator()()(testee, testee_range);
+            SampleOpGenerator()()(sample, sample_range);
 
             ASSERT_TRUE(std::is_sorted(testee.begin(), testee.end(), testee.value_comp()));
             ASSERT_TRUE(std::equal(sample.begin(), sample.end(), testee.begin(), testee.end(), PairComparator()));
