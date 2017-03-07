@@ -280,7 +280,7 @@ namespace cppgear {
         }
 
         void swap(flat_map& other) {
-            m_underlying.swap(other.m_underlying);
+            std::swap(m_underlying, other.m_underlying);
             std::swap(m_comparator, other.m_comparator);
         }
 
@@ -463,8 +463,8 @@ namespace cppgear {
 namespace std {
 
     template < typename Key_, typename Value_, typename Compare_, typename Allocator_, template <typename, typename> class Vector_ >
-    void swap(cppgear::flat_map<Key_, Value_, Compare_, Allocator_, Vector_> const& lhs,
-              cppgear::flat_map<Key_, Value_, Compare_, Allocator_, Vector_> const& rhs) {
+    void swap(cppgear::flat_map<Key_, Value_, Compare_, Allocator_, Vector_>& lhs,
+              cppgear::flat_map<Key_, Value_, Compare_, Allocator_, Vector_>& rhs) {
         return lhs.swap(rhs);
     }
 
