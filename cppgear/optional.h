@@ -196,7 +196,7 @@ namespace cppgear {
 
         template < typename Optional_ >
         void _initialize(Optional_&& other) {
-            m_valid = other;
+            m_valid = (bool)other;
             if (self) {
                 m_storage.ctor(std::forward<Optional_>(other).m_storage.ref());
             }
