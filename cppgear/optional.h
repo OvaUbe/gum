@@ -32,21 +32,6 @@ namespace cppgear {
         template < typename >
         struct OptionalBuilder;
 
-        struct ChainingHelper {
-            template < typename Callable_, typename ...Args_, typename Result_ = typename std::result_of<Callable_(Args_&&...)>::type >
-            typename std::enable_if<std::is_void<Result_>::value, std::nullptr_t>::type
-            operator()(Callable_&& callable, Args_&& ...args) {
-                callable(std::forward<Args_>(args)...);
-                return nullptr;
-            }
-
-            template < typename Callable_, typename ...Args_, typename Result_ = typename std::result_of<Callable_(Args_&&...)>::type >
-            typename std::enable_if<!std::is_void<Result_>::value, Result_>::type
-            operator()(Callable_&& callable, Args_&& ...args) {
-                return callable(std::forward<Args_>(args)...);
-            }
-        };
-
     }
 
     template < typename Value_ >
@@ -109,70 +94,6 @@ namespace cppgear {
 
         explicit operator bool() const {
             return m_valid;
-        }
-
-        template < typename Default_ >
-        value_type value_or(Default_&& def) {
-            if (self) {
-                return *self;
-            }
-            return std::forward<Default_>(def);
-        }
-
-        template < typename Default_ >
-        value_type value_or(Default_&& def) const {
-            if (self) {
-                return *self;
-            }
-            return std::forward<Default_>(def);
-        }
-
-        template < typename Callable_ >
-        Optional map(Callable_&& callable) {
-            if (self) {
-                return detail::ChainingHelper()(callable, *self);
-            }
-            return self;
-        }
-
-        template < typename Callable_ >
-        Optional map(Callable_&& callable) const {
-            if (self) {
-                return detail::ChainingHelper()(callable, *self);
-            }
-            return self;
-        }
-
-        template < typename Callable_ >
-        Optional or_else(Callable_&& callable) {
-            if (!self) {
-                return detail::ChainingHelper()(callable);
-            }
-            return self;
-        }
-
-        template < typename Callable_ >
-        Optional or_else(Callable_&& callable) const {
-            if (!self) {
-                return detail::ChainingHelper()(callable);
-            }
-            return self;
-        }
-
-        template < typename Callable_, typename Default_ >
-        value_type map_or(Callable_&& callable, Default_&& def) {
-            if (self) {
-                return callable(*self);
-            }
-            return std::forward<Default_>(def);
-        }
-
-        template < typename Callable_, typename Default_ >
-        value_type map_or(Callable_&& callable, Default_&& def) const {
-            if (self) {
-                return callable(*self);
-            }
-            return std::forward<Default_>(def);
         }
 
         void swap(Optional& other) {
@@ -250,68 +171,6 @@ namespace cppgear {
 
         explicit operator bool() const {
             return m_ptr;
-        }
-
-        value_type value_or(value_type def) {
-            if (self) {
-                return *self;
-            }
-            return def;
-        }
-
-        const_value_type value_or(const_value_type def) const {
-            if (self) {
-                return *self;
-            }
-            return def;
-        }
-
-        template < typename Callable_ >
-        Optional map(Callable_&& callable) {
-            if (self) {
-                return detail::ChainingHelper()(callable, *self);
-            }
-            return self;
-        }
-
-        template < typename Callable_ >
-        Optional map(Callable_&& callable) const {
-            if (self) {
-                return detail::ChainingHelper()(callable, *self);
-            }
-            return self;
-        }
-
-        template < typename Callable_ >
-        Optional or_else(Callable_&& callable) {
-            if (!self) {
-                return detail::ChainingHelper()(callable);
-            }
-            return self;
-        }
-
-        template < typename Callable_ >
-        Optional or_else(Callable_&& callable) const {
-            if (!self) {
-                return detail::ChainingHelper()(callable);
-            }
-            return self;
-        }
-
-        template < typename Callable_ >
-        value_type map_or(Callable_&& callable, value_type def) {
-            if (self) {
-                return callable(*self);
-            }
-            return def;
-        }
-
-        template < typename Callable_ >
-        const_value_type map_or(Callable_&& callable, const_value_type def) const {
-            if (self) {
-                return callable(*self);
-            }
-            return def;
         }
 
         void swap(Optional& other) {
