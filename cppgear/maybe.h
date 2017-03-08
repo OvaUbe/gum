@@ -66,11 +66,9 @@ namespace cppgear {
     public:
         Maybe() { }
 
-        Maybe(value_type const& value) :
-            m_value(value) { }
-
-        Maybe(value_type&& value) :
-            m_value(std::move(value)) { }
+        template < typename ValueType_ >
+        Maybe(ValueType_&& value) :
+            m_value(std::forward<ValueType_>(value)) { }
 
         template < typename Maybe_ >
         Maybe and_(Maybe_&& other, std::enable_if_t<std::is_same<value_type, typename Maybe_::value_type>::value>* = 0) {
