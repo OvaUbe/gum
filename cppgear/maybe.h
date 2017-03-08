@@ -35,12 +35,13 @@ namespace cppgear {
 
     namespace detail {
 
+        template < typename ElseType_ >
         struct ChainingHelper {
             template < typename Callable_, typename ...Args_, typename Result_ = typename std::result_of<Callable_(Args_&&...)>::type >
-            typename std::enable_if<std::is_void<Result_>::value, std::nullptr_t>::type
+            typename std::enable_if<std::is_void<Result_>::value, ElseType_>::type
             operator()(Callable_&& callable, Args_&& ...args) {
                 callable(std::forward<Args_>(args)...);
-                return nullptr;
+                return ElseType_();
             }
 
             template < typename Callable_, typename ...Args_, typename Result_ = typename std::result_of<Callable_(Args_&&...)>::type >
@@ -92,12 +93,12 @@ namespace cppgear {
 
         template < typename Callable_ >
         Maybe and_bind(Callable_&& callable) {
-            return m_value ? value_type(detail::ChainingHelper()(callable, *m_value)) : m_value;
+            return m_value ? value_type(detail::ChainingHelper<value_type>()(callable, *m_value)) : m_value;
         }
 
         template < typename Callable_ >
         Maybe or_bind(Callable_&& callable) {
-            return m_value ? m_value : value_type(detail::ChainingHelper()(callable));
+            return m_value ? m_value : value_type(detail::ChainingHelper<value_type>()(callable));
         }
 
         template < typename Default_ >
