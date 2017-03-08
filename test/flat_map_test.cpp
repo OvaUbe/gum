@@ -21,6 +21,7 @@
  */
 
 #include <cppgear/container/flat_map.h>
+#include <cppgear/maybe.h>
 #include <cppgear/optional.h>
 
 #include <functional>
@@ -345,8 +346,8 @@ namespace cppgear {
         }
 
         static Optional<Value&> _insert_hint(Map_& map, Value const& value) {
-            return _find(map, value)
-                .or_else([&] {
+            return maybe(_find(map, value))
+                .or_bind([&] {
                     auto const pos = Generator<size_t>(0, map.size())();
                     map.insert(_iterator_at(map, pos), value);
                 });
@@ -357,18 +358,15 @@ namespace cppgear {
         }
 
         static Optional<Value&> _emplace_hint(Map_& map, Value const& value) {
-            return _find(map, value)
-                .or_else([&] {
+            return maybe(_find(map, value))
+                .or_bind([&] {
                     auto const pos = Generator<size_t>(0, map.size())();
                     map.emplace_hint(_iterator_at(map, pos), value.first, value.second);
                 });
         }
 
         static Optional<Value&> _operator_subscript(Map_& map, Value const& value) {
-            return _find(map, value)
-                .or_else([&] {
-                    map[value.first] = value.second;
-                });
+            return maybe(_find(map, value)).or_bind([&] { map[value.first] = value.second; });
         }
     };
 
@@ -385,8 +383,10 @@ namespace cppgear {
             auto testee_result = Generator<MapOperationTag<Testee, MapOperation::Insert>>()()(testee, kv);
             auto sample_result = Generator<MapOperationTag<Sample, MapOperation::Insert>>()()(sample, kv);
 
-            ASSERT_EQ((bool)testee_result, (bool)sample_result);
-            testee_result.map([&](auto result) { ASSERT_TRUE(PairComparator()(result, *sample_result)); });
+            EXPECT_EQ((bool)testee_result, (bool)sample_result);
+            maybe(testee_result)
+                .and_(maybe(sample_result))
+                .and_bind([&](auto) { EXPECT_TRUE(PairComparator()(*testee_result, *sample_result)); });
 
             ASSERT_TRUE(std::is_sorted(testee.begin(), testee.end(), testee.value_comp()));
             ASSERT_TRUE(std::equal(sample.begin(), sample.end(), testee.begin(), testee.end(), PairComparator()));
