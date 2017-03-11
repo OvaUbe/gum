@@ -52,6 +52,24 @@ namespace cppgear {
     };
 
     template < >
+    class Generator<bool> {
+        using Result = bool;
+
+    public:
+        Generator(double probability = 0.5) :
+            m_dist(probability),
+            m_engine(std::random_device()()) { }
+
+        Result operator()() {
+            return m_dist(m_engine);
+        }
+
+    private:
+        std::bernoulli_distribution m_dist;
+        std::mt19937 m_engine;
+    };
+
+    template < >
     struct Generator<std::string> {
         using Result = std::string;
 
@@ -130,6 +148,25 @@ namespace cppgear {
 
             return result;
         }
+    };
+
+    template < typename >
+    struct ThisOrRandomTag;
+
+    template < typename Value_ >
+    class Generator<ThisOrRandomTag<Value_>> {
+        using Result = Value_;
+
+    public:
+        Generator(Result const& value) :
+            m_value(value) { }
+
+        Result operator()() const {
+            return Generator<bool>()() ? Generator<Result>()() : m_value;
+        }
+
+    private:
+        Result m_value;
     };
 
     struct PairComparator {
