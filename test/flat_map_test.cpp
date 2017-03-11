@@ -389,7 +389,7 @@ namespace cppgear {
 
             EXPECT_EQ((bool)testee_result, (bool)sample_result);
             maybe(testee_result)
-                .chain(sample_result)
+                .and_(sample_result)
                 .and_bind([&](auto) { EXPECT_TRUE(PairComparator()(*testee_result, *sample_result)); });
 
             ASSERT_TRUE(std::is_sorted(testee.begin(), testee.end(), testee.value_comp()));
