@@ -329,7 +329,7 @@ namespace cppgear {
     };
 
     template < typename, MapOperation >
-    struct MapOperationTag { };
+    struct MapOperationTag;
 
     template < typename Map_ >
     class Generator<MapOperationTag<Map_, MapOperation::Insert>> {
