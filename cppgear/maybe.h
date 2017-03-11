@@ -71,11 +71,10 @@ namespace cppgear {
 
         template < typename Value_ >
         class ToMaybe {
-        private:
-            using Deref = std::remove_reference_t<Value_>;
+            using Raw = std::remove_const_t<std::remove_reference_t<Value_>>;
 
         public:
-            using Type = std::conditional_t<IsMaybe<Deref>::Value, Deref, Maybe<Deref>>;
+            using Type = std::conditional_t<IsMaybe<Raw>::Value, Raw, Maybe<Raw>>;
         };
 
     }
