@@ -124,9 +124,9 @@ namespace cppgear {
             return m_wrapped ? std::move(self) : Maybe(Chaining()(callable));
         }
 
-        Value& unwrap() {
+        Value unwrap() {
             if (m_wrapped) {
-                return *m_wrapped;
+                return std::move(*m_wrapped);
             }
             throw EmptyMaybeException();
         }
