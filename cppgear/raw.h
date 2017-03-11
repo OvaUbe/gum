@@ -68,9 +68,9 @@ class StorageFor
 {
     /* Methods */
 public:
-    template <typename ...Args>
-    void ctor(Args&&... args) {
-        new(ptr()) T(std::forward<T>(args)...);
+    template <typename ...Args_>
+    void ctor(Args_&&... args) {
+        new(ptr()) T(std::forward<Args_>(args)...);
     }
 
     void dtor() {
