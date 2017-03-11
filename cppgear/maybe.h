@@ -84,7 +84,7 @@ namespace cppgear {
     class Maybe {
     public:
         using Wrapped = Wrapped_;
-        using Value = detail::DereferenceResult<Wrapped_>;
+        using Value = detail::DereferenceResult<Wrapped>;
 
     public:
         Maybe() { }
