@@ -39,7 +39,7 @@ namespace cppgear {
     namespace detail {
 
         template < typename ElseType_ >
-        struct ChainingHelper {
+        struct CallChaining {
             template < typename Callable_, typename ...Args_, typename Result_ = typename std::result_of<Callable_(Args_&&...)>::type >
             typename std::enable_if<std::is_void<Result_>::value, ElseType_>::type
             operator()(Callable_&& callable, Args_&& ...args) {
@@ -55,9 +55,7 @@ namespace cppgear {
         };
 
         template < typename Value_ >
-        struct DereferenceType {
-            using Type = std::remove_reference_t<decltype(*std::declval<Value_>())>;
-        };
+        using DereferenceResult = std::remove_reference_t<decltype(*std::declval<Value_>())>;
 
         template < typename Value_ >
         struct IsMaybe {
@@ -70,20 +68,23 @@ namespace cppgear {
         };
 
         template < typename Value_ >
-        class ToMaybe {
-            using Raw = std::remove_const_t<std::remove_reference_t<Value_>>;
+        class ToMaybeImpl {
+            using Naked = std::remove_const_t<std::remove_reference_t<Value_>>;
 
         public:
-            using Type = std::conditional_t<IsMaybe<Raw>::Value, Raw, Maybe<Raw>>;
+            using Type = std::conditional_t<IsMaybe<Naked>::Value, Naked, Maybe<Naked>>;
         };
+
+        template < typename Value_ >
+        using ToMaybe = typename ToMaybeImpl<Value_>::Type;
 
     }
 
-    template < typename Value_ >
+    template < typename Wrapped_ >
     class Maybe {
     public:
-        using wrapped_type = Value_;
-        using value_type = typename detail::DereferenceType<Value_>::Type;
+        using Wrapped = Wrapped_;
+        using Value = detail::DereferenceResult<Wrapped_>;
 
     public:
         Maybe() { }
@@ -102,45 +103,45 @@ namespace cppgear {
             return or_bind([&]{ return other; });
         }
 
-        template < typename ValueType_, typename Maybe_ = typename detail::ToMaybe<ValueType_>::Type >
+        template < typename ValueType_, typename Maybe_ = detail::ToMaybe<ValueType_> >
         Maybe_ chain(ValueType_&& other) {
             return std::forward<ValueType_>(other);
         }
 
         template < typename Callable_ >
         auto and_bind(Callable_&& callable) {
-            using Chaining = detail::ChainingHelper<Maybe>;
-            using Result = std::result_of_t<Chaining(Callable_&&, wrapped_type&)>;
-            using Maybe_ = typename detail::ToMaybe<Result>::Type;
+            using Chaining = detail::CallChaining<Maybe>;
+            using Result = std::result_of_t<Chaining(Callable_&&, Wrapped&)>;
+            using MaybeType = detail::ToMaybe<Result>;
 
-            return m_wrapped ? Maybe_(Chaining()(callable, *m_wrapped)) : Maybe_();
+            return m_wrapped ? MaybeType(Chaining()(callable, *m_wrapped)) : MaybeType();
         }
 
         template < typename Callable_ >
         auto or_bind(Callable_&& callable) {
-            using Chaining = detail::ChainingHelper<Maybe>;
+            using Chaining = detail::CallChaining<Maybe>;
 
             return m_wrapped ? std::move(self) : Maybe(Chaining()(callable));
         }
 
-        wrapped_type& unwrap() {
+        Value& unwrap() {
             if (m_wrapped) {
                 return *m_wrapped;
             }
             throw EmptyMaybeException();
         }
 
-        wrapped_type take() {
+        Wrapped take() {
             return std::move(m_wrapped);
         }
 
     private:
-        wrapped_type m_wrapped;
+        Wrapped m_wrapped;
     };
 
-    template < typename Value_, typename Maybe_ = typename detail::ToMaybe<Value_>::Type >
-    Maybe_ maybe(Value_&& value) {
-        return std::forward<Value_>(value);
+    template < typename Wrapped_, typename Maybe_ = detail::ToMaybe<Wrapped_> >
+    Maybe_ maybe(Wrapped_&& value) {
+        return std::forward<Wrapped_>(value);
     }
 
 }
