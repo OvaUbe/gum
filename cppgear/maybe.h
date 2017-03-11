@@ -41,14 +41,14 @@ namespace cppgear {
         template < typename ElseType_ >
         struct CallChaining {
             template < typename Callable_, typename ...Args_, typename Result_ = typename std::result_of<Callable_(Args_&&...)>::type >
-            typename std::enable_if<std::is_void<Result_>::value, ElseType_>::type
+            std::enable_if_t<std::is_void<Result_>::value, ElseType_>
             operator()(Callable_&& callable, Args_&& ...args) {
                 callable(std::forward<Args_>(args)...);
                 return ElseType_();
             }
 
             template < typename Callable_, typename ...Args_, typename Result_ = typename std::result_of<Callable_(Args_&&...)>::type >
-            typename std::enable_if<!std::is_void<Result_>::value, Result_>::type
+            std::enable_if_t<!std::is_void<Result_>::value, Result_>
             operator()(Callable_&& callable, Args_&& ...args) {
                 return callable(std::forward<Args_>(args)...);
             }
