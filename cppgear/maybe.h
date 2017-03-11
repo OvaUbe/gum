@@ -111,7 +111,7 @@ namespace cppgear {
         template < typename Callable_ >
         auto and_bind(Callable_&& callable) {
             using Chaining = detail::CallChaining<Maybe>;
-            using Result = std::result_of_t<Chaining(Callable_&&, Wrapped&)>;
+            using Result = std::result_of_t<Chaining(Callable_&&, Value&)>;
             using MaybeType = detail::ToMaybe<Result>;
 
             return m_wrapped ? MaybeType(Chaining()(callable, *m_wrapped)) : MaybeType();
