@@ -350,7 +350,8 @@ namespace cppgear {
                 .or_bind([&] {
                     auto const pos = Generator<size_t>(0, map.size())();
                     map.insert(_iterator_at(map, pos), value);
-                });
+                })
+                .take();
         }
 
         static Optional<Value&> _emplace(Map_& map, Value const& value) {
@@ -362,11 +363,14 @@ namespace cppgear {
                 .or_bind([&] {
                     auto const pos = Generator<size_t>(0, map.size())();
                     map.emplace_hint(_iterator_at(map, pos), value.first, value.second);
-                });
+                })
+                .take();
         }
 
         static Optional<Value&> _operator_subscript(Map_& map, Value const& value) {
-            return maybe(_find(map, value)).or_bind([&] { map[value.first] = value.second; });
+            return maybe(_find(map, value))
+                .or_bind([&] { map[value.first] = value.second; })
+                .take();
         }
     };
 
@@ -385,7 +389,7 @@ namespace cppgear {
 
             EXPECT_EQ((bool)testee_result, (bool)sample_result);
             maybe(testee_result)
-                .and_(maybe(sample_result))
+                .chain(sample_result)
                 .and_bind([&](auto) { EXPECT_TRUE(PairComparator()(*testee_result, *sample_result)); });
 
             ASSERT_TRUE(std::is_sorted(testee.begin(), testee.end(), testee.value_comp()));
