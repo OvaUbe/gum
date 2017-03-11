@@ -93,33 +93,34 @@ namespace cppgear {
             m_wrapped(std::forward<ValueType_>(value)) { }
 
         template < typename ValueType_ >
-        Maybe and_(ValueType_&& other) {
-            return m_wrapped ? Maybe(std::forward<ValueType_>(other)) : self;
+        auto and_(ValueType_ other) {
+            return and_bind([&](auto){ return other; });
         }
 
         template < typename ValueType_ >
-        Maybe or_(ValueType_&& other) {
-            return m_wrapped ? self : Maybe(std::forward<ValueType_>(other));
-        }
-
-        template < typename ValueType_, typename Maybe_ = typename detail::ToMaybe<ValueType_>::Type >
-        Maybe_ and_chain(ValueType_&& other) {
-            return m_wrapped ? Maybe_(std::forward<ValueType_>(other)) : Maybe_();
+        auto or_(ValueType_ other) {
+            return or_bind([&]{ return other; });
         }
 
         template < typename ValueType_, typename Maybe_ = typename detail::ToMaybe<ValueType_>::Type >
         Maybe_ chain(ValueType_&& other) {
-            return Maybe_(std::forward<ValueType_>(other));
+            return std::forward<ValueType_>(other);
         }
 
         template < typename Callable_ >
-        Maybe and_bind(Callable_&& callable) {
-            return m_wrapped ? wrapped_type(detail::ChainingHelper<wrapped_type>()(callable, *m_wrapped)) : m_wrapped;
+        auto and_bind(Callable_&& callable) {
+            using Chaining = detail::ChainingHelper<Maybe>;
+            using Result = std::result_of_t<Chaining(Callable_&&, wrapped_type&)>;
+            using Maybe_ = typename detail::ToMaybe<Result>::Type;
+
+            return m_wrapped ? Maybe_(Chaining()(callable, *m_wrapped)) : Maybe_();
         }
 
         template < typename Callable_ >
-        Maybe or_bind(Callable_&& callable) {
-            return m_wrapped ? m_wrapped : wrapped_type(detail::ChainingHelper<wrapped_type>()(callable));
+        auto or_bind(Callable_&& callable) {
+            using Chaining = detail::ChainingHelper<Maybe>;
+
+            return m_wrapped ? std::move(self) : Maybe(Chaining()(callable));
         }
 
         wrapped_type& unwrap() {
@@ -139,7 +140,7 @@ namespace cppgear {
 
     template < typename Value_, typename Maybe_ = typename detail::ToMaybe<Value_>::Type >
     Maybe_ maybe(Value_&& value) {
-        return Maybe_(std::forward<Value_>(value));
+        return std::forward<Value_>(value);
     }
 
 }
