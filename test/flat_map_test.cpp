@@ -416,13 +416,16 @@ namespace cppgear {
         using Testee = flat_map<std::string, std::string>;
         using Sample = std::map<std::string, std::string>;
 
+        using TesteeOpGenerator = Generator<MapOperationTag<Testee, MapOperation::Insert>>;
+        using SampleOpGenerator = Generator<MapOperationTag<Sample, MapOperation::Insert>>;
+
         Testee testee;
         Sample sample;
 
         auto unordered = Generator<Unordered>(1000, 10000)();
         for (auto const& kv : unordered) {
-            auto testee_result = Generator<MapOperationTag<Testee, MapOperation::Insert>>()()(testee, kv);
-            auto sample_result = Generator<MapOperationTag<Sample, MapOperation::Insert>>()()(sample, kv);
+            auto testee_result = TesteeOpGenerator()()(testee, kv);
+            auto sample_result = SampleOpGenerator()()(sample, kv);
 
             EXPECT_EQ((bool)testee_result, (bool)sample_result);
             maybe(testee_result)
@@ -487,14 +490,14 @@ namespace cppgear {
         using Testee = flat_map<std::string, std::string>;
         using Sample = std::map<std::string, std::string>;
 
+        using TesteeOpGenerator = Generator<MapOperationTag<Testee, MapOperation::InsertRange>>;
+        using SampleOpGenerator = Generator<MapOperationTag<Sample, MapOperation::InsertRange>>;
+
         Testee testee;
         Sample sample;
 
         for (auto i : Generator<std::vector<size_t>>(300, 500)()) {
             (void)i;
-
-            using TesteeOpGenerator = Generator<MapOperationTag<Testee, MapOperation::InsertRange>>;
-            using SampleOpGenerator = Generator<MapOperationTag<Sample, MapOperation::InsertRange>>;
 
             auto testee_range = Generator<TesteeOpGenerator::Range>(10, 50)();
             SampleOpGenerator::Range sample_range(testee_range.begin(), testee_range.end());
