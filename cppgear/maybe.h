@@ -33,6 +33,9 @@ namespace cppgear {
         }
     };
 
+    template < typename >
+    class Maybe;
+
     namespace detail {
 
         template < typename ElseType_ >
@@ -53,7 +56,26 @@ namespace cppgear {
 
         template < typename Value_ >
         struct DereferenceType {
-            using type = std::remove_reference_t<decltype(*std::declval<Value_>())>;
+            using Type = std::remove_reference_t<decltype(*std::declval<Value_>())>;
+        };
+
+        template < typename Value_ >
+        struct IsMaybe {
+            static constexpr bool Value = false;
+        };
+
+        template < typename Value_ >
+        struct IsMaybe<Maybe<Value_>> {
+            static constexpr bool Value = true;
+        };
+
+        template < typename Value_ >
+        class ToMaybe {
+        private:
+            using Deref = std::remove_reference_t<Value_>;
+
+        public:
+            using Type = std::conditional_t<IsMaybe<Deref>::Value, Deref, Maybe<Deref>>;
         };
 
     }
@@ -62,7 +84,7 @@ namespace cppgear {
     class Maybe {
     public:
         using value_type = Value_;
-        using wrapped_type = typename detail::DereferenceType<Value_>::type;
+        using wrapped_type = typename detail::DereferenceType<Value_>::Type;
 
     public:
         Maybe() { }
@@ -71,24 +93,24 @@ namespace cppgear {
         Maybe(ValueType_&& value) :
             m_value(std::forward<ValueType_>(value)) { }
 
-        template < typename Maybe_ >
-        Maybe and_(Maybe_&& other, std::enable_if_t<std::is_same<value_type, typename Maybe_::value_type>::value>* = 0) {
-            return m_value ? std::forward<Maybe_>(other) : Maybe(m_value);
+        template < typename ValueType_ >
+        Maybe and_(ValueType_&& other) {
+            return m_value ? Maybe(std::forward<ValueType_>(other)) : self;
         }
 
-        template < typename Maybe_ >
-        Maybe or_(Maybe_&& other, std::enable_if_t<std::is_same<value_type, typename Maybe_::value_type>::value>* = 0) {
-            return m_value ? Maybe(m_value) : std::forward<Maybe_>(other);
+        template < typename ValueType_ >
+        Maybe or_(ValueType_&& other) {
+            return m_value ? self : Maybe(std::forward<ValueType_>(other));
         }
 
-        template < typename Maybe_ >
-        Maybe_ and_(Maybe_&& other, std::enable_if_t<!std::is_same<value_type, typename Maybe_::value_type>::value>* = 0) {
-            return m_value ? std::forward<Maybe_>(other) : Maybe_();
+        template < typename ValueType_, typename Maybe_ = typename detail::ToMaybe<ValueType_>::Type >
+        Maybe_ and_chain(ValueType_&& other) {
+            return m_value ? Maybe_(std::forward<ValueType_>(other)) : Maybe_();
         }
 
-        template < typename Maybe_ >
-        Maybe_ or_(Maybe_&& other, std::enable_if_t<!std::is_same<value_type, typename Maybe_::value_type>::value>* = 0) {
-            return m_value ? Maybe_() : std::forward<Maybe_>(other);
+        template < typename ValueType_, typename Maybe_ = typename detail::ToMaybe<ValueType_>::Type >
+        Maybe_ chain(ValueType_&& other) {
+            return Maybe_(std::forward<ValueType_>(other));
         }
 
         template < typename Callable_ >
@@ -101,11 +123,6 @@ namespace cppgear {
             return m_value ? m_value : value_type(detail::ChainingHelper<value_type>()(callable));
         }
 
-        template < typename Default_ >
-        wrapped_type unwrap_or(Default_&& default_) {
-            return m_value ? *m_value : wrapped_type(std::forward<Default_>(default_));
-        }
-
         wrapped_type& unwrap() {
             if (m_value) {
                 return *m_value;
@@ -113,15 +130,15 @@ namespace cppgear {
             throw EmptyMaybeException();
         }
 
-        operator value_type() const {
-            return m_value;
+        value_type take() {
+            return std::move(m_value);
         }
 
     private:
         value_type m_value;
     };
 
-    template < typename Value_, typename Maybe_ = Maybe<typename std::remove_reference<Value_>::type> >
+    template < typename Value_, typename Maybe_ = typename detail::ToMaybe<Value_>::Type >
     Maybe_ maybe(Value_&& value) {
         return Maybe_(std::forward<Value_>(value));
     }
