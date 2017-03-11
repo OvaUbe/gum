@@ -69,7 +69,7 @@ namespace cppgear {
 
         template < typename Value_ >
         class ToMaybeImpl {
-            using Naked = std::remove_const_t<std::remove_reference_t<Value_>>;
+            using Naked = std::decay_t<Value_>;
 
         public:
             using Type = std::conditional_t<IsMaybe<Naked>::Value, Naked, Maybe<Naked>>;
