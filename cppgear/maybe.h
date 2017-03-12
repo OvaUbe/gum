@@ -38,18 +38,17 @@ namespace cppgear {
 
     namespace detail {
 
-        template < typename ElseType_ >
         struct CallChaining {
-            template < typename Callable_, typename ...Args_, typename Result_ = std::result_of_t<Callable_(Args_&&...)> >
-            std::enable_if_t<std::is_void<Result_>::value, ElseType_>
-            operator()(Callable_&& callable, Args_&& ...args) {
+            template < typename Default_, typename Callable_, typename ...Args_, typename Result_ = std::result_of_t<Callable_(Args_&&...)> >
+            std::enable_if_t<std::is_void<Result_>::value, Default_>
+            operator()(Default_&& default_, Callable_&& callable, Args_&& ...args) {
                 callable(std::forward<Args_>(args)...);
-                return ElseType_();
+                return std::forward<Default_>(default_);
             }
 
-            template < typename Callable_, typename ...Args_, typename Result_ = std::result_of_t<Callable_(Args_&&...)> >
+            template < typename Default_, typename Callable_, typename ...Args_, typename Result_ = std::result_of_t<Callable_(Args_&&...)> >
             std::enable_if_t<!std::is_void<Result_>::value, Result_>
-            operator()(Callable_&& callable, Args_&& ...args) {
+            operator()(Default_&&, Callable_&& callable, Args_&& ...args) {
                 return callable(std::forward<Args_>(args)...);
             }
         };
@@ -110,18 +109,18 @@ namespace cppgear {
 
         template < typename Callable_ >
         auto and_bind(Callable_&& callable) {
-            using Chaining = detail::CallChaining<Maybe>;
-            using Result = std::result_of_t<Chaining(Callable_&&, Value&)>;
+            using Chaining = detail::CallChaining;
+            using Result = std::result_of_t<Chaining(Wrapped&&, Callable_&&, Value&)>;
             using MaybeType = detail::ToMaybe<Result>;
 
-            return m_wrapped ? MaybeType(Chaining()(callable, *m_wrapped)) : MaybeType();
+            return m_wrapped ? MaybeType(Chaining()(m_wrapped, callable, *m_wrapped)) : MaybeType();
         }
 
         template < typename Callable_ >
         auto or_bind(Callable_&& callable) {
-            using Chaining = detail::CallChaining<Maybe>;
+            using Chaining = detail::CallChaining;
 
-            return m_wrapped ? std::move(self) : Maybe(Chaining()(callable));
+            return m_wrapped ? std::move(self) : Maybe(Chaining()(Wrapped(), callable));
         }
 
         Value unwrap() {
