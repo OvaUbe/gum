@@ -79,7 +79,7 @@ namespace cppgear {
 
             Generator<Char> generator;
 
-            size_t const size = Generator<size_t>(10, 50)();
+            size_t const size = Generator<size_t>(0, 20)();
             for (size_t i = 0; i < size; ++i) {
                 result.push_back(generator());
             }
