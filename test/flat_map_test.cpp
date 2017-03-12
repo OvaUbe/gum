@@ -529,7 +529,8 @@ namespace cppgear {
 
         static Optional<Value> _erase(Map_& map, Key const& key) {
             return maybe(_find(map, key))
-                .and_bind([&](auto& v){ map.erase(key); return make_optional<Value>(v); })
+                .and_bind([&](auto){ map.erase(key); })
+                .and_bind(OptionalBuilder<Value>())
                 .take();
         }
 
