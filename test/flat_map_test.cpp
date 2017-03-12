@@ -489,25 +489,80 @@ namespace cppgear {
 
     TEST(FlatMapTest, RangeInsertion) {
         using Testee = flat_map<std::string, std::string>;
-        using Sample = std::map<std::string, std::string>;
-
-        using TesteeOpGenerator = Generator<MapOperationTag<Testee, MapOperation::InsertRange>>;
-        using SampleOpGenerator = Generator<MapOperationTag<Sample, MapOperation::InsertRange>>;
+        using OpGenerator = Generator<MapOperationTag<Testee, MapOperation::InsertRange>>;
 
         Testee testee;
-        Sample sample;
-
-        for (auto i : Generator<std::vector<size_t>>(300, 500)()) {
+        for (auto i : Generator<std::vector<size_t>>(150, 200)()) {
             (void)i;
 
-            auto testee_range = Generator<TesteeOpGenerator::Range>(10, 50)();
-            SampleOpGenerator::Range sample_range(testee_range.begin(), testee_range.end());
-
-            TesteeOpGenerator()()(testee, testee_range);
-            SampleOpGenerator()()(sample, sample_range);
+            OpGenerator()()(testee, Generator<OpGenerator::Range>(10, 50)());
 
             ASSERT_TRUE(std::is_sorted(testee.begin(), testee.end(), testee.value_comp()));
-            ASSERT_TRUE(std::equal(sample.begin(), sample.end(), testee.begin(), testee.end(), PairComparator()));
+            ASSERT_EQ(std::unique(testee.begin(), testee.end(), testee.get_equality_predicate()), testee.end());
+        }
+    }
+
+    template < typename Map_ >
+    class Generator<MapOperationTag<Map_, MapOperation::Remove>> {
+    public:
+        using Key = typename Map_::key_type;
+        using Value = typename Map_::mapped_type;
+        using Result = std::function<Optional<Value>(Map_&, Key const&)>;
+
+    public:
+        Result operator()() const {
+            std::array<Result, 2> arr = {{
+                &SelfType::_erase,
+                &SelfType::_iterator_erase,
+            }};
+            return arr[Generator<size_t>(0, arr.size() - 1)()];
+        }
+
+    private:
+        static Optional<Value&> _find(Map_& map, Key const& key) {
+            auto iter = map.find(key);
+            if (iter == map.end()) {
+                return nullptr;
+            }
+            return make_optional<Value&>(iter->second);
+        }
+
+        static Optional<Value> _erase(Map_& map, Key const& key) {
+            return maybe(_find(map, key))
+                .and_bind([&](auto& v){ map.erase(key); return make_optional<Value>(v); })
+                .take();
+        }
+
+        static Optional<Value> _iterator_erase(Map_& map, Key const& key) {
+            auto iter = map.find(key);
+            if (iter == map.end()) {
+                return nullptr;
+            }
+            auto result = iter->second;
+            map.erase(iter);
+            return make_optional<Value>(result);
+        }
+    };
+
+    TEST(FlatMapTest, Removal) {
+        using Unordered = std::vector<std::pair<std::string, std::string>>;
+        using Testee = flat_map<std::string, std::string>;
+        using OpGenerator = Generator<MapOperationTag<Testee, MapOperation::Remove>>;
+
+        auto unordered = Generator<Unordered>(1000, 10000)();
+        Testee testee(unordered.begin(), unordered.end());
+
+        while (unordered.size()) {
+            Unordered::value_type next = unordered.back();
+            auto key = Generator<RandomOrDefaultTag<Testee::key_type>>(next.first)();
+            if (next.first == key) {
+                unordered.pop_back();
+            }
+
+            OpGenerator()()(testee, key);
+
+            ASSERT_TRUE(std::is_sorted(testee.begin(), testee.end(), testee.value_comp()));
+            ASSERT_EQ(std::unique(testee.begin(), testee.end(), testee.get_equality_predicate()), testee.end());
         }
     }
 }
