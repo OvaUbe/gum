@@ -172,7 +172,7 @@ namespace cppgear {
     struct PairComparator {
         template < typename Lhs_, typename Rhs_ >
         bool operator()(Lhs_ const& lhs, Rhs_ const& rhs) const {
-            return lhs.first == rhs.first && lhs.second == lhs.second;
+            return lhs.first == rhs.first && lhs.second == rhs.second;
         }
     };
 
