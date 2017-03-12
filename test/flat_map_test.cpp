@@ -196,11 +196,11 @@ namespace cppgear {
             EXPECT_TRUE(testee.empty());
         }
         {
-            Testee testee{{"one", "jaws"}, {"two", "bite"}, {"three", "claws"}, {"four", "catch"}};
+            Testee testee{{"one", "jaws"}, {"two", "bite"}, {"three", "claws"}, {"four", "catch"}, {"four", "dup"}, {"three", "dup"}};
             EXPECT_EQ(testee.size(), 4);
             EXPECT_TRUE(std::is_sorted(testee.begin(), testee.end(), testee.value_comp()));
 
-            testee = {{"five", "jaws"}, {"six", "bite"}, {"seven", "claws"}, {"eight", "catch"}};
+            testee = {{"five", "jaws"}, {"six", "bite"}, {"seven", "claws"}, {"eight", "catch"}, {"five", "dup"}, {"six", "dup"}};
             EXPECT_EQ(testee.size(), 4);
             EXPECT_TRUE(std::is_sorted(testee.begin(), testee.end(), testee.value_comp()));
         }
