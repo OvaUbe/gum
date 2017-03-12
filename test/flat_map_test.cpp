@@ -307,25 +307,19 @@ namespace cppgear {
         }
 
         for (auto& kv : sample) {
-            Testee::mapped_type* value = nullptr;
-            ASSERT_NO_THROW(value = &testee.at(kv.first));
-            EXPECT_EQ(*value, kv.second);
+            ASSERT_NO_THROW(EXPECT_EQ(testee.at(kv.first), kv.second));
         }
         for (auto& kv : testee) {
-            Sample::mapped_type* value = nullptr;
-            ASSERT_NO_THROW(value = &sample.at(kv.first));
-            EXPECT_EQ(*value, kv.second);
+            ASSERT_NO_THROW(EXPECT_EQ(sample.at(kv.first), kv.second));
         }
 
         for (auto& kv : sample) {
-            EXPECT_TRUE(testee.count(kv.first));
-            auto& value = testee[kv.first];
-            EXPECT_EQ(value, kv.second);
+            ASSERT_TRUE(testee.count(kv.first));
+            EXPECT_EQ(testee[kv.first], kv.second);
         }
         for (auto& kv : testee) {
-            EXPECT_TRUE(sample.count(kv.first));
-            auto& value = sample[kv.first];
-            EXPECT_EQ(value, kv.second);
+            ASSERT_TRUE(sample.count(kv.first));
+            EXPECT_EQ(sample[kv.first], kv.second);
         }
     }
 
