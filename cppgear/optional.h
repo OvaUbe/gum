@@ -27,12 +27,8 @@
 
 namespace cppgear {
 
-    namespace detail {
-
-        template < typename >
-        struct OptionalBuilder;
-
-    }
+    template < typename >
+    struct OptionalBuilder;
 
     template < typename Value_ >
     class Optional {
@@ -41,7 +37,7 @@ namespace cppgear {
         using const_value_type = Value_ const;
 
         template < typename >
-        friend struct detail::OptionalBuilder;
+        friend struct OptionalBuilder;
 
     public:
         Optional(std::nullptr_t = nullptr) :
@@ -147,7 +143,7 @@ namespace cppgear {
         using const_value_type = Value_ const&;
 
         template < typename >
-        friend struct detail::OptionalBuilder;
+        friend struct OptionalBuilder;
 
     public:
         Optional(std::nullptr_t ptr = nullptr) :
@@ -181,37 +177,33 @@ namespace cppgear {
         Value_* m_ptr;
     };
 
-    namespace detail {
+    template < typename Value_ >
+    struct OptionalBuilder {
+        using Result = Optional<Value_>;
 
-        template < typename Value_ >
-        struct OptionalBuilder {
-            using Result = Optional<Value_>;
+        template < typename ...Args_ >
+        Result operator()(Args_&&... args) const  {
+            Result result;
+            result.m_valid = true;
+            result.m_storage.ctor(std::forward<Args_>(args)...);
+            return result;
+        }
+    };
 
-            template < typename ...Args_ >
-            Result operator()(Args_&&... args) const  {
-                Result result;
-                result.m_valid = true;
-                result.m_storage.ctor(std::forward<Args_>(args)...);
-                return result;
-            }
-        };
+    template < typename Value_ >
+    struct OptionalBuilder<Value_&> {
+        using Result = Optional<Value_&>;
 
-        template < typename Value_ >
-        struct OptionalBuilder<Value_&> {
-            using Result = Optional<Value_&>;
-
-            Result operator()(Value_& value) const  {
-                Result result;
-                result.m_ptr = &value;
-                return result;
-            }
-        };
-
-    }
+        Result operator()(Value_& value) const  {
+            Result result;
+            result.m_ptr = &value;
+            return result;
+        }
+    };
 
     template < typename Value_, typename ...Args_ >
     Optional<Value_> make_optional(Args_&&... args) {
-        return detail::OptionalBuilder<Value_>()(std::forward<Args_>(args)...);
+        return OptionalBuilder<Value_>()(std::forward<Args_>(args)...);
     }
 
 }
