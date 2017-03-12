@@ -151,10 +151,10 @@ namespace cppgear {
     };
 
     template < typename >
-    struct ThisOrRandomTag;
+    struct RandomOrDefaultTag;
 
     template < typename Value_ >
-    class Generator<ThisOrRandomTag<Value_>> {
+    class Generator<RandomOrDefaultTag<Value_>> {
         using Result = Value_;
 
     public:
