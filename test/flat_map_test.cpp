@@ -243,13 +243,21 @@ namespace cppgear {
 
     TEST(FlatMapTest, Lookup) {
         using Unordered = std::vector<std::pair<std::string, std::string>>;
-        using Sample = std::map<std::string, std::string>;
         using Testee = flat_map<std::string, std::string>;
+        using Sample = std::map<std::string, std::string>;
 
         auto unordered = Generator<Unordered>(1000, 10000)();
 
-        Sample sample(unordered.begin(), unordered.end());
-        Testee testee(unordered.begin(), unordered.end());
+        Testee testee;
+        Sample sample;
+
+        testee.reserve(unordered.size());
+        for (auto const& kv : unordered) {
+            testee.insert(kv);
+        }
+        for (auto const& kv : unordered) {
+            sample.insert(kv);
+        }
 
         EXPECT_TRUE(std::is_sorted(testee.begin(), testee.end(), testee.value_comp()));
         EXPECT_TRUE(std::equal(sample.begin(), sample.end(), testee.begin(), testee.end(), PairComparator()));
