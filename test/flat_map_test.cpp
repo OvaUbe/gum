@@ -217,7 +217,6 @@ namespace cppgear {
 
             auto sample = Generator<Sample>(1000, 10000)();
             Testee testee(sample.begin(), sample.end(), Testee::allocator_type());
-            EXPECT_EQ(sample.size(), testee.size());
             EXPECT_TRUE(std::is_sorted(testee.begin(), testee.end(), testee.value_comp()));
 
             Testee testee2(testee);
