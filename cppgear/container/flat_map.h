@@ -77,6 +77,19 @@ namespace cppgear {
 
         };
 
+        class equality_predicate {
+        public:
+            equality_predicate(key_compare const& wrapped) :
+                m_wrapped(value_compare(wrapped)) { }
+
+            bool operator()(value_type const& lhs, value_type const& rhs) const {
+                return !m_wrapped(lhs, rhs) && !m_wrapped(rhs, lhs);
+            }
+
+        private:
+            value_compare m_wrapped;
+        };
+
     public:
         explicit flat_map(key_compare const& compare = key_compare(), allocator_type const& allocator = allocator_type()) :
             m_underlying(allocator),
@@ -350,6 +363,10 @@ namespace cppgear {
 
         value_compare value_comp() const {
             return value_compare(m_comparator);
+        }
+
+        equality_predicate get_equality_predicate() const {
+            return equality_predicate(m_comparator);
         }
 
     private:
