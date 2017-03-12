@@ -400,6 +400,7 @@ namespace cppgear {
 
         void _sort() {
             std::sort(begin(), end(), value_comp());
+            erase(std::unique(begin(), end(), get_equality_predicate()), end());
         }
 
         template < typename Pointer_ = pointer >
