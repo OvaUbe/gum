@@ -105,7 +105,17 @@ namespace cppgear {
     };
 
     template < typename Iterable_ >
-    Range<Iterable_> range(Iterable_ begin, Iterable_ end, Iterable_ step = Iterable_(1)) {
+    Range<Iterable_> range(Iterable_ end) {
+        return Range<Iterable_>(Iterable_(0), end, Iterable_(1));
+    }
+
+    template < typename Iterable_ >
+    Range<Iterable_> range(Iterable_ begin, Iterable_ end) {
+        return Range<Iterable_>(begin, end, Iterable_(1));
+    }
+
+    template < typename Iterable_ >
+    Range<Iterable_> range(Iterable_ begin, Iterable_ end, Iterable_ step) {
         return Range<Iterable_>(begin, end, step);
     }
 
