@@ -22,7 +22,7 @@
 
 #pragma once
 
-#include <cppgear/misc.h>
+#include <cppgear/core.h>
 #include <cppgear/raw.h>
 
 namespace cppgear {
