@@ -68,21 +68,33 @@ class StorageFor
 {
     /* Methods */
 public:
-    template <typename ...Args>
-    void ctor(Args&&... args) {
-        new(ptr()) T(std::forward<T>(args)...);
+    template <typename ...Args_>
+    void ctor(Args_&&... args) {
+        new(ptr()) T(std::forward<Args_>(args)...);
     }
 
     void dtor() {
         ref().~T();
     }
 
-    T& ref() {
+    T& ref() & {
+        return *ptr();
+    }
+
+    T&& ref() && {
+        return std::move(*ptr());
+    }
+
+    T const& ref() const& {
         return *ptr();
     }
 
     T* ptr() {
         return reinterpret_cast<T*>(&m_storage);
+    }
+
+    T const* ptr() const {
+        return reinterpret_cast<T const*>(&m_storage);
     }
 
     /* Fields */

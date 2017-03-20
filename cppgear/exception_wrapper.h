@@ -20,5 +20,38 @@
  * THE SOFTWARE.
  */
 
-#include <gtest/gtest.h>
+#pragma once
 
+#include <exception>
+#include <iostream>
+
+namespace cppgear {
+
+    template < typename Wrapped_ >
+    class ExceptionWrapper {
+    public:
+        template < typename Wrapped__ >
+        ExceptionWrapper(Wrapped__&& wrapped) :
+            m_wrapped(std::forward<Wrapped__>(wrapped)) { }
+
+        template < typename ...Args_ >
+        void operator()(Args_&& ...args) {
+            try {
+                m_wrapped(std::forward<Args_>(args)...);
+            } catch (std::exception const& ex) {
+                std::cout << "Uncaught exception in exception wrapper: " << ex.what() << std::endl;
+            } catch (...) {
+                std::cout << "Unknown exception caught in exception wrapper" << std::endl;
+            }
+        }
+
+    private:
+        Wrapped_ m_wrapped;
+    };
+
+    template < typename Wrapped_ >
+    ExceptionWrapper<Wrapped_> make_exception_wrapper(Wrapped_&& wrapped) {
+        return ExceptionWrapper<Wrapped_>(std::forward<Wrapped_>(wrapped));
+    }
+
+}
