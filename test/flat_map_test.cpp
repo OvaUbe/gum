@@ -23,6 +23,7 @@
 #include <cppgear/container/flat_map.h>
 #include <cppgear/maybe.h>
 #include <cppgear/optional.h>
+#include <cppgear/range.h>
 
 #include <functional>
 #include <random>
@@ -492,7 +493,7 @@ namespace cppgear {
         using OpGenerator = Generator<MapOperationTag<Testee, MapOperation::InsertRange>>;
 
         Testee testee;
-        for (auto i : Generator<std::vector<size_t>>(150, 200)()) {
+        for (auto i : range<size_t>(0, Generator<size_t>(150, 200)())) {
             (void)i;
 
             OpGenerator()()(testee, Generator<OpGenerator::Range>(10, 50)());
