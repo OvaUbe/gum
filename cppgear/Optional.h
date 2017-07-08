@@ -22,10 +22,13 @@
 
 #pragma once
 
-#include <cppgear/Core.h>
+#include <cppgear/Exception.h>
 #include <cppgear/Raw.h>
 
 namespace cppgear {
+
+    CPPGEAR_DECLARE_EXCEPTION(EmptyOptionalException, "Empty optional");
+
 
     template < typename >
     struct OptionalBuilder;
@@ -69,22 +72,27 @@ namespace cppgear {
         }
 
         value_type* operator->() {
+            check();
             return m_storage.ptr();
         }
 
         const_value_type* operator->() const {
+            check();
             return m_storage.ptr();
         }
 
         value_type& operator*() & {
+            check();
             return m_storage.ref();
         }
 
         value_type&& operator*() && {
+            check();
             return m_storage.ref();
         }
 
         const_value_type& operator*() const& {
+            check();
             return m_storage.ref();
         }
 
@@ -131,6 +139,10 @@ namespace cppgear {
             other.destroy();
         }
 
+        void check() const {
+            CPPGEAR_CHECK(m_valid, EmptyOptionalException());
+        }
+
      private:
         StorageFor<value_type> m_storage;
         bool m_valid;
@@ -150,18 +162,22 @@ namespace cppgear {
             m_ptr(ptr) { }
 
         Value_* operator->() {
+            check();
             return m_ptr;
         }
 
         Value_ const* operator->() const {
+            check();
             return m_ptr;
         }
 
         value_type operator*() & {
+            check();
             return *m_ptr;
         }
 
         const_value_type operator*() const& {
+            check();
             return *m_ptr;
         }
 
@@ -171,6 +187,11 @@ namespace cppgear {
 
         void swap(Optional& other) {
             std::swap(m_ptr, other.m_ptr);
+        }
+
+    private:
+        void check() const {
+            CPPGEAR_CHECK(m_ptr, EmptyOptionalException());
         }
 
     private:
