@@ -22,7 +22,7 @@
 
 #pragma once
 
-#include <cppgear/exception_wrapper.h>
+#include <cppgear/ExceptionWrapper.h>
 
 #include <functional>
 

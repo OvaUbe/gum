@@ -27,8 +27,6 @@
 #include <functional>
 #include <cassert>
 
-#include <cppgear/types.h>
-
 namespace cppgear {
 
 /**

@@ -24,7 +24,7 @@
 
 #include <deque>
 
-#include <cppgear/container/lru.h>
+#include <cppgear/container/Lru.h>
 
 namespace cppgear {
 
