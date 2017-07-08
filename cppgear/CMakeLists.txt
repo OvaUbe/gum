@@ -11,11 +11,13 @@ add_library(cppgear-static STATIC ${SOURCES})
 set_target_properties(cppgear-static PROPERTIES
 	COMPILE_FLAGS ${COMPILEFLAGS}
 	OUTPUT_NAME cppgear CLEAN_DIRECT_OUTPUT 1)
+target_link_libraries(cppgear-static ${CPPGEAR_EXTERNAL_LIBS})
 
 add_library(cppgear-shared SHARED ${SOURCES})
 set_target_properties(cppgear-shared PROPERTIES
 	COMPILE_FLAGS ${COMPILEFLAGS}
 	OUTPUT_NAME cppgear CLEAN_DIRECT_OUTPUT 1)
+target_link_libraries(cppgear-shared ${CPPGEAR_EXTERNAL_LIBS})
 
 install(DIRECTORY ../cppgear DESTINATION include FILES_MATCHING PATTERN "*.h")
 install(TARGETS cppgear-static cppgear-shared DESTINATION lib)
