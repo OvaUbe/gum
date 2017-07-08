@@ -6,7 +6,6 @@ find_package(GTest)
 include_directories(${GTEST_INCLUDE_DIRS})
 set(CPPGEAR_EXTERNAL_LIBS ${CPPGEAR_EXTERNAL_LIBS} ${GTEST_LIBRARIES})
 
-# Project
 file(GLOB_RECURSE SOURCES ${SOURCES} ${CMAKE_CURRENT_LIST_DIR}/*.cpp)
 file(GLOB_RECURSE SOURCES ${SOURCES} ${CMAKE_CURRENT_LIST_DIR}/../cppgear/*.cpp)
 include_directories(${CMAKE_CURRENT_LIST_DIR}/..)
