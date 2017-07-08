@@ -46,4 +46,20 @@ namespace cppgear {
                         >::type \
                     >(self))
 
+
+#if __GNUC__ >= 3 || defined(__clang__)
+#	define CPPGEAR_FUNCTION __PRETTY_FUNCTION__
+#else
+#	define CPPGEAR_FUNCTION __func__
+#endif
+
+
+#if defined(__GNUC__) || defined(__clang__)
+#	define CPPGEAR_LIKELY(x) __builtin_expect((x), 1)
+#	define CPPGEAR_UNLIKELY(x) __builtin_expect((x), 0)
+#else
+#	define CPPGEAR_LIKELY(x) (x)
+#	define CPPGEAR_UNLIKELY(x) (x)
+#endif
+
 }
