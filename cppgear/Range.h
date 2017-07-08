@@ -22,7 +22,7 @@
 
 #pragma once
 
-#include <cppgear/container/iterator.h>
+#include <cppgear/container/Iterator.h>
 
 namespace cppgear {
 

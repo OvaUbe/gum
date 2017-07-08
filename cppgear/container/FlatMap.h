@@ -22,8 +22,7 @@
 
 #pragma once
 
-#include <cppgear/container/iterator.h>
-#include <cppgear/misc.h>
+#include <cppgear/container/Iterator.h>
 
 #include <algorithm>
 #include <functional>
@@ -39,7 +38,7 @@ namespace cppgear {
           typename Allocator_ = std::allocator<std::pair<Key_, Value_>>,
           template <typename, typename> class Vector_ = std::vector
         >
-    class flat_map {
+    class FlatMap {
     public:
         using key_type = Key_;
         using mapped_type = Value_;
@@ -91,15 +90,15 @@ namespace cppgear {
         };
 
     public:
-        explicit flat_map(key_compare const& compare = key_compare(), allocator_type const& allocator = allocator_type()) :
+        explicit FlatMap(key_compare const& compare = key_compare(), allocator_type const& allocator = allocator_type()) :
             m_underlying(allocator),
             m_comparator(compare) { }
 
-        explicit flat_map(allocator_type const& allocator) :
-            flat_map(key_compare(), allocator) { }
+        explicit FlatMap(allocator_type const& allocator) :
+            FlatMap(key_compare(), allocator) { }
 
         template < typename InputIterator_ >
-        flat_map(InputIterator_ first, InputIterator_ last, key_compare const& compare = key_compare(), allocator_type const& allocator = allocator_type()) :
+        FlatMap(InputIterator_ first, InputIterator_ last, key_compare const& compare = key_compare(), allocator_type const& allocator = allocator_type()) :
             m_underlying(first, last, allocator),
             m_comparator(compare) {
 
@@ -107,32 +106,32 @@ namespace cppgear {
         }
 
         template < typename InputIterator_ >
-        flat_map(InputIterator_ first, InputIterator_ last, allocator_type const& allocator) :
-            flat_map(first, last, key_compare(), allocator) { }
+        FlatMap(InputIterator_ first, InputIterator_ last, allocator_type const& allocator) :
+            FlatMap(first, last, key_compare(), allocator) { }
 
-        flat_map(flat_map const& other) = default;
-        flat_map(flat_map const& other, allocator_type const& allocator) :
+        FlatMap(FlatMap const& other) = default;
+        FlatMap(FlatMap const& other, allocator_type const& allocator) :
             m_underlying(other.m_underlying, allocator),
             m_comparator(other.m_comparator) { }
 
-        flat_map(flat_map&& other) = default;
-        flat_map(flat_map&& other, allocator_type const& allocator) :
+        FlatMap(FlatMap&& other) = default;
+        FlatMap(FlatMap&& other, allocator_type const& allocator) :
             m_underlying(std::move(other.m_underlying), allocator),
             m_comparator(std::move(other.m_comparator)) { }
 
-        flat_map(std::initializer_list<value_type> initializer_list,
+        FlatMap(std::initializer_list<value_type> initializer_list,
                  key_compare const& compare = key_compare(), allocator_type const& allocator = allocator_type()) :
-            flat_map(initializer_list.begin(), initializer_list.end(), compare, allocator) { }
+            FlatMap(initializer_list.begin(), initializer_list.end(), compare, allocator) { }
 
-        flat_map(std::initializer_list<value_type> initializer_list, allocator_type const& allocator) :
-            flat_map(initializer_list, key_compare(), allocator) { }
+        FlatMap(std::initializer_list<value_type> initializer_list, allocator_type const& allocator) :
+            FlatMap(initializer_list, key_compare(), allocator) { }
 
-        ~flat_map() = default;
+        ~FlatMap() = default;
 
-        flat_map& operator=(flat_map const& other) = default;
-        flat_map& operator=(flat_map&& other) = default;
+        FlatMap& operator=(FlatMap const& other) = default;
+        FlatMap& operator=(FlatMap&& other) = default;
 
-        flat_map& operator=(std::initializer_list<value_type> initializer_list) {
+        FlatMap& operator=(std::initializer_list<value_type> initializer_list) {
             m_underlying = vector_type(initializer_list);
             _sort();
             return self;
@@ -151,7 +150,7 @@ namespace cppgear {
             if (iter != end()) {
                 return iter->second;
             }
-            throw std::out_of_range("flat_map::at(...): key not found");
+            throw std::out_of_range("FlatMap::at(...): key not found");
         }
 
         template < typename K >
@@ -301,7 +300,7 @@ namespace cppgear {
             return 1;
         }
 
-        void swap(flat_map& other) {
+        void swap(FlatMap& other) {
             std::swap(m_underlying, other.m_underlying);
             std::swap(m_comparator, other.m_comparator);
         }
@@ -420,26 +419,26 @@ namespace cppgear {
     };
 
     template < typename Key_, typename Value_, typename Compare_, typename Allocator_, template <typename, typename> class Vector_ >
-    bool operator==(flat_map<Key_, Value_, Compare_, Allocator_, Vector_> const& lhs,
-                    flat_map<Key_, Value_, Compare_, Allocator_, Vector_> const& rhs) {
+    bool operator==(FlatMap<Key_, Value_, Compare_, Allocator_, Vector_> const& lhs,
+                    FlatMap<Key_, Value_, Compare_, Allocator_, Vector_> const& rhs) {
         return std::equal(lhs.begin(), lhs.end(), rhs.begin(), rhs.end());
     }
 
     template < typename Key_, typename Value_, typename Compare_, typename Allocator_, template <typename, typename> class Vector_ >
-    bool operator!=(flat_map<Key_, Value_, Compare_, Allocator_, Vector_> const& lhs,
-                    flat_map<Key_, Value_, Compare_, Allocator_, Vector_> const& rhs) {
+    bool operator!=(FlatMap<Key_, Value_, Compare_, Allocator_, Vector_> const& lhs,
+                    FlatMap<Key_, Value_, Compare_, Allocator_, Vector_> const& rhs) {
         return !(lhs == rhs);
     }
 
     template < typename Key_, typename Value_, typename Compare_, typename Allocator_, template <typename, typename> class Vector_ >
-    bool operator<(flat_map<Key_, Value_, Compare_, Allocator_, Vector_> const& lhs,
-                   flat_map<Key_, Value_, Compare_, Allocator_, Vector_> const& rhs) {
+    bool operator<(FlatMap<Key_, Value_, Compare_, Allocator_, Vector_> const& lhs,
+                   FlatMap<Key_, Value_, Compare_, Allocator_, Vector_> const& rhs) {
         return std::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end());
     }
 
     template < typename Key_, typename Value_, typename Compare_, typename Allocator_, template <typename, typename> class Vector_ >
-    bool operator<=(flat_map<Key_, Value_, Compare_, Allocator_, Vector_> const& lhs,
-                    flat_map<Key_, Value_, Compare_, Allocator_, Vector_> const& rhs) {
+    bool operator<=(FlatMap<Key_, Value_, Compare_, Allocator_, Vector_> const& lhs,
+                    FlatMap<Key_, Value_, Compare_, Allocator_, Vector_> const& rhs) {
         if (lhs < rhs) {
             return true;
         }
@@ -447,14 +446,14 @@ namespace cppgear {
     }
 
     template < typename Key_, typename Value_, typename Compare_, typename Allocator_, template <typename, typename> class Vector_ >
-    bool operator>(flat_map<Key_, Value_, Compare_, Allocator_, Vector_> const& lhs,
-                   flat_map<Key_, Value_, Compare_, Allocator_, Vector_> const& rhs) {
+    bool operator>(FlatMap<Key_, Value_, Compare_, Allocator_, Vector_> const& lhs,
+                   FlatMap<Key_, Value_, Compare_, Allocator_, Vector_> const& rhs) {
         return !(lhs <= rhs);
     }
 
     template < typename Key_, typename Value_, typename Compare_, typename Allocator_, template <typename, typename> class Vector_ >
-    bool operator>=(flat_map<Key_, Value_, Compare_, Allocator_, Vector_> const& lhs,
-                    flat_map<Key_, Value_, Compare_, Allocator_, Vector_> const& rhs) {
+    bool operator>=(FlatMap<Key_, Value_, Compare_, Allocator_, Vector_> const& lhs,
+                    FlatMap<Key_, Value_, Compare_, Allocator_, Vector_> const& rhs) {
         return !(lhs < rhs);
     }
 
@@ -463,8 +462,8 @@ namespace cppgear {
 namespace std {
 
     template < typename Key_, typename Value_, typename Compare_, typename Allocator_, template <typename, typename> class Vector_ >
-    void swap(cppgear::flat_map<Key_, Value_, Compare_, Allocator_, Vector_>& lhs,
-              cppgear::flat_map<Key_, Value_, Compare_, Allocator_, Vector_>& rhs) {
+    void swap(cppgear::FlatMap<Key_, Value_, Compare_, Allocator_, Vector_>& lhs,
+              cppgear::FlatMap<Key_, Value_, Compare_, Allocator_, Vector_>& rhs) {
         return lhs.swap(rhs);
     }
 

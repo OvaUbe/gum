@@ -22,8 +22,8 @@
 
 #pragma once
 
-#include <cppgear/core.h>
-#include <cppgear/raw.h>
+#include <cppgear/Core.h>
+#include <cppgear/Raw.h>
 
 namespace cppgear {
 

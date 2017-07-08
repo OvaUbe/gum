@@ -20,10 +20,10 @@
  * THE SOFTWARE.
  */
 
-#include <cppgear/container/flat_map.h>
-#include <cppgear/maybe.h>
-#include <cppgear/optional.h>
-#include <cppgear/range.h>
+#include <cppgear/container/FlatMap.h>
+#include <cppgear/Maybe.h>
+#include <cppgear/Optional.h>
+#include <cppgear/Range.h>
 
 #include <functional>
 #include <random>
@@ -136,8 +136,8 @@ namespace cppgear {
     };
 
     template < typename Key_, typename Value_ >
-    struct Generator<flat_map<Key_, Value_>> {
-        using Result = flat_map<Key_, Value_>;
+    struct Generator<FlatMap<Key_, Value_>> {
+        using Result = FlatMap<Key_, Value_>;
 
         Result operator()() const {
             Result result;
@@ -178,7 +178,7 @@ namespace cppgear {
     };
 
     TEST(FlatMapTest, Construction) {
-        using Testee = flat_map<std::string, std::string>;
+        using Testee = FlatMap<std::string, std::string>;
 
         {
             Testee testee;
@@ -244,7 +244,7 @@ namespace cppgear {
 
     TEST(FlatMapTest, Lookup) {
         using Unordered = std::vector<std::pair<std::string, std::string>>;
-        using Testee = flat_map<std::string, std::string>;
+        using Testee = FlatMap<std::string, std::string>;
         using Sample = std::map<std::string, std::string>;
 
         auto unordered = Generator<Unordered>(1000, 10000)();
@@ -415,7 +415,7 @@ namespace cppgear {
 
     TEST(FlatMapTest, Insertion) {
         using Unordered = std::vector<std::pair<std::string, std::string>>;
-        using Testee = flat_map<std::string, std::string>;
+        using Testee = FlatMap<std::string, std::string>;
         using Sample = std::map<std::string, std::string>;
 
         using TesteeOpGenerator = Generator<MapOperationTag<Testee, MapOperation::Insert>>;
@@ -489,7 +489,7 @@ namespace cppgear {
     };
 
     TEST(FlatMapTest, RangeInsertion) {
-        using Testee = flat_map<std::string, std::string>;
+        using Testee = FlatMap<std::string, std::string>;
         using OpGenerator = Generator<MapOperationTag<Testee, MapOperation::InsertRange>>;
 
         Testee testee;
@@ -548,7 +548,7 @@ namespace cppgear {
 
     TEST(FlatMapTest, Removal) {
         using Unordered = std::vector<std::pair<std::string, std::string>>;
-        using Testee = flat_map<std::string, std::string>;
+        using Testee = FlatMap<std::string, std::string>;
         using OpGenerator = Generator<MapOperationTag<Testee, MapOperation::Remove>>;
 
         auto unordered = Generator<Unordered>(1000, 10000)();

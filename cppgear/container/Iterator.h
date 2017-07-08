@@ -22,7 +22,7 @@
 
 #pragma once
 
-#include <cppgear/misc.h>
+#include <cppgear/Core.h>
 
 #include <iterator>
 
