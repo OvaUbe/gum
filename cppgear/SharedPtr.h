@@ -23,11 +23,15 @@
 #pragma once
 
 #include <cppgear/UniquePtr.h>
+#include <cppgear/UniqueReference.h>
 
 namespace cppgear {
 
     template < typename >
     class SharedPtr;
+
+    template < typename >
+    class SharedReference;
 
 
     template < typename Value_ >
@@ -36,6 +40,9 @@ namespace cppgear {
 
         template < typename >
         friend class SharedPtr;
+
+        template < typename >
+        friend class SharedReference;
 
     private:
         SmartpointerType _wrapped;
@@ -63,6 +70,11 @@ namespace cppgear {
 
         template < typename Compatible_ >
         WeakPtr(SharedPtr<Compatible_> const& other)
+            :   _wrapped(other._wrapped)
+        { }
+
+        template < typename Compatible_ >
+        WeakPtr(SharedReference<Compatible_> const& other)
             :   _wrapped(other._wrapped)
         { }
 
@@ -132,6 +144,9 @@ namespace cppgear {
         template < typename >
         friend class WeakPtr;
 
+        template < typename >
+        friend class SharedReference;
+
         template < typename Value__, typename ...Args_ >
         friend SharedPtr<Value__> make_shared(Args_&&...);
 
@@ -143,9 +158,8 @@ namespace cppgear {
         SmartpointerType _wrapped;
 
     private:
-        template < typename Smartpointer_ >
-        SharedPtr(Smartpointer_&& wrapped)
-            :   _wrapped(std::forward<Smartpointer_>(wrapped))
+        SharedPtr(SmartpointerType&& wrapped)
+            :   _wrapped(std::move(wrapped))
         { }
 
     public:
@@ -183,12 +197,22 @@ namespace cppgear {
             :   _wrapped(other._wrapped, ptr)
         { }
 
+        template < typename Compatible_ >
+        SharedPtr(SharedReference<Compatible_> const& other, Value_* ptr)
+            :   _wrapped(other._wrapped, ptr)
+        { }
+
         SharedPtr(SharedPtr const& other)
             :   _wrapped(other._wrapped)
         { }
 
         template < typename Compatible_ >
         SharedPtr(SharedPtr<Compatible_> const& other)
+            :   _wrapped(other._wrapped)
+        { }
+
+        template < typename Compatible_ >
+        SharedPtr(SharedReference<Compatible_> const& other)
             :   _wrapped(other._wrapped)
         { }
 
@@ -202,12 +226,22 @@ namespace cppgear {
         { }
 
         template < typename Compatible_ >
+        SharedPtr(SharedReference<Compatible_>&& other)
+            :   _wrapped(std::move(other._wrapped))
+        { }
+
+        template < typename Compatible_ >
         explicit SharedPtr(WeakPtr<Compatible_> const& other)
             :   _wrapped(other._wrapped)
         { }
 
         template < typename Compatible_, typename Deleter_ >
         SharedPtr(UniquePtr<Compatible_, Deleter_>&& other)
+            :   _wrapped(std::move(other._wrapped))
+        { }
+
+        template < typename Compatible_, typename Deleter_ >
+        SharedPtr(UniqueReference<Compatible_, Deleter_>&& other)
             :   _wrapped(std::move(other._wrapped))
         { }
 
@@ -218,6 +252,12 @@ namespace cppgear {
 
         template < typename Compatible_ >
         SharedPtr& operator=(SharedPtr<Compatible_> const& other) {
+            _wrapped = other._wrapped;
+            return self;
+        }
+
+        template < typename Compatible_ >
+        SharedPtr& operator=(SharedReference<Compatible_> const& other) {
             _wrapped = other._wrapped;
             return self;
         }
@@ -233,8 +273,20 @@ namespace cppgear {
             return self;
         }
 
+        template < typename Compatible_ >
+        SharedPtr& operator=(SharedReference<Compatible_>&& other) {
+            _wrapped = std::move(other._wrapped);
+            return self;
+        }
+
         template < typename Compatible_, typename Deleter_ >
         SharedPtr& operator=(UniquePtr<Compatible_, Deleter_>&& other) {
+            _wrapped = std::move(other._wrapped);
+            return self;
+        }
+
+        template < typename Compatible_, typename Deleter_ >
+        SharedPtr& operator=(UniqueReference<Compatible_, Deleter_>&& other) {
             _wrapped = std::move(other._wrapped);
             return self;
         }

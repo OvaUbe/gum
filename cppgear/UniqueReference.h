@@ -29,21 +29,21 @@
 namespace cppgear {
 
     template < typename, typename >
-    class UniqueReference;
+    class UniquePtr;
 
 
     template < typename Value_, typename Deleter_ = std::default_delete<Value_> >
-    class UniquePtr {
+    class UniqueReference {
         using SmartpointerType = std::unique_ptr<Value_, Deleter_>;
 
         template < typename, typename >
-        friend class UniqueReference;
-
-        template < typename >
-        friend class SharedReference;
+        friend class UniquePtr;
 
         template < typename >
         friend class SharedPtr;
+
+        template < typename >
+        friend class SharedReference;
 
     public:
         using pointer = Value_*;
@@ -53,51 +53,42 @@ namespace cppgear {
         SmartpointerType _wrapped;
 
     public:
-        UniquePtr() { }
-
-        UniquePtr(std::nullptr_t) { }
-
-        UniquePtr(pointer ptr)
-            :   _wrapped(ptr)
+        UniqueReference(pointer ptr)
+            :   _wrapped(check_ptr(ptr))
         { }
 
-        UniquePtr(pointer ptr, Deleter_ const& deleter)
-            :   _wrapped(ptr, deleter)
+        UniqueReference(pointer ptr, Deleter_ const& deleter)
+            :   _wrapped(check_ptr(ptr), deleter)
         { }
 
-        UniquePtr(UniquePtr&& other)
+        UniqueReference(UniqueReference&& other)
             :   _wrapped(std::move(other._wrapped))
         { }
 
         template < typename Compatible_, typename Deleter__ >
-        UniquePtr(UniquePtr<Compatible_, Deleter__>&& other)
+        UniqueReference(UniqueReference<Compatible_, Deleter__>&& other)
             :   _wrapped(std::move(other._wrapped))
         { }
 
         template < typename Compatible_, typename Deleter__ >
-        UniquePtr(UniqueReference<Compatible_, Deleter__>&& other)
-            :   _wrapped(std::move(other._wrapped))
+        UniqueReference(UniquePtr<Compatible_, Deleter__>&& other)
+            :   _wrapped(std::move(check_ptr(other)._wrapped))
         { }
 
-        UniquePtr& operator=(UniquePtr&& other) {
+        UniqueReference& operator=(UniqueReference&& other) {
             _wrapped = std::move(other._wrapped);
             return self;
         }
 
         template < typename Compatible_, class Deleter__ >
-        UniquePtr& operator=(UniquePtr<Compatible_, Deleter__>&& other) {
+        UniqueReference& operator=(UniqueReference<Compatible_, Deleter__>&& other) {
             _wrapped = std::move(other._wrapped);
             return self;
         }
 
         template < typename Compatible_, class Deleter__ >
-        UniquePtr& operator=(UniqueReference<Compatible_, Deleter__>&& other) {
-            _wrapped = std::move(other._wrapped);
-            return self;
-        }
-
-        UniquePtr& operator=(std::nullptr_t) {
-            _wrapped.reset();
+        UniqueReference& operator=(UniquePtr<Compatible_, Deleter__>&& other) {
+            _wrapped = std::move(check_ptr(other)._wrapped);
             return self;
         }
 
@@ -105,11 +96,11 @@ namespace cppgear {
             return _wrapped.release();
         }
 
-        void reset(pointer ptr = pointer()) {
-            _wrapped.reset(ptr);
+        void reset(pointer ptr) {
+            _wrapped.reset(check_ptr(ptr));
         }
 
-        void swap(UniquePtr& other) {
+        void swap(UniqueReference& other) {
             _wrapped.swap(other._wrapped);
         }
 
@@ -125,55 +116,51 @@ namespace cppgear {
             return _wrapped.get_deleter();
         }
 
-        explicit operator bool() const {
-            return (bool)_wrapped;
-        }
-
         reference operator*() const {
-            check_ptr();
             return *get();
         }
 
         pointer operator->() const {
-            check_ptr();
             return get();
         }
 
-        friend void swap(UniquePtr& lhs, UniquePtr& rhs) {
+        friend void swap(UniqueReference& lhs, UniqueReference& rhs) {
             lhs.swap(rhs);
         }
 
     private:
-        void check_ptr() const {
-            CPPGEAR_CHECK(get(), NullPointerException());
+        template < typename Ptr_ >
+        static Ptr_&& check_ptr(Ptr_&& ptr) {
+            CPPGEAR_CHECK(ptr, NullPointerException());
+            return std::forward<Ptr_>(ptr);
         }
     };
 
 
     template < typename Value_, typename ...Args_ >
-    UniquePtr<Value_> make_unique(Args_&&... args) {
-        return UniquePtr<Value_>(new Value_(std::forward<Args_>(args)...));
+    UniqueReference<Value_> make_unique_ref(Args_&&... args) {
+        return UniqueReference<Value_>(new Value_(std::forward<Args_>(args)...));
     }
 
 
-#   define CPPGEAR_DECLARE_UNIQUE_PTR(Type_) \
-        using Type_##UniquePtr = UniquePtr<Type_>; \
-        using Type_##ConstUniquePtr = UniquePtr<const Type_>
+#   define CPPGEAR_DECLARE_UNIQUE_REF(Type_) \
+        using Type_##UniqueRef = UniqueReference<Type_>; \
+        using Type_##ConstUniqueRef = UniqueReference<const Type_>
 
 }
 
 namespace std {
 
-    template < typename Value_, typename Deleter_ >
-    struct hash<cppgear::UniquePtr<Value_, Deleter_>> {
-        using UniquePtrType = cppgear::UniquePtr<Value_, Deleter_>;
+template < typename Value_, typename Deleter_ >
+struct hash<cppgear::UniqueReference<Value_, Deleter_>> {
+    using UniqueReferenceType = cppgear::UniqueReference<Value_, Deleter_>;
 
-        using argument_type = UniquePtrType;
-        using result_type = size_t;
+    using argument_type = UniqueReferenceType;
+    using result_type = size_t;
 
-        result_type operator()(argument_type const& ptr) const {
-            return std::hash<typename UniquePtrType::pointer>()(ptr.get());
-        }
-    };
+    result_type operator()(argument_type const& ptr) const {
+        return std::hash<typename UniqueReferenceType::pointer>()(ptr.get());
+    }
+};
 
 }
