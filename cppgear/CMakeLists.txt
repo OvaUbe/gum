@@ -20,3 +20,6 @@ set_target_properties(cppgear-shared PROPERTIES
 
 install(DIRECTORY ../cppgear DESTINATION include FILES_MATCHING PATTERN "*.h")
 install(TARGETS cppgear-static cppgear-shared DESTINATION lib)
+
+file(GLOB_RECURSE CPPGEAR_HEADERS ${CMAKE_CURRENT_LIST_DIR}/*.h)
+add_custom_target(_headers SOURCES ${CPPGEAR_HEADERS})
