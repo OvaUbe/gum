@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Vladimir Golubev
+ * Copyright (c) Vladimir Golubev
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,7 +22,7 @@
 
 #pragma once
 
-#include <cppgear/exception_wrapper.h>
+#include <cppgear/ExceptionWrapper.h>
 
 #include <functional>
 
