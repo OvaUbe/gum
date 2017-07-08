@@ -21,28 +21,28 @@
 #
 # This module defines the following variables:
 #
-# CPPGEAR_INCLUDE_DIR
-# CPPGEAR_LIBRARY
+# CPPGEAR_INCLUDE_DIRS
+# CPPGEAR_LIBRARIES
 #
 
 FIND_PATH(
-	CPPGEAR_INCLUDE_DIR 
-		cppgear
-	PATH_SUFFIXES 
-		include 
-	PATHS
-		/usr/local
-		/usr
+    CPPGEAR_INCLUDE_DIRS
+        cppgear
+    PATH_SUFFIXES
+        include
+    PATHS
+        /usr/local
+        /usr
 )
 
 FIND_LIBRARY(
-	CPPGEAR_LIBRARY
-	NAMES 
-		cppgear
-	PATH_SUFFIXES 
-		lib64 
-		lib
-	PATHS
-		/usr/local
-		/usr
+    CPPGEAR_LIBRARIES
+    NAMES
+        cppgear
+    PATH_SUFFIXES
+        lib64
+        lib
+    PATHS
+        /usr/local
+        /usr
 )
