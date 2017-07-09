@@ -42,20 +42,20 @@ set(CPPGEAR_PUBLIC_HEADERS
     container/TwoQ.h
     diagnostics/Backtrace.h
     diagnostics/Demangle.h
+    token/FunctionToken.h
+    token/ObjectToken.h
+    token/Token.h
     Core.h
     Defer.h
     Exception.h
     ExceptionWrapper.h
-    FunctionToken.h
     IBoolean.h
     Maybe.h
-    ObjectToken.h
     Optional.h
     Range.h
     Raw.h
     SharedPtr.h
     SharedReference.h
-    Token.h
     Types.h
     UniquePtr.h
     UniqueReference.h

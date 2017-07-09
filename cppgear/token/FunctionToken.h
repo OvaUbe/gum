@@ -22,19 +22,11 @@
 
 #pragma once
 
-#include <cppgear/Token.h>
+#include <cppgear/token/ObjectToken.h>
+#include <cppgear/Defer.h>
 
 namespace cppgear {
 
-    template < typename Object_ >
-    class ObjectToken : public IToken {
-        Object_ _object;
-
-    public:
-        template < typename ...Args_ >
-        ObjectToken(Args_&&... args)
-            :   _object(std::forward<Args_>(args)...)
-        { }
-    };
+    using FunctionToken = ObjectToken<Defer>;
 
 }
