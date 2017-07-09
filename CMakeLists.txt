@@ -56,6 +56,7 @@ set(CPPGEAR_PUBLIC_HEADERS
     SharedPtr.h
     SharedReference.h
     Token.h
+    Types.h
     UniquePtr.h
     UniqueReference.h
 )
