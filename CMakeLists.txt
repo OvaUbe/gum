@@ -31,6 +31,7 @@ set(CPPGEAR_ROOT ${CMAKE_SOURCE_DIR}/cppgear/)
 
 set(CPPGEAR_SOURCES
     concurrency/CancellationToken.cpp
+    concurrency/Thread.cpp
     diagnostics/Backtrace.cpp
     diagnostics/Demangle.cpp
     Core.cpp
@@ -41,6 +42,7 @@ set(CPPGEAR_PUBLIC_HEADERS
     concurrency/ConditionVariable.h
     concurrency/DummyCancellationHandle.h
     concurrency/ICancellationToken.h
+    concurrency/Thread.h
     concurrency/Mutex.h
     container/FlatMap.h
     container/Iterator.h
