@@ -51,3 +51,4 @@ add_subdirectory(cppgear)
 add_subdirectory(test)
 
 highlight_matching(${CPPGEAR_ROOT}/*.h)
+highlight_matching(${CPPGEAR_ROOT}/*.cpp)
