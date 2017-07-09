@@ -20,27 +20,29 @@
  * THE SOFTWARE.
  */
 
-#include <cppgear/Core.h>
+#include <cppgear/diagnostics/Backtrace.h>
 
-#include <sstream>
+#if defined(CPPGEAR_USES_GNU_BACKEND)
+#   include <cppgear/backend/gnu/diagnostics/Demangle.h>
+#else
+#   include <cppgear/backend/dummy/diagnostics/Demangle.h>
+#endif
 
 namespace cppgear {
 
-    namespace detail {
+    namespace {
 
-        Where::Where(char const* file, size_t line, char const* function)
-            :   _file(file),
-                _line(line),
-                _function(function)
-        { }
+#   if defined(CPPGEAR_USES_GNU_BACKEND)
+        using Demangler = gnu::Demangler;
+#   else
+        using Demangler = dummy::Demangler;
+#   endif
+
+    }
 
 
-        std::string Where::ToString() const {
-            std::stringstream ss;
-            ss << _function << "(" << _file << ":" << _line << ")";
-            return ss.str();
-        }
-
+    std::string demangle(std::string const& str) {
+        return Demangler()(str);
     }
 
 }

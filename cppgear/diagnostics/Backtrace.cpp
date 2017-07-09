@@ -20,27 +20,28 @@
  * THE SOFTWARE.
  */
 
-#include <cppgear/Core.h>
+#include <cppgear/diagnostics/Backtrace.h>
 
-#include <sstream>
+#if defined(CPPGEAR_USES_GNU_BACKEND)
+#   include <cppgear/backend/gnu/diagnostics/Backtrace.h>
+#else
+#   include <cppgear/backend/dummy/diagnostics/Backtrace.h>
+#endif
 
 namespace cppgear {
 
-    namespace detail {
+    namespace {
 
-        Where::Where(char const* file, size_t line, char const* function)
-            :   _file(file),
-                _line(line),
-                _function(function)
-        { }
-
-
-        std::string Where::ToString() const {
-            std::stringstream ss;
-            ss << _function << "(" << _file << ":" << _line << ")";
-            return ss.str();
-        }
+#   if defined(CPPGEAR_USES_GNU_BACKEND)
+        using BacktraceGetter = gnu::BacktraceGetter;
+#   else
+        using BacktraceGetter = dummy::BacktraceGetter;
+#   endif
 
     }
+
+    Backtrace::Backtrace()
+        :   _backtrace(BacktraceGetter()())
+    { }
 
 }

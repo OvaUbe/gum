@@ -30,15 +30,18 @@ message("C++ compile flags: " ${CPPGEAR_CXX_COMPILEFLAGS})
 set(CPPGEAR_ROOT ${CMAKE_SOURCE_DIR}/cppgear/)
 
 set(CPPGEAR_SOURCES
+    diagnostics/Backtrace.cpp
+    diagnostics/Demangle.cpp
     Core.cpp
+    Exception.cpp
 )
-string_prepend(CPPGEAR_SOURCES ${CPPGEAR_ROOT} ${CPPGEAR_SOURCES})
-
 set(CPPGEAR_PUBLIC_HEADERS
     container/FlatMap.h
     container/Iterator.h
     container/Lru.h
     container/TwoQ.h
+    diagnostics/Backtrace.h
+    diagnostics/Demangle.h
     Core.h
     Defer.h
     Exception.h
@@ -55,7 +58,19 @@ set(CPPGEAR_PUBLIC_HEADERS
     UniqueReference.h
 )
 
-include_directories(${CPPGEAR_ROOT})
+if (${CPPGEAR_USES_CLANG_COMPILER} OR ${CPPGEAR_USES_GCC_COMPILER})
+    set(CPPGEAR_SOURCES ${CPPGEAR_SOURCES}
+        backend/gnu/diagnostics/Backtrace.cpp
+        backend/gnu/diagnostics/Demangle.cpp
+    )
+    add_definitions(
+        -DCPPGEAR_USES_GNU_BACKEND
+    )
+endif()
+
+string_prepend(CPPGEAR_SOURCES ${CPPGEAR_ROOT} ${CPPGEAR_SOURCES})
+
+include_directories(${CMAKE_SOURCE_DIR})
 
 add_subdirectory(cppgear)
 add_subdirectory(test)

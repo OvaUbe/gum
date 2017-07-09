@@ -83,7 +83,4 @@ namespace cppgear {
 #   define CPPGEAR_WHERE \
     cppgear::detail::Where(__FILE__, __LINE__, CPPGEAR_FUNCTION)
 
-
-    std::string demangle(std::string const& str);
-
 }

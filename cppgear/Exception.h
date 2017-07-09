@@ -22,17 +22,68 @@
 
 #pragma once
 
+#include <cppgear/diagnostics/Backtrace.h>
 #include <cppgear/Core.h>
 
 #include <stdexcept>
+#include <typeinfo>
 
 namespace cppgear {
 
     struct Exception : public std::runtime_error {
-        Exception(const std::string& message)
+        Exception(std::string const& message)
+            : std::runtime_error(message)
+        { }
+
+        Exception(char const* message)
             : std::runtime_error(message)
         { }
     };
+
+
+    namespace detail {
+
+        std::string get_diagnostics_message(char const* message, std::type_info const& client_type_info, Where const& where, Backtrace const& backtrace);
+
+
+        template < typename ClientException_ >
+        class ExceptionTemplate : public ClientException_ {
+            std::string _what;
+
+        public:
+            template < typename ClientException__ >
+            ExceptionTemplate(ClientException__&& ex, Where const& where, Backtrace const& backtrace)
+                :   ClientException_(std::forward<ClientException__>(ex)),
+                    _what(get_diagnostics_message(ex.what(), typeid(ClientException_), where, backtrace))
+            { }
+
+            char const* what() const noexcept override {
+                return _what.c_str();
+            }
+        };
+
+
+        template < typename Exception_ >
+        inline auto make_exception(Exception_&& ex, Where const& where, Backtrace const& backtrace) {
+            return ExceptionTemplate<Exception_>(std::forward<Exception_>(ex), where, backtrace);
+        }
+
+        inline auto make_exception(std::string const& message, Where const& where, Backtrace const& backtrace) {
+            return make_exception(Exception(message), where, backtrace);
+        }
+
+        inline auto make_exception(char const* message, Where const& where, Backtrace const& backtrace) {
+            return make_exception(Exception(message), where, backtrace);
+        }
+
+    }
+
+
+#   define CPPGEAR_THROW(Ex_) \
+        throw cppgear::detail::make_exception(Ex_, CPPGEAR_WHERE, cppgear::Backtrace())
+
+#   define CPPGEAR_CHECK(Condition_, Otherwise_) \
+        if (CPPGEAR_UNLIKELY(!Condition_)) CPPGEAR_THROW(Otherwise_)
 
 
 #   define CPPGEAR_DECLARE_EXCEPTION(Type_, DefaultMessage_) \
@@ -46,28 +97,6 @@ namespace cppgear {
             { } \
         }
 
-
     CPPGEAR_DECLARE_EXCEPTION(NullPointerException, "Accessing null pointer");
-
-
-    namespace detail {
-
-        template < typename Exception_ >
-        inline Exception make_exception(Exception_&& ex) {
-            return std::forward<Exception_>(ex);
-        }
-
-        inline Exception make_exception(const std::string& message) {
-            return Exception(message);
-        }
-
-    }
-
-
-#   define CPPGEAR_THROW(Ex_) \
-        throw cppgear::detail::make_exception(Ex_)
-
-#   define CPPGEAR_CHECK(Condition_, Otherwise_) \
-        if (CPPGEAR_UNLIKELY(!Condition_)) CPPGEAR_THROW(Otherwise_)
 
 }

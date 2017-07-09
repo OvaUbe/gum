@@ -20,27 +20,21 @@
  * THE SOFTWARE.
  */
 
-#include <cppgear/Core.h>
+#pragma once
 
-#include <sstream>
+#include <string>
 
 namespace cppgear {
 
-    namespace detail {
+    class Backtrace {
+        std::string _backtrace;
 
-        Where::Where(char const* file, size_t line, char const* function)
-            :   _file(file),
-                _line(line),
-                _function(function)
-        { }
+    public:
+        Backtrace();
 
-
-        std::string Where::ToString() const {
-            std::stringstream ss;
-            ss << _function << "(" << _file << ":" << _line << ")";
-            return ss.str();
+        std::string ToString() const {
+            return _backtrace;
         }
-
-    }
+    };
 
 }

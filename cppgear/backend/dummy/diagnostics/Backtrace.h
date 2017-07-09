@@ -20,27 +20,17 @@
  * THE SOFTWARE.
  */
 
-#include <cppgear/Core.h>
+#pragma once
 
-#include <sstream>
+#include <string>
 
 namespace cppgear {
+namespace dummy {
 
-    namespace detail {
-
-        Where::Where(char const* file, size_t line, char const* function)
-            :   _file(file),
-                _line(line),
-                _function(function)
-        { }
-
-
-        std::string Where::ToString() const {
-            std::stringstream ss;
-            ss << _function << "(" << _file << ":" << _line << ")";
-            return ss.str();
+    struct BacktraceGetter {
+        std::string operator()() const {
+            return "<unavailable>";
         }
+    };
 
-    }
-
-}
+}}

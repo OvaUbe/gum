@@ -20,27 +20,15 @@
  * THE SOFTWARE.
  */
 
-#include <cppgear/Core.h>
+#pragma once
 
-#include <sstream>
+#include <string>
 
 namespace cppgear {
+namespace gnu {
 
-    namespace detail {
+    struct Demangler {
+        std::string operator()(std::string const& str) const;
+    };
 
-        Where::Where(char const* file, size_t line, char const* function)
-            :   _file(file),
-                _line(line),
-                _function(function)
-        { }
-
-
-        std::string Where::ToString() const {
-            std::stringstream ss;
-            ss << _function << "(" << _file << ":" << _line << ")";
-            return ss.str();
-        }
-
-    }
-
-}
+}}
