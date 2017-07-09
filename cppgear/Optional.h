@@ -66,7 +66,7 @@ namespace cppgear {
             return _assign(std::move(move));
         }
 
-        void destroy() {
+        void reset() {
             _destroy();
             m_valid = false;
         }
@@ -136,7 +136,7 @@ namespace cppgear {
 
         void _consume(Optional& other) {
             m_storage.ctor(std::move(other.m_storage.ref()));
-            other.destroy();
+            other.reset();
         }
 
         void check() const {
@@ -160,6 +160,10 @@ namespace cppgear {
     public:
         Optional(std::nullptr_t ptr = nullptr) :
             m_ptr(ptr) { }
+
+        void reset() {
+            m_ptr = nullptr;
+        }
 
         Value_* operator->() {
             check();
