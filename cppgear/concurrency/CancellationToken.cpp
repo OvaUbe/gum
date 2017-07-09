@@ -53,6 +53,9 @@ namespace cppgear {
         }
 
         bool on_cancelled(ICancellationToken::CancellationHandler const& cancellation_handler) {
+            if (_is_cancelled)
+                return false;
+
             MutexLock l(_mutex);
 
             if (_is_cancelled)
@@ -73,6 +76,9 @@ namespace cppgear {
         }
 
         void cancel() {
+            if (_is_cancelled)
+                return;
+
             Optional<CancellationHandler> cancellation_handler;
             {
                 MutexLock l(_mutex);
