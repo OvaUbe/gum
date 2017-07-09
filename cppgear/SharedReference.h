@@ -204,7 +204,7 @@ namespace cppgear {
         }
 
         pointer operator->() const {
-            return *get();
+            return get();
         }
 
         long use_count() const {
