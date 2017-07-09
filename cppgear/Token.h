@@ -30,18 +30,8 @@ namespace cppgear {
         ITokenUniquePtr _impl;
 
     public:
-        Token() { }
-
-        Token(ITokenUniquePtr const& impl)
-            :   _impl(impl)
-        { }
-
         explicit operator bool () const {
             return (bool)_impl;
-        }
-
-        void Reset(ITokenUniquePtr&& impl) {
-            _impl = impl;
         }
 
         void Release() {
