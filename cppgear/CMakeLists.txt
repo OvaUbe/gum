@@ -20,6 +20,3 @@ target_link_libraries(cppgear-shared ${CPPGEAR_EXTERNAL_LIBS})
 
 install_tree(include/cppgear ${CPPGEAR_PUBLIC_HEADERS})
 install(TARGETS cppgear-static cppgear-shared DESTINATION lib)
-
-file(GLOB_RECURSE CPPGEAR_HEADERS ${CMAKE_CURRENT_LIST_DIR}/*.h)
-add_custom_target(_headers SOURCES ${CPPGEAR_HEADERS})

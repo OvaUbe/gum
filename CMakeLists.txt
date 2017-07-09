@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 2.8)
 
 include(cmake/utils/Install.cmake)
 include(cmake/utils/String.cmake)
+include(cmake/utils/Misc.cmake)
 
 find_package(Threads REQUIRED)
 set(CPPGEAR_EXTERNAL_LIBS ${CPPGEAR_EXTERNAL_LIBS} ${CMAKE_THREAD_LIBS_INIT})
@@ -48,3 +49,5 @@ include_directories(${CPPGEAR_ROOT})
 
 add_subdirectory(cppgear)
 add_subdirectory(test)
+
+highlight_matching(${CPPGEAR_ROOT}/*.h)
