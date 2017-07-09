@@ -26,6 +26,12 @@
 
 namespace cppgear {
 
+    struct IToken {
+        virtual ~IToken() { }
+    };
+    CPPGEAR_DECLARE_UNIQUE_PTR(IToken);
+
+
     class Token {
         ITokenUniquePtr _impl;
 
