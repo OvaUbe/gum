@@ -22,6 +22,7 @@
 
 #pragma once
 
+#include <string>
 #include <type_traits>
 
 namespace cppgear {
@@ -61,5 +62,28 @@ namespace cppgear {
 #	define CPPGEAR_LIKELY(x) (x)
 #	define CPPGEAR_UNLIKELY(x) (x)
 #endif
+
+
+    namespace detail {
+
+        class Where {
+            char const*   _file;
+            size_t        _line;
+            char const*   _function;
+
+        public:
+            Where(char const* file, size_t line, char const* function);
+
+            std::string ToString() const;
+        };
+
+    }
+
+
+#   define CPPGEAR_WHERE \
+    cppgear::detail::Where(__FILE__, __LINE__, CPPGEAR_FUNCTION)
+
+
+    std::string demangle(std::string const& str);
 
 }
