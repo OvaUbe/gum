@@ -36,6 +36,12 @@ namespace cppgear {
         ITokenUniquePtr _impl;
 
     public:
+        Token() = default;
+
+        Token(ITokenUniquePtr&& impl)
+            :   _impl(std::move(impl))
+        { }
+
         explicit operator bool () const {
             return (bool)_impl;
         }
