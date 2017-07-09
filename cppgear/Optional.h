@@ -119,18 +119,24 @@ namespace cppgear {
             }
         }
 
-        template < typename Optional_ >
-        void _initialize(Optional_&& other) {
+        void _initialize(Optional const& other) {
             m_valid = (bool)other;
             if (self) {
-                m_storage.ctor(std::forward<Optional_>(other).m_storage.ref());
+                m_storage.ctor(other.m_storage.ref());
             }
         }
 
-        template < typename Optional_ >
-        Optional_& _assign(Optional_&& other) {
+        void _initialize(Optional&& other) {
+            m_valid = (bool)other;
+            if (self) {
+                m_storage.ctor(std::move(other.m_storage.ref()));
+            }
+        }
+
+        template < typename Other_ >
+        Optional& _assign(Other_&& other) {
             _destroy();
-            _initialize(std::forward<Optional_>(other));
+            _initialize(std::forward<Other_>(other));
             return self;
         }
 
