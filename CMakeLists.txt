@@ -46,6 +46,7 @@ set(CPPGEAR_PUBLIC_HEADERS
     Defer.h
     Exception.h
     ExceptionWrapper.h
+    FunctionToken.h
     IBoolean.h
     Maybe.h
     ObjectToken.h
