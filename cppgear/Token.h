@@ -22,7 +22,7 @@
 
 #pragma once
 
-#include <cppgear/IToken.h>
+#include <cppgear/UniquePtr.h>
 
 namespace cppgear {
 
