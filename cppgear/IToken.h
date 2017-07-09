@@ -22,13 +22,13 @@
 
 #pragma once
 
-#include <cppgear/SharedPtr.h>
+#include <cppgear/UniquePtr.h>
 
 namespace cppgear {
 
     struct IToken {
         virtual ~IToken() { }
     };
-    CPPGEAR_DECLARE_PTR(IToken);
+    CPPGEAR_DECLARE_UNIQUE_PTR(IToken);
 
 }

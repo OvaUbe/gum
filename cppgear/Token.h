@@ -27,12 +27,12 @@
 namespace cppgear {
 
     class Token {
-        ITokenPtr _impl;
+        ITokenUniquePtr _impl;
 
     public:
         Token() { }
 
-        Token(ITokenPtr const& impl)
+        Token(ITokenUniquePtr const& impl)
             :   _impl(impl)
         { }
 
@@ -40,7 +40,7 @@ namespace cppgear {
             return (bool)_impl;
         }
 
-        void Reset(ITokenPtr const& impl) {
+        void Reset(ITokenUniquePtr&& impl) {
             _impl = impl;
         }
 
@@ -52,7 +52,7 @@ namespace cppgear {
 
     template < typename Token_, typename ...Args_ >
     auto make_token(Args_&&... args) {
-        return Token(make_shared<Token_>(args)...);
+        return Token(make_unique<Token_>(args)...);
     }
 
 }
