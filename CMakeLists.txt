@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 2.8)
 
 include(cmake/utils/Install.cmake)
-include(cmake/utils/String.cmake)
 include(cmake/utils/Misc.cmake)
 include(cmake/utils/Platform.cmake)
+include(cmake/utils/String.cmake)
 
 detect_clang_compiler(CPPGEAR_USES_CLANG_COMPILER)
 detect_gcc_compiler(CPPGEAR_USES_GCC_COMPILER)
