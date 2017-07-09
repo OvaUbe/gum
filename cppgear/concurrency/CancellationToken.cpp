@@ -59,7 +59,7 @@ namespace cppgear {
                 return;
 
             CPPGEAR_CHECK(!_cancellation_handler, "Cancellation handler already registered");
-            _cancellation_handler = make_optional<CancellationHandler>(cancellation_handler);
+            _cancellation_handler = cancellation_handler;
         }
 
         void unregister_cancellation_handler() {
