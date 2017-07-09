@@ -22,13 +22,13 @@
 
 #pragma once
 
-#include <cppgear/UniquePtr.h>
+#include <string>
 
 namespace cppgear {
+namespace gnu {
 
-    struct IToken {
-        virtual ~IToken() { }
+    struct Demangler {
+        std::string operator()(std::string const& str) const;
     };
-    CPPGEAR_DECLARE_UNIQUE_PTR(IToken);
 
-}
+}}

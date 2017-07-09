@@ -88,7 +88,7 @@ namespace cppgear {
 
         value_type&& operator*() && {
             check();
-            return m_storage.ref();
+            return std::move(m_storage).ref();
         }
 
         const_value_type& operator*() const& {

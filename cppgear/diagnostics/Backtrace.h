@@ -22,13 +22,19 @@
 
 #pragma once
 
-#include <cppgear/UniquePtr.h>
+#include <string>
 
 namespace cppgear {
 
-    struct IToken {
-        virtual ~IToken() { }
+    class Backtrace {
+        std::string _backtrace;
+
+    public:
+        Backtrace();
+
+        std::string ToString() const {
+            return _backtrace;
+        }
     };
-    CPPGEAR_DECLARE_UNIQUE_PTR(IToken);
 
 }

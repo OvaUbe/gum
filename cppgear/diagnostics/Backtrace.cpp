@@ -20,15 +20,28 @@
  * THE SOFTWARE.
  */
 
-#pragma once
+#include <cppgear/diagnostics/Backtrace.h>
 
-#include <cppgear/UniquePtr.h>
+#if defined(CPPGEAR_USES_GNU_BACKEND)
+#   include <cppgear/backend/gnu/diagnostics/Backtrace.h>
+#else
+#   include <cppgear/backend/dummy/diagnostics/Backtrace.h>
+#endif
 
 namespace cppgear {
 
-    struct IToken {
-        virtual ~IToken() { }
-    };
-    CPPGEAR_DECLARE_UNIQUE_PTR(IToken);
+    namespace {
+
+#   if defined(CPPGEAR_USES_GNU_BACKEND)
+        using BacktraceGetter = gnu::BacktraceGetter;
+#   else
+        using BacktraceGetter = dummy::BacktraceGetter;
+#   endif
+
+    }
+
+    Backtrace::Backtrace()
+        :   _backtrace(BacktraceGetter()())
+    { }
 
 }

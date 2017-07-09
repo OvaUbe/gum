@@ -20,15 +20,29 @@
  * THE SOFTWARE.
  */
 
-#pragma once
+#include <cppgear/diagnostics/Backtrace.h>
 
-#include <cppgear/UniquePtr.h>
+#if defined(CPPGEAR_USES_GNU_BACKEND)
+#   include <cppgear/backend/gnu/diagnostics/Demangle.h>
+#else
+#   include <cppgear/backend/dummy/diagnostics/Demangle.h>
+#endif
 
 namespace cppgear {
 
-    struct IToken {
-        virtual ~IToken() { }
-    };
-    CPPGEAR_DECLARE_UNIQUE_PTR(IToken);
+    namespace {
+
+#   if defined(CPPGEAR_USES_GNU_BACKEND)
+        using Demangler = gnu::Demangler;
+#   else
+        using Demangler = dummy::Demangler;
+#   endif
+
+    }
+
+
+    std::string demangle(std::string const& str) {
+        return Demangler()(str);
+    }
 
 }

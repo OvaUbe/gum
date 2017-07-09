@@ -20,15 +20,21 @@
  * THE SOFTWARE.
  */
 
-#pragma once
+#include <cppgear/backend/gnu/diagnostics/Demangle.h>
 
-#include <cppgear/UniquePtr.h>
+#include <cppgear/Defer.h>
+
+#include <cxxabi.h>
 
 namespace cppgear {
+namespace gnu {
 
-    struct IToken {
-        virtual ~IToken() { }
-    };
-    CPPGEAR_DECLARE_UNIQUE_PTR(IToken);
+    std::string Demangler::operator()(const std::string& s) const {
+        int status = 0;
+        char* result = abi::__cxa_demangle(s.c_str(), 0, 0, &status);
+        defer { free(result); };
 
-}
+        return (status != 0) ? s : std::string(result);
+    }
+
+}}
