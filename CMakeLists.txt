@@ -48,6 +48,7 @@ set(CPPGEAR_PUBLIC_HEADERS
     ExceptionWrapper.h
     IBoolean.h
     Maybe.h
+    ObjectToken.h
     Optional.h
     Range.h
     Raw.h
