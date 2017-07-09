@@ -22,44 +22,13 @@
 
 #pragma once
 
-#include <type_traits>
+#include <cppgear/SharedPtr.h>
 
 namespace cppgear {
 
-#   define SelfType \
-        std::remove_reference<decltype(self)>::type
-
-#   define self \
-        (*this)
-
-#   define const_self \
-        (static_cast<typename SelfType const&>(self))
-
-#   define const_this \
-        (&const_self)
-
-#   define derived_self \
-        (static_cast<typename std::conditional \
-                        <std::is_const<typename SelfType>::value, \
-                         Derived_ const&, \
-                         Derived_& \
-                        >::type \
-                    >(self))
-
-
-#if __GNUC__ >= 3 || defined(__clang__)
-#	define CPPGEAR_FUNCTION __PRETTY_FUNCTION__
-#else
-#	define CPPGEAR_FUNCTION __func__
-#endif
-
-
-#if defined(__GNUC__) || defined(__clang__)
-#	define CPPGEAR_LIKELY(x) __builtin_expect((x), 1)
-#	define CPPGEAR_UNLIKELY(x) __builtin_expect((x), 0)
-#else
-#	define CPPGEAR_LIKELY(x) (x)
-#	define CPPGEAR_UNLIKELY(x) (x)
-#endif
+    struct IToken {
+        virtual ~IToken() { }
+    };
+    CPPGEAR_DECLARE_PTR(IToken);
 
 }

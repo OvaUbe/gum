@@ -22,44 +22,52 @@
 
 #pragma once
 
-#include <type_traits>
+#include <cppgear/Core.h>
+
+#include <stdexcept>
 
 namespace cppgear {
 
-#   define SelfType \
-        std::remove_reference<decltype(self)>::type
-
-#   define self \
-        (*this)
-
-#   define const_self \
-        (static_cast<typename SelfType const&>(self))
-
-#   define const_this \
-        (&const_self)
-
-#   define derived_self \
-        (static_cast<typename std::conditional \
-                        <std::is_const<typename SelfType>::value, \
-                         Derived_ const&, \
-                         Derived_& \
-                        >::type \
-                    >(self))
+    struct Exception : public std::runtime_error {
+        Exception(const std::string& message)
+            : std::runtime_error(message)
+        { }
+    };
 
 
-#if __GNUC__ >= 3 || defined(__clang__)
-#	define CPPGEAR_FUNCTION __PRETTY_FUNCTION__
-#else
-#	define CPPGEAR_FUNCTION __func__
-#endif
+#   define CPPGEAR_DECLARE_EXCEPTION(Type_, DefaultMessage_) \
+        struct Type_ : public Exception { \
+            Type_() \
+                :   Exception(DefaultMessage_) \
+            { } \
+            \
+            Type_(const std::string& message) \
+                :   Exception(std::string(DefaultMessage_) + ": " + message) \
+            { } \
+        }
 
 
-#if defined(__GNUC__) || defined(__clang__)
-#	define CPPGEAR_LIKELY(x) __builtin_expect((x), 1)
-#	define CPPGEAR_UNLIKELY(x) __builtin_expect((x), 0)
-#else
-#	define CPPGEAR_LIKELY(x) (x)
-#	define CPPGEAR_UNLIKELY(x) (x)
-#endif
+    CPPGEAR_DECLARE_EXCEPTION(NullPointerException, "Accessing null pointer");
+
+
+    namespace detail {
+
+        template < typename Exception_ >
+        inline Exception make_exception(Exception_&& ex) {
+            return std::forward<Exception_>(ex);
+        }
+
+        inline Exception make_exception(const std::string& message) {
+            return Exception(message);
+        }
+
+    }
+
+
+#   define CPPGEAR_THROW(Ex_) \
+        throw cppgear::detail::make_exception(Ex_)
+
+#   define CPPGEAR_CHECK(Condition_, Otherwise_) \
+        if (CPPGEAR_UNLIKELY(!Condition_)) CPPGEAR_THROW(Otherwise_)
 
 }

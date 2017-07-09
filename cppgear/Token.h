@@ -22,44 +22,37 @@
 
 #pragma once
 
-#include <type_traits>
+#include <cppgear/IToken.h>
 
 namespace cppgear {
 
-#   define SelfType \
-        std::remove_reference<decltype(self)>::type
+    class Token {
+        ITokenPtr _impl;
 
-#   define self \
-        (*this)
+    public:
+        Token() { }
 
-#   define const_self \
-        (static_cast<typename SelfType const&>(self))
+        Token(ITokenPtr const& impl)
+            :   _impl(impl)
+        { }
 
-#   define const_this \
-        (&const_self)
+        explicit operator bool () const {
+            return (bool)_impl;
+        }
 
-#   define derived_self \
-        (static_cast<typename std::conditional \
-                        <std::is_const<typename SelfType>::value, \
-                         Derived_ const&, \
-                         Derived_& \
-                        >::type \
-                    >(self))
+        void Reset(ITokenPtr const& impl) {
+            _impl = impl;
+        }
 
-
-#if __GNUC__ >= 3 || defined(__clang__)
-#	define CPPGEAR_FUNCTION __PRETTY_FUNCTION__
-#else
-#	define CPPGEAR_FUNCTION __func__
-#endif
+        void Release() {
+            _impl.reset();
+        }
+    };
 
 
-#if defined(__GNUC__) || defined(__clang__)
-#	define CPPGEAR_LIKELY(x) __builtin_expect((x), 1)
-#	define CPPGEAR_UNLIKELY(x) __builtin_expect((x), 0)
-#else
-#	define CPPGEAR_LIKELY(x) (x)
-#	define CPPGEAR_UNLIKELY(x) (x)
-#endif
+    template < typename Token_, typename ...Args_ >
+    auto make_token(Args_&&... args) {
+        return Token(make_shared<Token_>(args)...);
+    }
 
 }

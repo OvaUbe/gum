@@ -22,16 +22,14 @@
 
 #pragma once
 
-#include <exception>
+#include <cppgear/Exception.h>
+
 #include <utility>
 
 namespace cppgear {
 
-    class EmptyMaybeException : public std::exception {
-        const char* what() const noexcept override {
-            return "Empty maybe!";
-        }
-    };
+    CPPGEAR_DECLARE_EXCEPTION(EmptyMaybeException, "Empty maybe");
+
 
     template < typename >
     class Maybe;
@@ -124,10 +122,8 @@ namespace cppgear {
         }
 
         Value unwrap() {
-            if (m_wrapped) {
-                return std::move(*m_wrapped);
-            }
-            throw EmptyMaybeException();
+            CPPGEAR_CHECK(m_wrapped, EmptyMaybeException());
+            return std::move(*m_wrapped);
         }
 
         Wrapped take() {
