@@ -36,6 +36,7 @@ set(CPPGEAR_SOURCES
     Exception.cpp
 )
 set(CPPGEAR_PUBLIC_HEADERS
+    concurrency/ConditionVariable.h
     concurrency/ICancellationToken.h
     concurrency/Mutex.h
     container/FlatMap.h
