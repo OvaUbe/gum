@@ -37,6 +37,7 @@ set(CPPGEAR_SOURCES
 )
 set(CPPGEAR_PUBLIC_HEADERS
     concurrency/ConditionVariable.h
+    concurrency/DummyCancellationHandle.h
     concurrency/ICancellationToken.h
     concurrency/Mutex.h
     container/FlatMap.h
