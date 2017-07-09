@@ -46,6 +46,7 @@ set(CPPGEAR_PUBLIC_HEADERS
     Defer.h
     Exception.h
     ExceptionWrapper.h
+    IBoolean.h
     Maybe.h
     Optional.h
     Range.h
