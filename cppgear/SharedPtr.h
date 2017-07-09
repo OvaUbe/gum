@@ -331,7 +331,7 @@ namespace cppgear {
 
         pointer operator->() const {
             check_ptr();
-            return *get();
+            return get();
         }
 
         long use_count() const {
