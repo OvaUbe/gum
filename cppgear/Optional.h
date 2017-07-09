@@ -50,9 +50,19 @@ namespace cppgear {
             _initialize(copy);
         }
 
+        Optional(Value_ const& copy)
+            :   m_storage(copy),
+                m_valid(true)
+        { }
+
         Optional(Optional&& move) {
             _initialize(std::move(move));
         }
+
+        Optional(Value_&& move)
+            :   m_storage(std::move(move)),
+                m_valid(true)
+        { }
 
         ~Optional() {
             _destroy();
@@ -62,7 +72,15 @@ namespace cppgear {
             return _assign(copy);
         }
 
+        Optional& operator=(Value_ const& copy) {
+            return _assign(copy);
+        }
+
         Optional& operator=(Optional&& move) {
+            return _assign(std::move(move));
+        }
+
+        Optional& operator=(Value_&& move) {
             return _assign(std::move(move));
         }
 
@@ -126,11 +144,21 @@ namespace cppgear {
             }
         }
 
+        void _initialize(Value_ const& other) {
+            m_valid = true;
+            m_storage.ctor(other);
+        }
+
         void _initialize(Optional&& other) {
             m_valid = (bool)other;
             if (self) {
                 m_storage.ctor(std::move(other.m_storage.ref()));
             }
+        }
+
+        void _initialize(Value_&& other) {
+            m_valid = true;
+            m_storage.ctor(std::move(other));
         }
 
         template < typename Other_ >
