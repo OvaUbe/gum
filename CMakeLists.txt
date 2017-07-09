@@ -30,12 +30,14 @@ message("C++ compile flags: " ${CPPGEAR_CXX_COMPILEFLAGS})
 set(CPPGEAR_ROOT ${CMAKE_SOURCE_DIR}/cppgear/)
 
 set(CPPGEAR_SOURCES
+    concurrency/CancellationToken.cpp
     diagnostics/Backtrace.cpp
     diagnostics/Demangle.cpp
     Core.cpp
     Exception.cpp
 )
 set(CPPGEAR_PUBLIC_HEADERS
+    concurrency/CancellationToken.h
     concurrency/ConditionVariable.h
     concurrency/DummyCancellationHandle.h
     concurrency/ICancellationToken.h
