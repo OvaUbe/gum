@@ -3,6 +3,16 @@ cmake_minimum_required(VERSION 2.8)
 include(cmake/utils/Install.cmake)
 include(cmake/utils/String.cmake)
 include(cmake/utils/Misc.cmake)
+include(cmake/utils/Platform.cmake)
+
+detect_clang_compiler(CPPGEAR_USES_CLANG_COMPILER)
+detect_gcc_compiler(CPPGEAR_USES_GCC_COMPILER)
+
+if (${CPPGEAR_USES_CLANG_COMPILER})
+    add_definitions(-DCPPGEAR_USES_CLANG_COMPILER)
+elseif (${CPPGEAR_USES_GCC_COMPILER})
+    add_definitions(-DCPPGEAR_USES_GCC_COMPILER)
+endif()
 
 find_package(Threads REQUIRED)
 set(CPPGEAR_EXTERNAL_LIBS ${CPPGEAR_EXTERNAL_LIBS} ${CMAKE_THREAD_LIBS_INIT})
