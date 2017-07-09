@@ -42,6 +42,9 @@ namespace cppgear {
         friend class WeakPtr;
 
         template < typename >
+        friend class SharedReference;
+
+        template < typename >
         friend class SharedPtr;
 
         template < typename Value__, typename ...Args_ >

@@ -39,6 +39,9 @@ namespace cppgear {
         using SmartpointerType = std::weak_ptr<Value_>;
 
         template < typename >
+        friend class WeakPtr;
+
+        template < typename >
         friend class SharedPtr;
 
         template < typename >
@@ -143,6 +146,9 @@ namespace cppgear {
 
         template < typename >
         friend class WeakPtr;
+
+        template < typename >
+        friend class SharedPtr;
 
         template < typename >
         friend class SharedReference;
