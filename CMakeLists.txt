@@ -36,6 +36,7 @@ set(CPPGEAR_SOURCES
     Exception.cpp
 )
 set(CPPGEAR_PUBLIC_HEADERS
+    concurrency/Mutex.h
     container/FlatMap.h
     container/Iterator.h
     container/Lru.h
