@@ -52,14 +52,15 @@ namespace cppgear {
             return _is_cancelled;
         }
 
-        void on_cancelled(ICancellationToken::CancellationHandler const& cancellation_handler) {
+        bool on_cancelled(ICancellationToken::CancellationHandler const& cancellation_handler) {
             MutexLock l(_mutex);
 
             if (_is_cancelled)
-                return;
+                return false;
 
             CPPGEAR_CHECK(!_cancellation_handler, "Cancellation handler already registered");
             _cancellation_handler = cancellation_handler;
+            return true;
         }
 
         void unregister_cancellation_handler() {
@@ -111,8 +112,9 @@ namespace cppgear {
 
 
     Token CancellationToken::on_cancelled(CancellationHandler const& cancellation_handler) {
-        _impl->on_cancelled(cancellation_handler);
-        return make_token<FunctionToken>([=]{ _impl->unregister_cancellation_handler(); });
+        if (_impl->on_cancelled(cancellation_handler))
+            return make_token<FunctionToken>([=]{ _impl->unregister_cancellation_handler(); });
+        return Token();
     }
 
 
