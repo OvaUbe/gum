@@ -43,8 +43,8 @@ set(CPPGEAR_PUBLIC_HEADERS
     concurrency/DummyCancellationHandle.h
     concurrency/GenericMutexLock.h
     concurrency/ICancellationToken.h
-    concurrency/Thread.h
     concurrency/Mutex.h
+    concurrency/Thread.h
     container/FlatMap.h
     container/Iterator.h
     container/Lru.h
