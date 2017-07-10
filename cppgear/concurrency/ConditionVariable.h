@@ -22,8 +22,8 @@
 
 #pragma once
 
+#include <cppgear/concurrency/GenericMutexLock.h>
 #include <cppgear/concurrency/ICancellationToken.h>
-#include <cppgear/concurrency/Mutex.h>
 
 #include <condition_variable>
 
