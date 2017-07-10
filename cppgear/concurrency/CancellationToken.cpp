@@ -69,10 +69,10 @@ namespace cppgear {
         void unregister_cancellation_handler() {
             MutexLock l(_mutex);
 
+            _cancellation_handler.reset();
+
             while (_cancel_in_progress)
                 _cancel_condition.wait(_mutex, *DummyCancellationHandle());
-
-            _cancellation_handler.reset();
         }
 
         void cancel() {
