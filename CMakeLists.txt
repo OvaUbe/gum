@@ -41,6 +41,7 @@ set(CPPGEAR_PUBLIC_HEADERS
     concurrency/CancellationToken.h
     concurrency/ConditionVariable.h
     concurrency/DummyCancellationHandle.h
+    concurrency/GenericMutexLock.h
     concurrency/ICancellationToken.h
     concurrency/Thread.h
     concurrency/Mutex.h

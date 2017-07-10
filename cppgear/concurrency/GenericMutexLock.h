@@ -22,35 +22,20 @@
 
 #pragma once
 
-#include <cppgear/concurrency/GenericMutexLock.h>
-
-#include <mutex>
-
 namespace cppgear {
 
-    namespace detail {
+    template < typename Lock_ >
+    class GenericMutexLock {
+        Lock_ const& _lock;
 
-        template < typename Impl_ >
-        class GenericMutexWrapper {
-            mutable Impl_ _impl;
+    public:
+        GenericMutexLock(Lock_ const& lock)
+            :   _lock(lock)
+        { _lock.lock(); }
 
-        public:
-            void lock() const {
-                _impl.lock();
-            }
-
-            void unlock() const {
-                _impl.unlock();
-            }
-        };
-
-    }
-
-
-    using Mutex = detail::GenericMutexWrapper<std::mutex>;
-    using RecursiveMutex = detail::GenericMutexWrapper<std::recursive_mutex>;
-
-    using MutexLock = GenericMutexLock<Mutex>;
-    using RecursiveMutexLock = GenericMutexLock<RecursiveMutex>;
+        ~GenericMutexLock() {
+            _lock.unlock();
+        }
+    };
 
 }
