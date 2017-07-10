@@ -38,6 +38,7 @@ set(CPPGEAR_SOURCES
     Exception.cpp
 )
 set(CPPGEAR_PUBLIC_HEADERS
+    compare/OwnerLess.h
     concurrency/CancellationToken.h
     concurrency/ConditionVariable.h
     concurrency/DummyCancellationHandle.h
