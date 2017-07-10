@@ -92,8 +92,8 @@ namespace cppgear {
                 _cancellation_handler.swap(cancellation_handler);
             }
 
-            if (_cancellation_handler)
-                (*_cancellation_handler)();
+            if (cancellation_handler)
+                (*cancellation_handler)();
 
             {
                 MutexLock l(_mutex);
