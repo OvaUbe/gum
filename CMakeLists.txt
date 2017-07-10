@@ -66,6 +66,7 @@ set(CPPGEAR_PUBLIC_HEADERS
     Raw.h
     SharedPtr.h
     SharedReference.h
+    Singleton.h
     Types.h
     UniquePtr.h
     UniqueReference.h
