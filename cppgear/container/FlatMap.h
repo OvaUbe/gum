@@ -412,50 +412,38 @@ namespace cppgear {
             return m_underlying.erase(it, it);
         }
 
+        friend bool operator==(FlatMap const& lhs, FlatMap const& rhs) {
+            return std::equal(lhs.begin(), lhs.end(), rhs.begin(), rhs.end());
+        }
+
+        friend bool operator!=(FlatMap const& lhs, FlatMap const& rhs) {
+            return !(lhs == rhs);
+        }
+
+        friend bool operator<(FlatMap const& lhs, FlatMap const& rhs) {
+            return std::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end());
+        }
+
+        friend bool operator<=(FlatMap const& lhs, FlatMap const& rhs) {
+            if (lhs < rhs) {
+                return true;
+            }
+            return lhs == rhs;
+        }
+
+        friend bool operator>(FlatMap const& lhs, FlatMap const& rhs) {
+            return !(lhs <= rhs);
+        }
+
+        friend bool operator>=(FlatMap const& lhs, FlatMap const& rhs) {
+            return !(lhs < rhs);
+        }
+
     private:
         vector_type m_underlying;
         key_compare m_comparator;
 
     };
-
-    template < typename Key_, typename Value_, typename Compare_, typename Allocator_, template <typename, typename> class Vector_ >
-    bool operator==(FlatMap<Key_, Value_, Compare_, Allocator_, Vector_> const& lhs,
-                    FlatMap<Key_, Value_, Compare_, Allocator_, Vector_> const& rhs) {
-        return std::equal(lhs.begin(), lhs.end(), rhs.begin(), rhs.end());
-    }
-
-    template < typename Key_, typename Value_, typename Compare_, typename Allocator_, template <typename, typename> class Vector_ >
-    bool operator!=(FlatMap<Key_, Value_, Compare_, Allocator_, Vector_> const& lhs,
-                    FlatMap<Key_, Value_, Compare_, Allocator_, Vector_> const& rhs) {
-        return !(lhs == rhs);
-    }
-
-    template < typename Key_, typename Value_, typename Compare_, typename Allocator_, template <typename, typename> class Vector_ >
-    bool operator<(FlatMap<Key_, Value_, Compare_, Allocator_, Vector_> const& lhs,
-                   FlatMap<Key_, Value_, Compare_, Allocator_, Vector_> const& rhs) {
-        return std::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end());
-    }
-
-    template < typename Key_, typename Value_, typename Compare_, typename Allocator_, template <typename, typename> class Vector_ >
-    bool operator<=(FlatMap<Key_, Value_, Compare_, Allocator_, Vector_> const& lhs,
-                    FlatMap<Key_, Value_, Compare_, Allocator_, Vector_> const& rhs) {
-        if (lhs < rhs) {
-            return true;
-        }
-        return lhs == rhs;
-    }
-
-    template < typename Key_, typename Value_, typename Compare_, typename Allocator_, template <typename, typename> class Vector_ >
-    bool operator>(FlatMap<Key_, Value_, Compare_, Allocator_, Vector_> const& lhs,
-                   FlatMap<Key_, Value_, Compare_, Allocator_, Vector_> const& rhs) {
-        return !(lhs <= rhs);
-    }
-
-    template < typename Key_, typename Value_, typename Compare_, typename Allocator_, template <typename, typename> class Vector_ >
-    bool operator>=(FlatMap<Key_, Value_, Compare_, Allocator_, Vector_> const& lhs,
-                    FlatMap<Key_, Value_, Compare_, Allocator_, Vector_> const& rhs) {
-        return !(lhs < rhs);
-    }
 
 }
 
