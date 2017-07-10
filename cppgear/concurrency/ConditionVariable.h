@@ -46,7 +46,7 @@ namespace cppgear {
         void wait(Lock_ const& lock, Predicate_ const& predicate, ICancellationHandle& handle) const {
             Token const t = handle.on_cancelled([&]{ this->cancel(lock); });
 
-            _impl.wait(lock, predicate);
+            _impl.wait(lock, [&]{ return !handle || predicate(); });
         }
 
         void broadcast() const {
