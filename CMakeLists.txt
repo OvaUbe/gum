@@ -44,6 +44,7 @@ set(CPPGEAR_PUBLIC_HEADERS
     concurrency/GenericMutexLock.h
     concurrency/ICancellationToken.h
     concurrency/Mutex.h
+    concurrency/RwMutex.h
     concurrency/Thread.h
     container/FlatMap.h
     container/Iterator.h
