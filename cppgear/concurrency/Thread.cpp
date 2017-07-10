@@ -50,8 +50,18 @@ namespace cppgear {
     }
 
 
+    ThreadId Thread::get_own_id() {
+        return std::this_thread::get_id();
+    }
+
+
     std::string Thread::get_name() const {
         return _name;
+    }
+
+
+    ThreadId Thread::get_id() const {
+        return _impl.get_id();
     }
 
 

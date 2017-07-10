@@ -28,6 +28,9 @@
 
 namespace cppgear {
 
+    using ThreadId = std::thread::id;
+
+
     class Thread {
         using Self = Thread;
 
@@ -55,8 +58,10 @@ namespace cppgear {
         ~Thread();
 
         static std::string get_own_name();
+        static ThreadId get_own_id();
 
         std::string get_name() const;
+        ThreadId get_id() const;
 
     private:
         void thread_func();
