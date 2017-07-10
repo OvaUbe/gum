@@ -46,7 +46,7 @@ namespace cppgear {
             return (bool)_impl;
         }
 
-        void Release() {
+        void release() {
             _impl.reset();
         }
     };
