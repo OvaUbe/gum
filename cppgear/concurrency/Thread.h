@@ -29,24 +29,38 @@
 namespace cppgear {
 
     class Thread {
+        using Self = Thread;
+
         using Impl = std::thread;
 
     public:
-        using Signature = void(ICancellationHandle&);
+        using TaskSignature = void(ICancellationHandle&);
+        using TaskType = std::function<TaskSignature>;
 
     private:
+        std::string         _name;
+        TaskType            _task;
+
         CancellationToken   _cancellation_token;
         Impl                _impl;
 
     public:
-        template < typename Callable_ >
-        Thread(Callable_&& callable)
-            :   _impl(std::bind(std::forward<Callable_>(callable), std::ref(_cancellation_token)))
+        template < typename String_, typename Callable_ >
+        Thread(String_&& name, Callable_&& callable)
+            :   _name(std::forward<String_>(name)),
+                _task(std::forward<Callable_>(callable)),
+                _impl(std::bind(&Self::thread_func, this))
         { }
 
         ~Thread();
 
+        static std::string get_own_name();
+
+        std::string get_name() const;
+
     private:
+        void thread_func();
+
         void dtor();
     };
     CPPGEAR_DECLARE_UNIQUE_REF(Thread);

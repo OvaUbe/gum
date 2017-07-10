@@ -26,6 +26,13 @@
 
 namespace cppgear {
 
+    namespace {
+
+        thread_local std::string t_thread_name = "__UndefinedThread";
+
+    }
+
+
     Thread::~Thread() {
         try {
             dtor();
@@ -34,6 +41,30 @@ namespace cppgear {
             std::cout << "Thread join failed: " << ex.what() << std::endl;
         } catch (...) {
             std::cout << "Unknown exception in thread destructor." << std::endl;
+        }
+    }
+
+
+    std::string Thread::get_own_name() {
+        return t_thread_name;
+    }
+
+
+    std::string Thread::get_name() const {
+        return _name;
+    }
+
+
+    void Thread::thread_func() {
+        t_thread_name = _name;
+
+        try {
+            _task(_cancellation_token);
+        }
+        catch (std::exception const& ex) {
+            std::cout << "Uncaught exception in Thread::thread_func(): " << ex.what() << std::endl;
+        } catch (...) {
+            std::cout << "Unknown exception in Thread::thread_func()." << std::endl;
         }
     }
 
