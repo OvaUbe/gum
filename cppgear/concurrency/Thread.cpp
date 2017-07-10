@@ -20,35 +20,27 @@
  * THE SOFTWARE.
  */
 
-#pragma once
+#include <cppgear/concurrency/Thread.h>
 
-#include <cppgear/IToken.h>
+#include <iostream>
 
 namespace cppgear {
 
-    struct IToken {
-        virtual ~IToken() { }
-    };
-    CPPGEAR_DECLARE_UNIQUE_PTR(IToken);
-
-
-    class Token {
-        ITokenUniquePtr _impl;
-
-    public:
-        explicit operator bool () const {
-            return (bool)_impl;
+    Thread::~Thread() {
+        try {
+            dtor();
         }
-
-        void Release() {
-            _impl.reset();
+        catch (std::exception const& ex) {
+            std::cout << "Thread join failed: " << ex.what() << std::endl;
+        } catch (...) {
+            std::cout << "Unknown exception in thread destructor." << std::endl;
         }
-    };
+    }
 
 
-    template < typename Token_, typename ...Args_ >
-    auto make_token(Args_&&... args) {
-        return Token(make_unique<Token_>(args)...);
+    void Thread::dtor() {
+        _cancellation_token.cancel();
+        _impl.join();
     }
 
 }

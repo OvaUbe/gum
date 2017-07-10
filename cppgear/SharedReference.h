@@ -42,6 +42,9 @@ namespace cppgear {
         friend class WeakPtr;
 
         template < typename >
+        friend class SharedReference;
+
+        template < typename >
         friend class SharedPtr;
 
         template < typename Value__, typename ...Args_ >
@@ -60,6 +63,10 @@ namespace cppgear {
         { }
 
     public:
+        SharedReference()
+            :   _wrapped(std::make_shared<Value_>())
+        { }
+
         template < typename Compatible_ >
         SharedReference(Compatible_* ptr)
             : _wrapped(check_ptr(ptr))
@@ -197,7 +204,7 @@ namespace cppgear {
         }
 
         pointer operator->() const {
-            return *get();
+            return get();
         }
 
         long use_count() const {

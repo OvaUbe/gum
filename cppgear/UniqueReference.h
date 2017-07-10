@@ -39,6 +39,9 @@ namespace cppgear {
         template < typename, typename >
         friend class UniquePtr;
 
+        template < typename, typename >
+        friend class UniqueReference;
+
         template < typename >
         friend class SharedPtr;
 
@@ -53,6 +56,10 @@ namespace cppgear {
         SmartpointerType _wrapped;
 
     public:
+        UniqueReference()
+            :   _wrapped(new Value_)
+        { }
+
         UniqueReference(pointer ptr)
             :   _wrapped(check_ptr(ptr))
         { }

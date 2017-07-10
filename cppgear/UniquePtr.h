@@ -39,6 +39,9 @@ namespace cppgear {
         template < typename, typename >
         friend class UniqueReference;
 
+        template < typename, typename >
+        friend class UniquePtr;
+
         template < typename >
         friend class SharedReference;
 

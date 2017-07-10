@@ -50,9 +50,19 @@ namespace cppgear {
             _initialize(copy);
         }
 
+        Optional(Value_ const& copy)
+            :   m_storage(copy),
+                m_valid(true)
+        { }
+
         Optional(Optional&& move) {
             _initialize(std::move(move));
         }
+
+        Optional(Value_&& move)
+            :   m_storage(std::move(move)),
+                m_valid(true)
+        { }
 
         ~Optional() {
             _destroy();
@@ -62,11 +72,19 @@ namespace cppgear {
             return _assign(copy);
         }
 
+        Optional& operator=(Value_ const& copy) {
+            return _assign(copy);
+        }
+
         Optional& operator=(Optional&& move) {
             return _assign(std::move(move));
         }
 
-        void destroy() {
+        Optional& operator=(Value_&& move) {
+            return _assign(std::move(move));
+        }
+
+        void reset() {
             _destroy();
             m_valid = false;
         }
@@ -119,24 +137,40 @@ namespace cppgear {
             }
         }
 
-        template < typename Optional_ >
-        void _initialize(Optional_&& other) {
+        void _initialize(Optional const& other) {
             m_valid = (bool)other;
             if (self) {
-                m_storage.ctor(std::forward<Optional_>(other).m_storage.ref());
+                m_storage.ctor(other.m_storage.ref());
             }
         }
 
-        template < typename Optional_ >
-        Optional_& _assign(Optional_&& other) {
+        void _initialize(Value_ const& other) {
+            m_valid = true;
+            m_storage.ctor(other);
+        }
+
+        void _initialize(Optional&& other) {
+            m_valid = (bool)other;
+            if (self) {
+                m_storage.ctor(std::move(other.m_storage.ref()));
+            }
+        }
+
+        void _initialize(Value_&& other) {
+            m_valid = true;
+            m_storage.ctor(std::move(other));
+        }
+
+        template < typename Other_ >
+        Optional& _assign(Other_&& other) {
             _destroy();
-            _initialize(std::forward<Optional_>(other));
+            _initialize(std::forward<Other_>(other));
             return self;
         }
 
         void _consume(Optional& other) {
             m_storage.ctor(std::move(other.m_storage.ref()));
-            other.destroy();
+            other.reset();
         }
 
         void check() const {
@@ -160,6 +194,10 @@ namespace cppgear {
     public:
         Optional(std::nullptr_t ptr = nullptr) :
             m_ptr(ptr) { }
+
+        void reset() {
+            m_ptr = nullptr;
+        }
 
         Value_* operator->() {
             check();

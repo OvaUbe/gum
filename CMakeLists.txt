@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 2.8)
 
 include(cmake/utils/Install.cmake)
-include(cmake/utils/String.cmake)
 include(cmake/utils/Misc.cmake)
 include(cmake/utils/Platform.cmake)
+include(cmake/utils/String.cmake)
 
 detect_clang_compiler(CPPGEAR_USES_CLANG_COMPILER)
 detect_gcc_compiler(CPPGEAR_USES_GCC_COMPILER)
@@ -30,29 +30,41 @@ message("C++ compile flags: " ${CPPGEAR_CXX_COMPILEFLAGS})
 set(CPPGEAR_ROOT ${CMAKE_SOURCE_DIR}/cppgear/)
 
 set(CPPGEAR_SOURCES
+    concurrency/CancellationToken.cpp
+    concurrency/Thread.cpp
     diagnostics/Backtrace.cpp
     diagnostics/Demangle.cpp
     Core.cpp
     Exception.cpp
 )
 set(CPPGEAR_PUBLIC_HEADERS
+    concurrency/CancellationToken.h
+    concurrency/ConditionVariable.h
+    concurrency/DummyCancellationHandle.h
+    concurrency/ICancellationToken.h
+    concurrency/Thread.h
+    concurrency/Mutex.h
     container/FlatMap.h
     container/Iterator.h
     container/Lru.h
     container/TwoQ.h
     diagnostics/Backtrace.h
     diagnostics/Demangle.h
+    token/FunctionToken.h
+    token/ObjectToken.h
+    token/Token.h
     Core.h
     Defer.h
     Exception.h
     ExceptionWrapper.h
+    IBoolean.h
     Maybe.h
     Optional.h
     Range.h
     Raw.h
     SharedPtr.h
     SharedReference.h
-    Token.h
+    Types.h
     UniquePtr.h
     UniqueReference.h
 )
