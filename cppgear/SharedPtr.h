@@ -130,7 +130,7 @@ namespace cppgear {
         }
 
         template < typename Other_ >
-        bool owner_before(Other_ const& other) {
+        bool owner_before(Other_ const& other) const {
             return _wrapped.owner_before(other);
         }
 
