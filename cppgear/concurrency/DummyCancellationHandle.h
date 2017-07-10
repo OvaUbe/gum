@@ -34,7 +34,7 @@ namespace cppgear {
         }
 
         DummyCancellationHandle& operator*() {
-            return *this;
+            return self;
         }
     };
 
