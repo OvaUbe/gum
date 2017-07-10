@@ -47,6 +47,7 @@ set(CPPGEAR_PUBLIC_HEADERS
     concurrency/RwMutex.h
     concurrency/Thread.h
     container/FlatMap.h
+    container/FlatSet.h
     container/Iterator.h
     container/Lru.h
     container/TwoQ.h
