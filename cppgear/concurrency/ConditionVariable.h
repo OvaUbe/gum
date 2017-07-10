@@ -37,14 +37,14 @@ namespace cppgear {
     public:
         template < typename Lock_ >
         void wait(Lock_ const& lock, ICancellationHandle& handle) const {
-            Token const t = handle.on_cancelled([&]{ this->cancel(lock); });
+            Token const t = handle.on_cancelled([&]{ self.cancel(lock); });
 
             _impl.wait(lock);
         }
 
         template < typename Lock_, typename Predicate_ >
         void wait(Lock_ const& lock, Predicate_ const& predicate, ICancellationHandle& handle) const {
-            Token const t = handle.on_cancelled([&]{ this->cancel(lock); });
+            Token const t = handle.on_cancelled([&]{ self.cancel(lock); });
 
             _impl.wait(lock, [&]{ return !handle || predicate(); });
         }
