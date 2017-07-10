@@ -51,18 +51,16 @@ namespace cppgear {
         }
 
         Optional(Value_ const& copy)
-            :   m_storage(copy),
-                m_valid(true)
-        { }
+            :   m_valid(true)
+        { m_storage.ctor(copy); }
 
         Optional(Optional&& move) {
             _initialize(std::move(move));
         }
 
         Optional(Value_&& move)
-            :   m_storage(std::move(move)),
-                m_valid(true)
-        { }
+            :   m_valid(true)
+        { m_storage.ctor(std::move(move)); }
 
         ~Optional() {
             _destroy();
