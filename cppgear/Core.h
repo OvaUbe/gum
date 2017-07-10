@@ -74,7 +74,7 @@ namespace cppgear {
         public:
             Where(char const* file, size_t line, char const* function);
 
-            std::string ToString() const;
+            std::string to_string() const;
         };
 
     }
