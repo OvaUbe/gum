@@ -97,8 +97,10 @@ namespace cppgear {
             { } \
         }
 
+
     CPPGEAR_DECLARE_EXCEPTION(NullPointerException, "Accessing null pointer");
     CPPGEAR_DECLARE_EXCEPTION(InternalError, "Internal error");
     CPPGEAR_DECLARE_EXCEPTION(LogicError, "Logic error");
+    CPPGEAR_DECLARE_EXCEPTION(NotImplementedException, "Not implemented");
 
 }
