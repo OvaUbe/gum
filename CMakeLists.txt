@@ -57,6 +57,7 @@ set(CPPGEAR_PUBLIC_HEADERS
     log/LogLevel.h
     log/LoggerId.h
     metaprogramming/MethodDetector.h
+    string/StringLiteral.h
     string/String.h
     string/ToString.h
     token/FunctionToken.h
