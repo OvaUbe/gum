@@ -76,6 +76,7 @@ set(CPPGEAR_PUBLIC_HEADERS
     smartpointer/SharedPtr.h
     smartpointer/SharedReference.h
     smartpointer/SmartpointerTraits.h
+    smartpointer/ToString.h
     smartpointer/UniquePtr.h
     smartpointer/UniqueReference.h
     string/StringLiteral.h
