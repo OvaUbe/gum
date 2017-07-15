@@ -117,6 +117,6 @@ namespace cppgear {
         CPPGEAR_CHECK((Index_ >= Begin_) && (Index_ < End_), IndexOutOfRangeException(Index_, Begin_, End_))
 
 #   define CPPGEAR_CHECK_INDEX(Index_, Size_) \
-        CPPGEAR_CHECK(Index_ < Size_, IndexOutOfRangeException(Index_, Size_))
+        CPPGEAR_CHECK((Index_ < Size_), IndexOutOfRangeException(Index_, Size_))
 
 }
