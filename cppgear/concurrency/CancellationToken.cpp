@@ -52,7 +52,7 @@ namespace cppgear {
             return _is_cancelled;
         }
 
-        void sleep(SystemClock::duration const& duration) const {
+        void sleep(Duration const& duration) const {
             if (_is_cancelled)
                 return;
 
@@ -131,7 +131,7 @@ namespace cppgear {
     }
 
 
-    void CancellationToken::sleep(SystemClock::duration const& duration) const {
+    void CancellationToken::sleep(Duration const& duration) const {
         _impl->sleep(duration);
     }
 

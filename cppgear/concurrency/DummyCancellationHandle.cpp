@@ -26,7 +26,7 @@
 
 namespace cppgear {
 
-    void DummyCancellationHandle::sleep(SystemClock::duration const& duration) const {
+    void DummyCancellationHandle::sleep(Duration const& duration) const {
         Thread::sleep(duration);
     }
 

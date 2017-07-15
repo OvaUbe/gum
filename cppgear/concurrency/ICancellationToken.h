@@ -34,7 +34,7 @@ namespace cppgear {
         using CancellationHandler = std::function<void()>;
 
     public:
-        virtual void sleep(SystemClock::duration const& duration) const = 0;
+        virtual void sleep(Duration const& duration) const = 0;
 
         virtual Token on_cancelled(CancellationHandler const& cancellationHandler) = 0;
     };

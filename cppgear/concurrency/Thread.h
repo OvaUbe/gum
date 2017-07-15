@@ -65,8 +65,8 @@ namespace cppgear {
         static String get_own_name();
         static ThreadId get_own_id();
 
-        static void sleep(SystemClock::duration const& duration);
-        static void sleep(SystemClock::duration const& duration, ICancellationHandle& handle);
+        static void sleep(Duration const& duration);
+        static void sleep(Duration const& duration, ICancellationHandle& handle);
 
         String get_name() const;
         ThreadId get_id() const;

@@ -42,7 +42,7 @@ namespace cppgear {
 
         explicit operator bool() const override;
 
-        void sleep(SystemClock::duration const& duration) const override;
+        void sleep(Duration const& duration) const override;
 
         Token on_cancelled(CancellationHandler const& cancellation_handler) override;
 

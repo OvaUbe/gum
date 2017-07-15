@@ -27,6 +27,6 @@
 
 namespace cppgear {
 
-    String to_string(SystemClock::time_point const& point);
+    String to_string(TimePoint const& point);
 
 }

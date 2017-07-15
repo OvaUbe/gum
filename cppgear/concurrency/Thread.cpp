@@ -52,12 +52,12 @@ namespace cppgear {
     }
 
 
-    void Thread::sleep(SystemClock::duration const& duration) {
+    void Thread::sleep(Duration const& duration) {
         std::this_thread::sleep_for(duration);
     }
 
 
-    void Thread::sleep(SystemClock::duration const& duration, ICancellationHandle& handle) {
+    void Thread::sleep(Duration const& duration, ICancellationHandle& handle) {
         handle.sleep(duration);
     }
 

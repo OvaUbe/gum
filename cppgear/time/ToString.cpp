@@ -27,7 +27,7 @@
 
 namespace cppgear {
 
-    String to_string(SystemClock::time_point const& point) {
+    String to_string(TimePoint const& point) {
         std::time_t const now_c = SystemClock::to_time_t(point);
         std::stringstream ss;
         ss << std::put_time(std::localtime(&now_c), "%F %T");
