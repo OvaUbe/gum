@@ -35,6 +35,8 @@ namespace cppgear {
         ImplRef _impl;
 
     public:
+        CancellationToken();
+
         CancellationToken(CancellationToken const&) = delete;
         CancellationToken& operator=(CancellationToken const&) = delete;
 

@@ -123,6 +123,9 @@ namespace cppgear {
     };
 
 
+    CancellationToken::CancellationToken() { }
+
+
     CancellationToken::operator bool() const {
         return !_impl->is_cancelled();
     }
