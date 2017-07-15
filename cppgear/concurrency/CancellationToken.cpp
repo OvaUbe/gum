@@ -52,6 +52,17 @@ namespace cppgear {
             return _is_cancelled;
         }
 
+        void sleep(SystemClock::duration const& duration) const {
+            if (_is_cancelled)
+                return;
+
+            MutexLock l(_mutex);
+
+            while (!_is_cancelled)
+                if (_cancel_condition.wait_for(_mutex, duration, *DummyCancellationHandle()))
+                    break;
+        }
+
         bool on_cancelled(ICancellationToken::CancellationHandler const& cancellation_handler) {
             if (_is_cancelled)
                 return false;
@@ -114,6 +125,11 @@ namespace cppgear {
 
     CancellationToken::operator bool() const {
         return !_impl->is_cancelled();
+    }
+
+
+    void CancellationToken::sleep(SystemClock::duration const& duration) const {
+        _impl->sleep(duration);
     }
 
 

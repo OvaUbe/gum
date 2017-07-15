@@ -22,6 +22,7 @@
 
 #pragma once
 
+#include <cppgear/time/Types.h>
 #include <cppgear/token/Token.h>
 #include <cppgear/IBoolean.h>
 
@@ -33,6 +34,8 @@ namespace cppgear {
         using CancellationHandler = std::function<void()>;
 
     public:
+        virtual void sleep(SystemClock::duration const& duration) const = 0;
+
         virtual Token on_cancelled(CancellationHandler const& cancellationHandler) = 0;
     };
 

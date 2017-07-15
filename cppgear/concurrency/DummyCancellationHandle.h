@@ -29,6 +29,8 @@ namespace cppgear {
     struct DummyCancellationHandle : public virtual ICancellationHandle {
         explicit operator bool() const override { return true; }
 
+        void sleep(SystemClock::duration const& duration) const override;
+
         Token on_cancelled(CancellationHandler const&) override {
             return Token();
         }

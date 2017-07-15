@@ -20,34 +20,14 @@
  * THE SOFTWARE.
  */
 
-#pragma once
+#include <cppgear/concurrency/DummyCancellationHandle.h>
 
-#include <cppgear/concurrency/ICancellationToken.h>
-#include <cppgear/SharedReference.h>
+#include <cppgear/concurrency/Thread.h>
 
 namespace cppgear {
 
-    class CancellationToken : public virtual ICancellationToken {
-        class Impl;
-        CPPGEAR_DECLARE_REF(Impl);
-
-    private:
-        ImplRef _impl;
-
-    public:
-        CancellationToken(CancellationToken const&) = delete;
-        CancellationToken& operator=(CancellationToken const&) = delete;
-
-        explicit operator bool() const override;
-
-        void sleep(SystemClock::duration const& duration) const override;
-
-        Token on_cancelled(CancellationHandler const& cancellation_handler) override;
-
-        void cancel() override;
-        void reset() override;
-
-        Token get_cancellator() const override;
-    };
+    void DummyCancellationHandle::sleep(SystemClock::duration const& duration) const {
+        Thread::sleep(duration);
+    }
 
 }
