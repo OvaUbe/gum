@@ -218,6 +218,11 @@ namespace cppgear {
             _impl += cstring;
             return self;
         }
+
+        Self& operator<<(value_type ch) {
+            _impl += ch;
+            return self;
+        }
     };
 
 
