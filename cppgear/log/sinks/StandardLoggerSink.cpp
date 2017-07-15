@@ -33,7 +33,7 @@ namespace cppgear {
         printf("[%s] [%s] {%s} [%s] %s\n",
             to_string(message.when).c_str(),
             message.level.to_string().c_str(),
-            message.thread.c_str(),
+            message.thread->c_str(),
             message.author.c_str(),
             message.message.c_str());
     }

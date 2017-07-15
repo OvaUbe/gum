@@ -36,12 +36,12 @@ namespace cppgear {
         LoggerId                                    logger_id;
         TimePoint                                   when;
         LogLevel                                    level;
-        String                                      thread;
+        StringConstRef                              thread;
         StringLiteral                               author;
         String                                      message;
 
     public:
-        LogMessage(LoggerId logger_id, TimePoint const& when_, LogLevel level_, String const& thread_, StringLiteral const& author_, String&& message_);
+        LogMessage(LoggerId logger_id, TimePoint const& when_, LogLevel level_, StringConstRef const& thread_, StringLiteral const& author_, String&& message_);
     };
 
 }

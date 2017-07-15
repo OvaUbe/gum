@@ -21,6 +21,7 @@
  */
 
 #include <cppgear/concurrency/Thread.h>
+#include <cppgear/smartpointer/ToString.h>
 #include <cppgear/Try.h>
 
 #include <iostream>
@@ -29,7 +30,7 @@ namespace cppgear {
 
     namespace {
 
-        thread_local String t_thread_name = "__UndefinedThread";
+        thread_local StringConstRef t_thread_name = make_shared_ref<String>("__UndefinedThread");
 
     }
 
@@ -42,7 +43,7 @@ namespace cppgear {
     }
 
 
-    String Thread::get_own_name() {
+    StringConstRef Thread::get_own_name() {
         return t_thread_name;
     }
 
@@ -62,13 +63,18 @@ namespace cppgear {
     }
 
 
-    String Thread::get_name() const {
+    StringConstRef Thread::get_name() const {
         return _name;
     }
 
 
     ThreadId Thread::get_id() const {
         return _impl.get_id();
+    }
+
+
+    String Thread::to_string() const {
+        return String() << "Thread: '" << get_name() << "'";
     }
 
 
