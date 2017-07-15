@@ -34,6 +34,7 @@ set(CPPGEAR_SOURCES
     concurrency/Thread.cpp
     diagnostics/Backtrace.cpp
     diagnostics/Demangle.cpp
+    log/LogMessage.cpp
     Core.cpp
     Exception.cpp
 )
@@ -55,6 +56,7 @@ set(CPPGEAR_PUBLIC_HEADERS
     diagnostics/Backtrace.h
     diagnostics/Demangle.h
     log/LogLevel.h
+    log/LogMessage.h
     log/LoggerId.h
     metaprogramming/MethodDetector.h
     string/StringLiteral.h
