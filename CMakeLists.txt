@@ -54,6 +54,7 @@ set(CPPGEAR_PUBLIC_HEADERS
     container/TwoQ.h
     diagnostics/Backtrace.h
     diagnostics/Demangle.h
+    metaprogramming/MethodDetector.h
     token/FunctionToken.h
     token/ObjectToken.h
     token/Token.h
