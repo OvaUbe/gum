@@ -24,6 +24,7 @@
 
 #include <cppgear/concurrency/ImmutableMutexWrapper.h>
 #include <cppgear/concurrency/GenericMutexLock.h>
+#include <cppgear/concurrency/TimedMutexWrapper.h>
 
 #include <shared_mutex>
 
@@ -34,46 +35,48 @@ namespace cppgear {
         using RwMutexImpl = std::shared_timed_mutex;
 
 
-        class ExclusiveMutex {
+        class ExclusiveTimedMutex {
             detail::RwMutexImpl& _impl;
 
         public:
-            explicit ExclusiveMutex(detail::RwMutexImpl& impl)
+            ExclusiveTimedMutex(detail::RwMutexImpl& impl)
                 :   _impl(impl)
             { }
 
-            void lock() {
-                _impl.lock();
+            bool try_lock_for(Duration const& duration) {
+                return _impl.try_lock_for(duration);
             }
 
             void unlock() {
                 _impl.unlock();
             }
         };
+        using ExclusiveMutex = TimedMutexWrapper<detail::ExclusiveTimedMutex>;
 
 
-        class SharedMutex {
+        class SharedTimedMutex {
             detail::RwMutexImpl& _impl;
 
         public:
-            explicit SharedMutex(detail::RwMutexImpl& impl)
+            SharedTimedMutex(detail::RwMutexImpl& impl)
                 :   _impl(impl)
             { }
 
-            void lock() {
-                _impl.lock_shared();
+            bool try_lock_for(Duration const& duration) {
+                return _impl.try_lock_shared_for(duration);
             }
 
             void unlock() {
                 _impl.unlock_shared();
             }
         };
+        using SharedMutex = TimedMutexWrapper<detail::SharedTimedMutex>;
 
     }
 
 
-    using SharedMutex = ImmutableMutexWrapper<detail::SharedMutex>;
     using ExclusiveMutex = ImmutableMutexWrapper<detail::ExclusiveMutex>;
+    using SharedMutex = ImmutableMutexWrapper<detail::SharedMutex>;
 
 
     class RwMutex {
@@ -81,11 +84,11 @@ namespace cppgear {
 
     public:
         ExclusiveMutex get_exclusive() const {
-            return ExclusiveMutex(_impl);
+            return detail::ExclusiveMutex(_impl);
         }
 
         SharedMutex get_shared() const {
-            return SharedMutex(_impl);
+            return detail::SharedMutex(_impl);
         }
     };
 

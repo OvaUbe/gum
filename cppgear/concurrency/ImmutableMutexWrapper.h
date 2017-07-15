@@ -31,9 +31,14 @@ namespace cppgear {
         mutable Impl_ _impl;
 
     public:
-        template < typename ...Args_ >
-        ImmutableMutexWrapper(Args_&&... args)
-            :   _impl(std::forward<Args_>(args)...)
+        ImmutableMutexWrapper() = default;
+
+        ImmutableMutexWrapper(ImmutableMutexWrapper&& other)
+            :   _impl(std::move(other._impl))
+        { }
+
+        ImmutableMutexWrapper(Impl_&& impl)
+            :   _impl(std::move(impl))
         { }
 
         void lock() const {

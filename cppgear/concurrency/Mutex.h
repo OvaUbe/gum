@@ -24,13 +24,14 @@
 
 #include <cppgear/concurrency/ImmutableMutexWrapper.h>
 #include <cppgear/concurrency/GenericMutexLock.h>
+#include <cppgear/concurrency/TimedMutexWrapper.h>
 
 #include <mutex>
 
 namespace cppgear {
 
-    using Mutex = ImmutableMutexWrapper<std::mutex>;
-    using RecursiveMutex = ImmutableMutexWrapper<std::recursive_mutex>;
+    using Mutex = ImmutableMutexWrapper<TimedMutexWrapper<std::timed_mutex>>;
+    using RecursiveMutex = ImmutableMutexWrapper<TimedMutexWrapper<std::recursive_timed_mutex>>;
 
     using MutexLock = GenericMutexLock<Mutex>;
     using RecursiveMutexLock = GenericMutexLock<RecursiveMutex>;
