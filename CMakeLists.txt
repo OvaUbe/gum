@@ -36,6 +36,7 @@ set(CPPGEAR_SOURCES
     diagnostics/Demangle.cpp
     log/LogMessage.cpp
     log/LoggerManager.cpp
+    log/LoggerStream.cpp
     Core.cpp
     Exception.cpp
 )
@@ -61,6 +62,7 @@ set(CPPGEAR_PUBLIC_HEADERS
     log/LogMessage.h
     log/LoggerId.h
     log/LoggerManager.h
+    log/LoggerStream.h
     metaprogramming/MethodDetector.h
     string/StringLiteral.h
     string/String.h
