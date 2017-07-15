@@ -23,6 +23,7 @@
 #pragma once
 
 #include <cppgear/concurrency/CancellationToken.h>
+#include <cppgear/string/String.h>
 
 #include <thread>
 
@@ -41,7 +42,7 @@ namespace cppgear {
         using TaskType = std::function<TaskSignature>;
 
     private:
-        std::string         _name;
+        String              _name;
         TaskType            _task;
 
         CancellationToken   _cancellation_token;
@@ -57,11 +58,15 @@ namespace cppgear {
 
         ~Thread();
 
-        static std::string get_own_name();
+        static String get_own_name();
         static ThreadId get_own_id();
 
-        std::string get_name() const;
+        String get_name() const;
         ThreadId get_id() const;
+
+        String to_string() const {
+            return String() << "Thread: '" << get_name() << "'";
+        }
 
     private:
         void thread_func();

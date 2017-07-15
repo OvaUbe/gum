@@ -28,7 +28,7 @@ namespace cppgear {
 
     namespace {
 
-        thread_local std::string t_thread_name = "__UndefinedThread";
+        thread_local String t_thread_name = "__UndefinedThread";
 
     }
 
@@ -45,7 +45,7 @@ namespace cppgear {
     }
 
 
-    std::string Thread::get_own_name() {
+    String Thread::get_own_name() {
         return t_thread_name;
     }
 
@@ -55,7 +55,7 @@ namespace cppgear {
     }
 
 
-    std::string Thread::get_name() const {
+    String Thread::get_name() const {
         return _name;
     }
 
