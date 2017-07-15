@@ -57,6 +57,11 @@ namespace cppgear {
     }
 
 
+    void Thread::sleep(SystemClock::duration const& duration, ICancellationHandle& handle) {
+        handle.sleep(duration);
+    }
+
+
     String Thread::get_name() const {
         return _name;
     }
