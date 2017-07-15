@@ -69,6 +69,7 @@ set(CPPGEAR_PUBLIC_HEADERS
     log/LogMessage.h
     log/LoggerId.h
     log/LoggerManager.h
+    log/LoggerSingleton.h
     log/LoggerStream.h
     log/Logger.h
     metaprogramming/MethodDetector.h
