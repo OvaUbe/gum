@@ -22,9 +22,9 @@
 
 #pragma once
 
+#include <cppgear/smartpointer/SharedPtr.h>
+#include <cppgear/smartpointer/SharedReference.h>
 #include <cppgear/Exception.h>
-#include <cppgear/SharedPtr.h>
-#include <cppgear/SharedReference.h>
 
 namespace cppgear {
 

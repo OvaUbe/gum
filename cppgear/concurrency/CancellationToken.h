@@ -23,7 +23,7 @@
 #pragma once
 
 #include <cppgear/concurrency/ICancellationToken.h>
-#include <cppgear/SharedReference.h>
+#include <cppgear/smartpointer/SharedReference.h>
 
 namespace cppgear {
 

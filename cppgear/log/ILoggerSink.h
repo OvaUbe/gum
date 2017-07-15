@@ -23,7 +23,7 @@
 #pragma once
 
 #include <cppgear/log/LogMessage.h>
-#include <cppgear/SharedReference.h>
+#include <cppgear/smartpointer/SharedReference.h>
 
 namespace cppgear {
 

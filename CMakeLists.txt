@@ -72,6 +72,10 @@ set(CPPGEAR_PUBLIC_HEADERS
     log/LoggerStream.h
     log/Logger.h
     metaprogramming/MethodDetector.h
+    smartpointer/SharedPtr.h
+    smartpointer/SharedReference.h
+    smartpointer/UniquePtr.h
+    smartpointer/UniqueReference.h
     string/StringLiteral.h
     string/String.h
     string/ToString.h
@@ -89,13 +93,9 @@ set(CPPGEAR_PUBLIC_HEADERS
     Optional.h
     Range.h
     Raw.h
-    SharedPtr.h
-    SharedReference.h
     Singleton.h
     Try.h
     Types.h
-    UniquePtr.h
-    UniqueReference.h
 )
 
 if (${CPPGEAR_USES_CLANG_COMPILER} OR ${CPPGEAR_USES_GCC_COMPILER})

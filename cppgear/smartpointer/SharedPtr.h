@@ -22,8 +22,8 @@
 
 #pragma once
 
-#include <cppgear/UniquePtr.h>
-#include <cppgear/UniqueReference.h>
+#include <cppgear/smartpointer/UniquePtr.h>
+#include <cppgear/smartpointer/UniqueReference.h>
 
 namespace cppgear {
 
