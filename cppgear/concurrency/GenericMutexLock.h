@@ -29,6 +29,13 @@ namespace cppgear {
         Lock_ const& _lock;
 
     public:
+        GenericMutexLock() = delete;
+        GenericMutexLock(GenericMutexLock const&) = delete;
+        GenericMutexLock(GenericMutexLock&&) = delete;
+
+        GenericMutexLock& operator=(GenericMutexLock const&) = delete;
+        GenericMutexLock& operator=(GenericMutexLock&&) = delete;
+
         GenericMutexLock(Lock_ const& lock)
             :   _lock(lock)
         { _lock.lock(); }
