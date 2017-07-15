@@ -23,6 +23,8 @@
 #pragma once
 
 #include <cppgear/Exception.h>
+#include <cppgear/SharedPtr.h>
+#include <cppgear/SharedReference.h>
 
 namespace cppgear {
 
@@ -227,5 +229,7 @@ namespace cppgear {
 
 
     using String = BasicString<char>;
+    CPPGEAR_DECLARE_PTR(String);
+    CPPGEAR_DECLARE_REF(String);
 
 }
