@@ -22,6 +22,7 @@
 
 #pragma once
 
+#include <cppgear/concurrency/ImmutableMutexWrapper.h>
 #include <cppgear/concurrency/GenericMutexLock.h>
 
 #include <shared_mutex>
@@ -30,26 +31,40 @@ namespace cppgear {
 
     namespace detail {
 
-        class RwMutexImpl {
-            using Impl = std::shared_timed_mutex;
+        using RwMutexImpl = std::shared_timed_mutex;
 
-        private:
-            mutable Impl _impl;
+
+        class ExclusiveMutex {
+            detail::RwMutexImpl& _impl;
 
         public:
-            void lock_exclusive() const {
+            explicit ExclusiveMutex(detail::RwMutexImpl& impl)
+                :   _impl(impl)
+            { }
+
+            void lock() {
                 _impl.lock();
             }
 
-            void unlock_exclusive() const {
+            void unlock() {
                 _impl.unlock();
             }
+        };
 
-            void lock_shared() const {
+
+        class SharedMutex {
+            detail::RwMutexImpl& _impl;
+
+        public:
+            explicit SharedMutex(detail::RwMutexImpl& impl)
+                :   _impl(impl)
+            { }
+
+            void lock() {
                 _impl.lock_shared();
             }
 
-            void unlock_shared() const {
+            void unlock() {
                 _impl.unlock_shared();
             }
         };
@@ -57,52 +72,12 @@ namespace cppgear {
     }
 
 
-    class ExclusiveMutex {
-        friend class RwMutex;
-
-    private:
-        detail::RwMutexImpl const& _impl;
-
-    private:
-        explicit ExclusiveMutex(detail::RwMutexImpl const& impl)
-            :   _impl(impl)
-        { }
-
-    public:
-        void lock() const {
-            _impl.lock_exclusive();
-        }
-
-        void unlock() const {
-            _impl.unlock_exclusive();
-        }
-    };
-
-
-    class SharedMutex {
-        friend class RwMutex;
-
-    private:
-        detail::RwMutexImpl const& _impl;
-
-    private:
-        explicit SharedMutex(detail::RwMutexImpl const& impl)
-            :   _impl(impl)
-        { }
-
-    public:
-        void lock() const {
-            _impl.lock_shared();
-        }
-
-        void unlock() const {
-            _impl.unlock_shared();
-        }
-    };
+    using SharedMutex = ImmutableMutexWrapper<detail::SharedMutex>;
+    using ExclusiveMutex = ImmutableMutexWrapper<detail::ExclusiveMutex>;
 
 
     class RwMutex {
-        detail::RwMutexImpl _impl;
+        mutable detail::RwMutexImpl _impl;
 
     public:
         ExclusiveMutex get_exclusive() const {
