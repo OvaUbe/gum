@@ -54,6 +54,7 @@ set(CPPGEAR_PUBLIC_HEADERS
     container/TwoQ.h
     diagnostics/Backtrace.h
     diagnostics/Demangle.h
+    log/LoggerId.h
     metaprogramming/MethodDetector.h
     string/String.h
     string/ToString.h
