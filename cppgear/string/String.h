@@ -196,8 +196,12 @@ namespace cppgear {
             return _impl.crend();
         }
 
-        explicit operator Impl_ () const {
+        explicit operator Impl_ () const& {
             return _impl;
+        }
+
+        explicit operator Impl_ () && {
+            return std::move(_impl);
         }
 
         Self& operator<<(Self const& string) {
