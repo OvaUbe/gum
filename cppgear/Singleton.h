@@ -24,16 +24,18 @@
 
 namespace cppgear {
 
+#   define CPPGEAR_SINGLETON(Type_) \
+            Type_(Type_ const&) = delete; \
+            Type_(Type_&&) = delete; \
+            \
+            Type_& operator=(Type_ const&) = delete; \
+            Type_& operator=(Type_&&) = delete; \
+            \
+        private:
+
+
     template < typename Derived_ >
     struct Singleton {
-        Singleton() = default;
-
-        Singleton(Singleton const&) = delete;
-        Singleton(Singleton&) = delete;
-
-        Singleton& operator=(Singleton const&) = delete;
-        Singleton& operator=(Singleton&) = delete;
-
         static Derived_& get() {
             static Derived_ instance;
             return instance;
