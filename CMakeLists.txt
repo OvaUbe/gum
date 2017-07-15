@@ -76,7 +76,6 @@ set(CPPGEAR_PUBLIC_HEADERS
     Core.h
     Defer.h
     Exception.h
-    ExceptionWrapper.h
     IBoolean.h
     Maybe.h
     Optional.h
@@ -85,6 +84,7 @@ set(CPPGEAR_PUBLIC_HEADERS
     SharedPtr.h
     SharedReference.h
     Singleton.h
+    Try.h
     Types.h
     UniquePtr.h
     UniqueReference.h

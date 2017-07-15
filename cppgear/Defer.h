@@ -22,7 +22,7 @@
 
 #pragma once
 
-#include <cppgear/ExceptionWrapper.h>
+#include <cppgear/Try.h>
 
 #include <functional>
 
@@ -34,7 +34,7 @@ namespace cppgear {
     public:
         template < typename Deferrable_ >
         Defer(Deferrable_ const& deferrable) :
-            m_deferrable(make_exception_wrapper(deferrable)) { }
+            m_deferrable(try_(deferrable)) { }
 
         ~Defer() {
             m_deferrable();
