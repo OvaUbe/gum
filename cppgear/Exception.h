@@ -24,6 +24,7 @@
 
 #include <cppgear/diagnostics/Backtrace.h>
 #include <cppgear/Core.h>
+#include <cppgear/Types.h>
 
 #include <stdexcept>
 #include <typeinfo>
@@ -102,5 +103,20 @@ namespace cppgear {
     CPPGEAR_DECLARE_EXCEPTION(InternalError, "Internal error");
     CPPGEAR_DECLARE_EXCEPTION(LogicError, "Logic error");
     CPPGEAR_DECLARE_EXCEPTION(NotImplementedException, "Not implemented");
+
+
+    struct IndexOutOfRangeException : public Exception {
+        IndexOutOfRangeException(u64 index, u64 begin, u64 end);
+        IndexOutOfRangeException(s64 index, s64 begin, s64 end);
+
+        IndexOutOfRangeException(u64 index, u64 size);
+        IndexOutOfRangeException(s64 index, s64 size);
+    };
+
+#   define CPPGEAR_CHECK_RANGE(Index_, Begin_, End_) \
+        CPPGEAR_CHECK((Index_ >= Begin_) && (Index_ < End_), IndexOutOfRangeException(Index_, Begin_, End_))
+
+#   define CPPGEAR_CHECK_INDEX(Index_, Size_) \
+        CPPGEAR_CHECK(Index_ < Size_, IndexOutOfRangeException(Index_, Size_))
 
 }

@@ -55,6 +55,8 @@ set(CPPGEAR_PUBLIC_HEADERS
     diagnostics/Backtrace.h
     diagnostics/Demangle.h
     metaprogramming/MethodDetector.h
+    string/String.h
+    string/ToString.h
     token/FunctionToken.h
     token/ObjectToken.h
     token/Token.h
