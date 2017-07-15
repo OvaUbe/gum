@@ -65,6 +65,11 @@ namespace cppgear {
             :   _impl(cstring)
         { }
 
+        template < typename InputIterator_ >
+        BasicString(InputIterator_ first, InputIterator_ last)
+            :   _impl(first, last)
+        { }
+
         Self& operator=(Self const&) = default;
         Self& operator=(Self&&) = default;
 
