@@ -29,4 +29,26 @@ namespace cppgear {
 
     String to_string(TimePoint const& point);
 
+
+    template < typename Representation_, typename Period_ >
+    String to_string(BasicDuration<Representation_, Period_> const& duration) {
+        s64 const ms = duration_cast<Milliseconds>(duration).count();
+        s64 const sec = duration_cast<Seconds>(duration).count();
+        s64 const min = duration_cast<Minutes>(duration).count();
+
+        return String() << "[" << min << ":" << sec << ":" << ms << "";
+    }
+
+    inline String to_string(Seconds const& duration) {
+        return String() << duration.count() << " seconds";
+    }
+
+    inline String to_string(Minutes const& duration) {
+        return String() << duration.count() << " minutes";
+    }
+
+    inline String to_string(Hours const& duration) {
+        return String() << duration.count() << " hours";
+    }
+
 }
