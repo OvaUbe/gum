@@ -22,9 +22,11 @@
 
 #pragma once
 
+#include <cppgear/Enum.h>
+
 namespace cppgear {
 
-    enum class LogLevel {
+    CPPGEAR_ENUM(LogLevel,
         Trace       = 0,
         Debug       = 1,
         Info        = 2,
@@ -32,6 +34,6 @@ namespace cppgear {
         Error       = 4,
         Highlight   = 5,
         Muted       = 1000
-    };
+    );
 
 }
