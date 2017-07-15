@@ -26,22 +26,22 @@
 #include <cppgear/log/LoggerId.h>
 #include <cppgear/string/StringLiteral.h>
 #include <cppgear/string/String.h>
+#include <cppgear/time/Types.h>
 
-#include <chrono>
 #include <string>
 
 namespace cppgear {
 
     struct LogMessage {
         LoggerId                                    logger_id;
-        std::chrono::system_clock::time_point       when;
+        SystemClock::time_point                     when;
         LogLevel                                    level;
         String                                      thread;
         StringLiteral                               author;
         String                                      message;
 
     public:
-        LogMessage(LoggerId logger_id, std::chrono::system_clock::time_point const& when_, LogLevel level_, String const& thread_, StringLiteral const& author_, String&& message_);
+        LogMessage(LoggerId logger_id, SystemClock::time_point const& when_, LogLevel level_, String const& thread_, StringLiteral const& author_, String&& message_);
     };
 
 }

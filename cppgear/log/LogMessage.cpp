@@ -24,7 +24,7 @@
 
 namespace cppgear {
 
-    LogMessage::LogMessage(LoggerId logger_id, std::chrono::system_clock::time_point const& when_, LogLevel level_, String const& thread_, StringLiteral const& author_, String&& message_)
+    LogMessage::LogMessage(LoggerId logger_id, SystemClock::time_point const& when_, LogLevel level_, String const& thread_, StringLiteral const& author_, String&& message_)
         :   logger_id(logger_id),
             when(when_),
             level(level_),
