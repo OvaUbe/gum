@@ -24,6 +24,7 @@
 
 #include <cppgear/concurrency/GenericMutexLock.h>
 #include <cppgear/concurrency/ICancellationToken.h>
+#include <cppgear/time/Types.h>
 
 #include <condition_variable>
 
@@ -47,6 +48,20 @@ namespace cppgear {
             Token const t = handle.on_cancelled([&]{ self.cancel(lock); });
 
             _impl.wait(lock, [&]{ return !handle || predicate(); });
+        }
+
+        template < typename Lock_ >
+        bool wait_for(Lock_ const& lock, SystemClock::duration const& duration, ICancellationHandle& handle) const {
+            Token const t = handle.on_cancelled([&]{ self.cancel(lock); });
+
+            return _impl.wait_for(lock, duration) == std::cv_status::timeout;
+        }
+
+        template < typename Lock_, typename Predicate_ >
+        bool wait_for(Lock_ const& lock, SystemClock::duration const& duration, Predicate_ const& predicate, ICancellationHandle& handle) const {
+            Token const t = handle.on_cancelled([&]{ self.cancel(lock); });
+
+            return _impl.wait_for(lock, duration, [&]{ return !handle || predicate(); });
         }
 
         void broadcast() const {
