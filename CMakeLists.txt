@@ -56,6 +56,7 @@ set(CPPGEAR_PUBLIC_HEADERS
     concurrency/Mutex.h
     concurrency/RwMutex.h
     concurrency/Thread.h
+    concurrency/TimedMutexWrapper.h
     container/FlatMap.h
     container/FlatSet.h
     container/Iterator.h
