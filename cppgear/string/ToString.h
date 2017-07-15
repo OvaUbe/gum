@@ -62,6 +62,10 @@ namespace cppgear {
         return String() << "{ " << pair.first << ", " << pair.second << " }";
     }
 
+    inline String to_string(std::nullptr_t) {
+        return "null";
+    }
+
     template < typename Value_ >
     String& operator<<(String& string, Value_&& object) {
         return string << to_string(std::forward<Value_>(object));
