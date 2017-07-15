@@ -21,6 +21,7 @@
  */
 
 #include <cppgear/concurrency/Thread.h>
+#include <cppgear/Try.h>
 
 #include <iostream>
 
@@ -33,15 +34,11 @@ namespace cppgear {
     }
 
 
+    CPPGEAR_DEFINE_LOGGER(Thread);
+
+
     Thread::~Thread() {
-        try {
-            dtor();
-        }
-        catch (std::exception const& ex) {
-            std::cout << "Thread join failed: " << ex.what() << std::endl;
-        } catch (...) {
-            std::cout << "Unknown exception in thread destructor." << std::endl;
-        }
+        CPPGEAR_TRY_LEVEL("Join failed", error, dtor());
     }
 
 
@@ -66,16 +63,14 @@ namespace cppgear {
 
 
     void Thread::thread_func() {
+        CPPGEAR_TRY_LEVEL("Uncaught exception from internal thread function", error, _thread_func());
+    }
+
+
+    void Thread::_thread_func() {
         t_thread_name = _name;
 
-        try {
-            _task(_cancellation_token);
-        }
-        catch (std::exception const& ex) {
-            std::cout << "Uncaught exception in Thread::thread_func(): " << ex.what() << std::endl;
-        } catch (...) {
-            std::cout << "Unknown exception in Thread::thread_func()." << std::endl;
-        }
+        CPPGEAR_TRY_LEVEL("Uncaught exception from client thread function", error, _task(_cancellation_token));
     }
 
 

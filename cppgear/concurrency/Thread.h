@@ -23,6 +23,7 @@
 #pragma once
 
 #include <cppgear/concurrency/CancellationToken.h>
+#include <cppgear/log/Logger.h>
 #include <cppgear/string/String.h>
 
 #include <thread>
@@ -42,6 +43,8 @@ namespace cppgear {
         using TaskType = std::function<TaskSignature>;
 
     private:
+        static Logger       s_logger;
+
         String              _name;
         TaskType            _task;
 
@@ -70,6 +73,7 @@ namespace cppgear {
 
     private:
         void thread_func();
+        void _thread_func();
 
         void dtor();
     };
