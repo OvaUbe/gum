@@ -70,4 +70,10 @@ namespace cppgear {
         }
     };
 
+#   define CPPGEAR_DEFINE_LOGGER(Type_) \
+        Logger Type_::s_logger(#Type_)
+
+#   define CPPGEAR_DEFINE_NAMED_LOGGER(Type_, Name_) \
+        Logger Type_::s_logger(#Name_)
+
 }
