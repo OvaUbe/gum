@@ -52,6 +52,11 @@ namespace cppgear {
     }
 
 
+    void Thread::sleep(SystemClock::duration const& duration) {
+        std::this_thread::sleep_for(duration);
+    }
+
+
     String Thread::get_name() const {
         return _name;
     }

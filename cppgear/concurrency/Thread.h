@@ -25,6 +25,7 @@
 #include <cppgear/concurrency/CancellationToken.h>
 #include <cppgear/log/Logger.h>
 #include <cppgear/string/String.h>
+#include <cppgear/time/Types.h>
 
 #include <thread>
 
@@ -56,13 +57,15 @@ namespace cppgear {
         Thread(String_&& name, Callable_&& callable)
             :   _name(std::forward<String_>(name)),
                 _task(std::forward<Callable_>(callable)),
-                _impl(std::bind(&Self::thread_func, this))
+                _impl(&Self::thread_func, this)
         { }
 
         ~Thread();
 
         static String get_own_name();
         static ThreadId get_own_id();
+
+        static void sleep(SystemClock::duration const& duration);
 
         String get_name() const;
         ThreadId get_id() const;
