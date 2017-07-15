@@ -75,6 +75,7 @@ set(CPPGEAR_PUBLIC_HEADERS
     metaprogramming/MethodDetector.h
     smartpointer/SharedPtr.h
     smartpointer/SharedReference.h
+    smartpointer/SmartpointerTraits.h
     smartpointer/UniquePtr.h
     smartpointer/UniqueReference.h
     string/StringLiteral.h
