@@ -22,12 +22,11 @@
 
 #pragma once
 
-#include <chrono>
+#include <cppgear/string/ToString.h>
+#include <cppgear/time/Types.h>
 
 namespace cppgear {
 
-    using SystemClock = std::chrono::system_clock;
-    using HighResClock = std::chrono::high_resolution_clock;
-    using SteadyClock = std::chrono::steady_clock;
+    String to_string(SystemClock::time_point const& point);
 
 }

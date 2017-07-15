@@ -20,14 +20,18 @@
  * THE SOFTWARE.
  */
 
-#pragma once
+#include <cppgear/time/ToString.h>
 
-#include <chrono>
+#include <ctime>
+#include <iomanip>
 
 namespace cppgear {
 
-    using SystemClock = std::chrono::system_clock;
-    using HighResClock = std::chrono::high_resolution_clock;
-    using SteadyClock = std::chrono::steady_clock;
+    String to_string(SystemClock::time_point const& point) {
+        std::time_t const now_c = SystemClock::to_time_t(point);
+        std::stringstream ss;
+        ss << std::put_time(std::localtime(&now_c), "%F %T");
+        return ss.str();
+    }
 
 }
