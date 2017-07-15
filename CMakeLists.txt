@@ -39,6 +39,7 @@ set(CPPGEAR_SOURCES
     log/LoggerStream.cpp
     log/Logger.cpp
     Core.cpp
+    Enum.cpp
     Exception.cpp
 )
 set(CPPGEAR_PUBLIC_HEADERS
@@ -75,6 +76,7 @@ set(CPPGEAR_PUBLIC_HEADERS
     token/Token.h
     Core.h
     Defer.h
+    Enum.h
     Exception.h
     IBoolean.h
     Maybe.h
