@@ -22,15 +22,10 @@
 
 #pragma once
 
-#include <cppgear/log/Logger.h>
-#include <cppgear/Singleton.h>
+#include <cppgear/log/LoggerSingleton.h>
 
 namespace cppgear {
 
-    struct GlobalLogger : public Logger, public Singleton<GlobalLogger> {
-        GlobalLogger()
-            :   Logger("GlobalLogger")
-        { }
-    };
+    CPPGEAR_LOGGER_SINGLETON(GlobalLogger);
 
 }
