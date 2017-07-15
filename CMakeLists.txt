@@ -34,6 +34,7 @@ set(CPPGEAR_SOURCES
     concurrency/Thread.cpp
     diagnostics/Backtrace.cpp
     diagnostics/Demangle.cpp
+    log/sinks/StandardLoggerSink.cpp
     log/LogMessage.cpp
     log/LoggerManager.cpp
     log/LoggerStream.cpp
@@ -60,6 +61,7 @@ set(CPPGEAR_PUBLIC_HEADERS
     container/TwoQ.h
     diagnostics/Backtrace.h
     diagnostics/Demangle.h
+    log/sinks/StandardLoggerSink.h
     log/GlobalLogger.h
     log/ILoggerSink.h
     log/LogLevel.h
