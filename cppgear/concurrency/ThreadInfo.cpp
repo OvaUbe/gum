@@ -74,25 +74,13 @@ namespace cppgear {
     }
 
 
-    class OwnerInfo::Impl {
+    class OwnerInfo::Impl : public
 #   ifdef CPPGEAR_CONCURRENCY_USES_LIGHTWEIGHT_OWNER_INFO
-        using ImplImpl = LightweightOwnerInfo;
+        LightweightOwnerInfo
 #   else
-        using ImplImpl = ExtendedOwnerInfo;
+        ExtendedOwnerInfo
 #   endif
-
-    private:
-        ImplImpl _impl;
-
-    public:
-        void acquire() {
-            _impl.acquire();
-        }
-
-        String to_string() const {
-            return _impl.to_string();
-        }
-    };
+    { };
 
 
     OwnerInfo::OwnerInfo() { }
