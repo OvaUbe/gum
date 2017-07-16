@@ -51,7 +51,7 @@ namespace cppgear {
         void lock() {
             const Seconds Threshold = Seconds(3);
 
-            Seconds duration;
+            Seconds duration(0);
             while (!_impl.try_lock_for(Threshold)) {
                 duration += Threshold;
 
