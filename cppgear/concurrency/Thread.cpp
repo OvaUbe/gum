@@ -24,8 +24,6 @@
 #include <cppgear/string/ToString.h>
 #include <cppgear/Try.h>
 
-#include <iostream>
-
 namespace cppgear {
 
     namespace {
@@ -69,7 +67,7 @@ namespace cppgear {
 
 
     ThreadId Thread::get_id() const {
-        return _impl.get_id();
+        return ThreadId(_impl.get_id());
     }
 
 

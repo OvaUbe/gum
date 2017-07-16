@@ -23,16 +23,11 @@
 #pragma once
 
 #include <cppgear/concurrency/CancellationToken.h>
+#include <cppgear/concurrency/ThreadId.h>
 #include <cppgear/log/Logger.h>
-#include <cppgear/string/String.h>
 #include <cppgear/time/Types.h>
 
-#include <thread>
-
 namespace cppgear {
-
-    using ThreadId = std::thread::id;
-
 
     class Thread {
         using Self = Thread;
