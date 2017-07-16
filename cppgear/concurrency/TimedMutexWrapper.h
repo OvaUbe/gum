@@ -22,11 +22,9 @@
 
 #pragma once
 
-#include <cppgear/concurrency/Thread.h>
+#include <cppgear/concurrency/ThreadInfo.h>
 #include <cppgear/log/LoggerSingleton.h>
 #include <cppgear/string/ToString.h>
-
-#include <mutex>
 
 namespace cppgear {
 
@@ -35,14 +33,9 @@ namespace cppgear {
 
     template < typename TimedMutex_ >
     class TimedMutexWrapper {
-        using OwnerIdGuard = std::mutex;
-        using OwnerIdLock = std::lock_guard<OwnerIdGuard>;
-
-    private:
         TimedMutex_         _impl;
 
-        StringConstPtr      _ownerId;
-        OwnerIdGuard        _ownerIdGuard;
+        ThreadInfo          _thread_info;
 
     public:
         TimedMutexWrapper() = default;
@@ -63,26 +56,15 @@ namespace cppgear {
                 duration += Threshold;
 
                 MutexLogger::get().warning()
-                    << "Could not lock mutex owned by: '" << get_owner_id() << "' for " << duration << "."
+                    << "Could not lock mutex owned by: '" << _thread_info << "' for " << duration << "."
                     << " There is probably a deadlock.\nBacktrace: " << Backtrace();
             }
 
-            set_owner_id(Thread::get_own_name());
+            _thread_info.acquire();
         }
 
         void unlock() {
             _impl.unlock();
-        }
-
-    private:
-        void set_owner_id(StringConstRef const& id) {
-            OwnerIdLock const l(_ownerIdGuard);
-            _ownerId = id;
-        }
-
-        StringConstPtr get_owner_id() {
-            OwnerIdLock const l(_ownerIdGuard);
-            return _ownerId;
         }
     };
 
