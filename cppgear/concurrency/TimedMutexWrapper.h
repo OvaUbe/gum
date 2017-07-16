@@ -63,8 +63,8 @@ namespace cppgear {
                 duration += Threshold;
 
                 MutexLogger::get().warning()
-                    << "Could not lock mutex owned by: '" << get_owner_id() << "' for \n."
-                    << "There is probably a deadlock.\nBacktrace: " << Backtrace();
+                    << "Could not lock mutex owned by: '" << get_owner_id() << "' for " << duration << "."
+                    << " There is probably a deadlock.\nBacktrace: " << Backtrace();
             }
 
             set_owner_id(Thread::get_own_name());
