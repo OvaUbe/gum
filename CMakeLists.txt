@@ -32,6 +32,7 @@ set(CPPGEAR_ROOT ${CMAKE_SOURCE_DIR}/cppgear/)
 set(CPPGEAR_SOURCES
     concurrency/CancellationToken.cpp
     concurrency/DummyCancellationHandle.cpp
+    concurrency/LifeToken.cpp
     concurrency/ThreadId.cpp
     concurrency/ThreadInfo.cpp
     concurrency/Thread.cpp
@@ -54,7 +55,9 @@ set(CPPGEAR_PUBLIC_HEADERS
     concurrency/DummyCancellationHandle.h
     concurrency/GenericMutexLock.h
     concurrency/ICancellationToken.h
+    concurrency/ILifeHandle.h
     concurrency/ImmutableMutexWrapper.h
+    concurrency/LifeToken.h
     concurrency/Mutex.h
     concurrency/RwMutex.h
     concurrency/ThreadId.h
