@@ -72,7 +72,7 @@ namespace cppgear {
 
 
     String Thread::to_string() const {
-        return String() << "Thread: '" << get_name() << "'";
+        return String() << "Thread: { id: " << get_own_id() << ", name: " << get_own_name() << " }";
     }
 
 
@@ -84,13 +84,19 @@ namespace cppgear {
     void Thread::_thread_func() {
         t_thread_name = _name;
 
+        s_logger.info() << "{ id: " << get_own_id() << " } spawned.";
+
         CPPGEAR_TRY_LEVEL("Uncaught exception from client thread function", error, _task(_cancellation_token));
     }
 
 
     void Thread::dtor() {
+        ThreadId const id = get_own_id();
+
         _cancellation_token.cancel();
         _impl.join();
+
+        s_logger.info() << "{ id: " << id << " } joined.";
     }
 
 }
