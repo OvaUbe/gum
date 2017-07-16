@@ -23,7 +23,7 @@
 #pragma once
 
 #include <cppgear/concurrency/CancellationToken.h>
-#include <cppgear/concurrency/ThreadId.h>
+#include <cppgear/concurrency/ThreadInfo.h>
 #include <cppgear/log/Logger.h>
 #include <cppgear/time/Types.h>
 
@@ -41,30 +41,29 @@ namespace cppgear {
     private:
         static Logger       s_logger;
 
-        StringConstRef      _name;
         TaskType            _task;
 
         CancellationToken   _cancellation_token;
         Impl                _impl;
 
+        ThreadInfoRef       _info;
+
     public:
         template < typename String_, typename Callable_ >
         Thread(String_&& name, Callable_&& callable)
-            :   _name(make_shared_ref<String>(std::forward<String_>(name))),
-                _task(std::forward<Callable_>(callable)),
-                _impl(&Self::thread_func, this)
+            :   _task(std::forward<Callable_>(callable)),
+                _impl(&Self::thread_func, this),
+                _info(make_shared_ref<ThreadInfo>(_impl.get_id(), make_shared_ref<String>(std::forward<String_>(name))))
         { }
 
         ~Thread();
 
-        static StringConstRef get_own_name();
-        static ThreadId get_own_id();
+        static ThreadInfoRef get_own_info();
 
         static void sleep(Duration const& duration);
         static void sleep(Duration const& duration, ICancellationHandle& handle);
 
-        StringConstRef get_name() const;
-        ThreadId get_id() const;
+        ThreadInfoRef get_info() const;
 
         String to_string() const;
 

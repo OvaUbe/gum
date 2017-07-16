@@ -35,7 +35,7 @@ namespace cppgear {
     class TimedMutexWrapper {
         TimedMutex_         _impl;
 
-        ThreadInfo          _thread_info;
+        OwnerInfo           _owner;
 
     public:
         TimedMutexWrapper() = default;
@@ -56,11 +56,11 @@ namespace cppgear {
                 duration += Threshold;
 
                 MutexLogger::get().warning()
-                    << "Could not lock mutex owned by: '" << _thread_info << "' for " << duration << "."
+                    << "Could not lock mutex owned by: " << _owner << " for " << duration << "."
                     << " There is probably a deadlock.\nBacktrace: " << Backtrace();
             }
 
-            _thread_info.acquire();
+            _owner.acquire();
         }
 
         void unlock() {

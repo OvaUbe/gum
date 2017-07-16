@@ -30,64 +30,55 @@ namespace cppgear {
 
     namespace {
 
-        class LightweightThreadInfo {
+        class LightweightOwnerInfo {
             std::atomic<ThreadId> _owner_id;
 
         public:
+            LightweightOwnerInfo()
+                :   _owner_id(ThreadId())
+            { }
+
             void acquire() {
-                _owner_id.store(Thread::get_own_id(), std::memory_order_acquire);
+                _owner_id.store(Thread::get_own_info()->get_id(), std::memory_order_release);
             }
 
             String to_string() const {
-                ThreadId const owner_id = _owner_id.load(std::memory_order_release);
-
-                return String() << "{ id: " << owner_id << " }";
+                return String() << "{ id: " << _owner_id.load(std::memory_order_acquire) << " }";
             }
         };
 
 
-        class ExtendedThreadInfo {
-            ThreadId            _owner_id;
-            StringConstPtr      _owner_name;
+        class ExtendedOwnerInfo {
+            ThreadInfoPtr       _owner_info;
 
             mutable std::mutex  _mutex;
 
         public:
             void acquire() {
-                ThreadId const owner_id = Thread::get_own_id();
-                StringConstRef const owner_name = Thread::get_own_name();
+                ThreadInfoRef const info = Thread::get_own_info();
 
                 std::lock_guard<std::mutex> l(_mutex);
-
-                _owner_id = owner_id;
-                _owner_name = owner_name;
+                _owner_info = info;
             }
 
             String to_string() const {
-                ThreadId owner_id;
-                StringConstPtr owner_name;
+                ThreadInfoPtr info;
                 {
                     std::lock_guard<std::mutex> l(_mutex);
-
-                    owner_id = _owner_id;
-                    owner_name = _owner_name;
+                    info = _owner_info;
                 }
-
-                if (!owner_name)
-                    return "<unavailable>";
-
-                return String() << "{ id: " << owner_id << ", name: " << owner_name << " }";
+                return info->to_string();
             }
         };
 
     }
 
 
-    class ThreadInfo::Impl {
-#   ifdef CPPGEAR_CONCURRENCY_USES_LIGHTWEIGHT_THREAD_INFO
-        using ImplImpl = LightweightThreadInfo;
+    class OwnerInfo::Impl {
+#   ifdef CPPGEAR_CONCURRENCY_USES_LIGHTWEIGHT_OWNER_INFO
+        using ImplImpl = LightweightOwnerInfo;
 #   else
-        using ImplImpl = ExtendedThreadInfo;
+        using ImplImpl = ExtendedOwnerInfo;
 #   endif
 
     private:
@@ -104,19 +95,30 @@ namespace cppgear {
     };
 
 
-    ThreadInfo::ThreadInfo() { }
+    OwnerInfo::OwnerInfo() { }
 
 
-    ThreadInfo::~ThreadInfo() { }
+    OwnerInfo::~OwnerInfo() { }
 
 
-    void ThreadInfo::acquire() {
+    void OwnerInfo::acquire() {
         _impl->acquire();
     }
 
 
-    String ThreadInfo::to_string() const {
+    String OwnerInfo::to_string() const {
         return _impl->to_string();
+    }
+
+
+    ThreadInfo::ThreadInfo(ThreadId const& id, StringConstRef const& name)
+        :   _id(id),
+            _name(name)
+    { }
+
+
+    String ThreadInfo::to_string() const {
+        return String() << "{ id: " << _id << ", name: " << _name << " }";
     }
 
 }

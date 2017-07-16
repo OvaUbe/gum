@@ -22,12 +22,34 @@
 
 #pragma once
 
+#include <cppgear/concurrency/ThreadId.h>
 #include <cppgear/smartpointer/UniqueReference.h>
 #include <cppgear/string/String.h>
 
 namespace cppgear {
 
     class ThreadInfo {
+        ThreadId            _id;
+        StringConstRef      _name;
+
+    public:
+        ThreadInfo(ThreadId const& id, StringConstRef const& name);
+
+        ThreadId get_id() const {
+            return _id;
+        }
+
+        StringConstRef get_name() const {
+            return _name;
+        }
+
+        String to_string() const;
+    };
+    CPPGEAR_DECLARE_PTR(ThreadInfo);
+    CPPGEAR_DECLARE_REF(ThreadInfo);
+
+
+    class OwnerInfo {
         class Impl;
         CPPGEAR_DECLARE_UNIQUE_REF(Impl);
 
@@ -35,8 +57,8 @@ namespace cppgear {
         ImplUniqueRef _impl;
 
     public:
-        ThreadInfo();
-        ~ThreadInfo();
+        OwnerInfo();
+        ~OwnerInfo();
 
         void acquire();
 
