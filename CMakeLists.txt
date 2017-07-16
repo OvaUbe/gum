@@ -33,6 +33,7 @@ set(CPPGEAR_SOURCES
     concurrency/CancellationToken.cpp
     concurrency/DummyCancellationHandle.cpp
     concurrency/ThreadId.cpp
+    concurrency/ThreadInfo.cpp
     concurrency/Thread.cpp
     diagnostics/Backtrace.cpp
     diagnostics/Demangle.cpp
@@ -57,6 +58,7 @@ set(CPPGEAR_PUBLIC_HEADERS
     concurrency/Mutex.h
     concurrency/RwMutex.h
     concurrency/ThreadId.h
+    concurrency/ThreadInfo.h
     concurrency/Thread.h
     concurrency/TimedMutexWrapper.h
     container/FlatMap.h
