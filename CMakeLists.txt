@@ -40,7 +40,7 @@ set(CPPGEAR_SOURCES
     log/LoggerManager.cpp
     log/LoggerStream.cpp
     log/Logger.cpp
-    time/ToString.cpp
+    string/ToString.cpp
     Core.cpp
     Enum.cpp
     Exception.cpp
@@ -78,13 +78,11 @@ set(CPPGEAR_PUBLIC_HEADERS
     smartpointer/SharedPtr.h
     smartpointer/SharedReference.h
     smartpointer/SmartpointerTraits.h
-    smartpointer/ToString.h
     smartpointer/UniquePtr.h
     smartpointer/UniqueReference.h
     string/StringLiteral.h
     string/String.h
     string/ToString.h
-    time/ToString.h
     time/Types.h
     token/FunctionToken.h
     token/ObjectToken.h

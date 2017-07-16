@@ -21,7 +21,7 @@
  */
 
 #include <cppgear/concurrency/Thread.h>
-#include <cppgear/smartpointer/ToString.h>
+#include <cppgear/string/ToString.h>
 #include <cppgear/Try.h>
 
 #include <iostream>

@@ -24,8 +24,7 @@
 
 #include <cppgear/concurrency/Thread.h>
 #include <cppgear/log/LoggerSingleton.h>
-#include <cppgear/smartpointer/ToString.h>
-#include <cppgear/time/ToString.h>
+#include <cppgear/string/ToString.h>
 
 #include <mutex>
 

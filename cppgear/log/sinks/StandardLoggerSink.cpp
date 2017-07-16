@@ -21,7 +21,7 @@
  */
 
 #include <cppgear/log/sinks/StandardLoggerSink.h>
-#include <cppgear/time/ToString.h>
+#include <cppgear/string/ToString.h>
 
 #include <cstdio>
 

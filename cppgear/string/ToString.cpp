@@ -20,21 +20,18 @@
  * THE SOFTWARE.
  */
 
-#pragma once
-
-#include <cppgear/smartpointer/SmartpointerTraits.h>
 #include <cppgear/string/ToString.h>
+
+#include <ctime>
+#include <iomanip>
 
 namespace cppgear {
 
-    template < typename Value_ >
-    std::enable_if_t<IsPtrSmartpointer<Value_>::value, String> to_string(Value_ const& value) {
-        return value ? to_string(*value) : to_string(nullptr);
-    }
-
-    template < typename Value_ >
-    std::enable_if_t<IsReferenceSmartpointer<Value_>::value, String> to_string(Value_ const& value) {
-        return to_string(*value);
+    String to_string(TimePoint const& point) {
+        std::time_t const now_c = SystemClock::to_time_t(point);
+        std::stringstream ss;
+        ss << std::put_time(std::localtime(&now_c), "%F %T");
+        return ss.str();
     }
 
 }
