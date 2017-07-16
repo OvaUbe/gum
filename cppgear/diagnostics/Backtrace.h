@@ -32,7 +32,7 @@ namespace cppgear {
     public:
         Backtrace();
 
-        std::string ToString() const {
+        std::string to_string() const {
             return _backtrace;
         }
     };

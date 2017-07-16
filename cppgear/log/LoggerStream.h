@@ -22,18 +22,34 @@
 
 #pragma once
 
-#include <cppgear/concurrency/ImmutableMutexWrapper.h>
-#include <cppgear/concurrency/GenericMutexLock.h>
-#include <cppgear/concurrency/TimedMutexWrapper.h>
+#include <cppgear/log/LogLevel.h>
+#include <cppgear/log/LoggerId.h>
+#include <cppgear/string/StringLiteral.h>
+#include <cppgear/string/ToString.h>
 
-#include <mutex>
+#include <sstream>
 
 namespace cppgear {
 
-    using Mutex = ImmutableMutexWrapper<TimedMutexWrapper<std::timed_mutex>>;
-    using RecursiveMutex = ImmutableMutexWrapper<TimedMutexWrapper<std::recursive_timed_mutex>>;
+    class LoggerStream {
+        using Self = LoggerStream;
 
-    using MutexLock = GenericMutexLock<Mutex>;
-    using RecursiveMutexLock = GenericMutexLock<RecursiveMutex>;
+    private:
+        LoggerId        _logger_id;
+        StringLiteral   _logger_name;
+        LogLevel        _level;
+
+        String          _message;
+
+    public:
+        LoggerStream(LoggerId logger_id, StringLiteral const& logger_name, LogLevel level);
+        ~LoggerStream();
+
+        template < typename Value_ >
+        Self& operator<<(Value_&& value) {
+            _message << to_string(std::forward<Value_>(value));
+            return self;
+        }
+    };
 
 }

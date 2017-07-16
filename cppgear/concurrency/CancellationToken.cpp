@@ -52,6 +52,17 @@ namespace cppgear {
             return _is_cancelled;
         }
 
+        void sleep(Duration const& duration) const {
+            if (_is_cancelled)
+                return;
+
+            MutexLock l(_mutex);
+
+            while (!_is_cancelled)
+                if (_cancel_condition.wait_for(_mutex, duration, *DummyCancellationHandle()))
+                    break;
+        }
+
         bool on_cancelled(ICancellationToken::CancellationHandler const& cancellation_handler) {
             if (_is_cancelled)
                 return false;
@@ -69,10 +80,10 @@ namespace cppgear {
         void unregister_cancellation_handler() {
             MutexLock l(_mutex);
 
+            _cancellation_handler.reset();
+
             while (_cancel_in_progress)
                 _cancel_condition.wait(_mutex, *DummyCancellationHandle());
-
-            _cancellation_handler.reset();
         }
 
         void cancel() {
@@ -92,8 +103,8 @@ namespace cppgear {
                 _cancellation_handler.swap(cancellation_handler);
             }
 
-            if (_cancellation_handler)
-                (*_cancellation_handler)();
+            if (cancellation_handler)
+                (*cancellation_handler)();
 
             {
                 MutexLock l(_mutex);
@@ -112,8 +123,16 @@ namespace cppgear {
     };
 
 
+    CancellationToken::CancellationToken() { }
+
+
     CancellationToken::operator bool() const {
         return !_impl->is_cancelled();
+    }
+
+
+    void CancellationToken::sleep(Duration const& duration) const {
+        _impl->sleep(duration);
     }
 
 

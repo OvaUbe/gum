@@ -22,29 +22,58 @@
 
 #pragma once
 
-#include <cppgear/time/Types.h>
+#include <cppgear/log/LoggerStream.h>
 #include <cppgear/token/Token.h>
-#include <cppgear/IBoolean.h>
-
-#include <functional>
 
 namespace cppgear {
 
-    struct ICancellationHandle : public virtual IBoolean {
-        using CancellationHandler = std::function<void()>;
+    struct Logger {
+        StringLiteral   _name;
+        Token           _registration;
 
     public:
-        virtual void sleep(Duration const& duration) const = 0;
+        Logger(StringLiteral const& name, LogLevel default_log_level = LogLevel::Info);
 
-        virtual Token on_cancelled(CancellationHandler const& cancellationHandler) = 0;
+        LoggerStream trace() const {
+            return log(LogLevel::Trace);
+        }
+
+        LoggerStream debug() const {
+            return log(LogLevel::Debug);
+        }
+
+        LoggerStream info() const {
+            return log(LogLevel::Info);
+        }
+
+        LoggerStream warning() const {
+            return log(LogLevel::Warning);
+        }
+
+        LoggerStream error() const {
+            return log(LogLevel::Error);
+        }
+
+        LoggerStream highlight() const {
+            return log(LogLevel::Highlight);
+        }
+
+        LoggerStream log(LogLevel level) const {
+            return LoggerStream(get_id(), _name, level);
+        }
+
+        void set_log_level(LogLevel level) const;
+
+    private:
+        LoggerId get_id() const {
+            return LoggerId(this);
+        }
     };
 
+#   define CPPGEAR_DEFINE_LOGGER(Type_) \
+        Logger Type_::s_logger(#Type_)
 
-    struct ICancellationToken : public virtual ICancellationHandle {
-        virtual void cancel() = 0;
-        virtual void reset() = 0;
-
-        virtual Token get_cancellator() const = 0;
-    };
+#   define CPPGEAR_DEFINE_NAMED_LOGGER(Type_, Name_) \
+        Logger Type_::s_logger(#Name_)
 
 }

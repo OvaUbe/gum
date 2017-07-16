@@ -20,20 +20,17 @@
  * THE SOFTWARE.
  */
 
-#pragma once
-
-#include <cppgear/concurrency/ImmutableMutexWrapper.h>
-#include <cppgear/concurrency/GenericMutexLock.h>
-#include <cppgear/concurrency/TimedMutexWrapper.h>
-
-#include <mutex>
+#include <cppgear/log/LogMessage.h>
 
 namespace cppgear {
 
-    using Mutex = ImmutableMutexWrapper<TimedMutexWrapper<std::timed_mutex>>;
-    using RecursiveMutex = ImmutableMutexWrapper<TimedMutexWrapper<std::recursive_timed_mutex>>;
-
-    using MutexLock = GenericMutexLock<Mutex>;
-    using RecursiveMutexLock = GenericMutexLock<RecursiveMutex>;
+    LogMessage::LogMessage(LoggerId logger_id, TimePoint const& when_, LogLevel level_, StringConstRef const& thread_, StringLiteral const& author_, String&& message_)
+        :   logger_id(logger_id),
+            when(when_),
+            level(level_),
+            thread(thread_),
+            author(author_),
+            message(std::move(message_))
+    { }
 
 }

@@ -20,20 +20,14 @@
  * THE SOFTWARE.
  */
 
-#pragma once
+#include <cppgear/concurrency/DummyCancellationHandle.h>
 
-#include <cppgear/concurrency/ImmutableMutexWrapper.h>
-#include <cppgear/concurrency/GenericMutexLock.h>
-#include <cppgear/concurrency/TimedMutexWrapper.h>
-
-#include <mutex>
+#include <cppgear/concurrency/Thread.h>
 
 namespace cppgear {
 
-    using Mutex = ImmutableMutexWrapper<TimedMutexWrapper<std::timed_mutex>>;
-    using RecursiveMutex = ImmutableMutexWrapper<TimedMutexWrapper<std::recursive_timed_mutex>>;
-
-    using MutexLock = GenericMutexLock<Mutex>;
-    using RecursiveMutexLock = GenericMutexLock<RecursiveMutex>;
+    void DummyCancellationHandle::sleep(Duration const& duration) const {
+        Thread::sleep(duration);
+    }
 
 }

@@ -35,7 +35,7 @@ namespace cppgear {
         { }
 
 
-        std::string Where::ToString() const {
+        std::string Where::to_string() const {
             std::stringstream ss;
             ss << _function << "(" << _file << ":" << _line << ")";
             return ss.str();

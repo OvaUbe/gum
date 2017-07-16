@@ -22,18 +22,27 @@
 
 #pragma once
 
-#include <cppgear/concurrency/ImmutableMutexWrapper.h>
-#include <cppgear/concurrency/GenericMutexLock.h>
-#include <cppgear/concurrency/TimedMutexWrapper.h>
-
-#include <mutex>
-
 namespace cppgear {
 
-    using Mutex = ImmutableMutexWrapper<TimedMutexWrapper<std::timed_mutex>>;
-    using RecursiveMutex = ImmutableMutexWrapper<TimedMutexWrapper<std::recursive_timed_mutex>>;
+    template < typename Lock_ >
+    class GenericMutexLock {
+        Lock_ const& _lock;
 
-    using MutexLock = GenericMutexLock<Mutex>;
-    using RecursiveMutexLock = GenericMutexLock<RecursiveMutex>;
+    public:
+        GenericMutexLock() = delete;
+        GenericMutexLock(GenericMutexLock const&) = delete;
+        GenericMutexLock(GenericMutexLock&&) = delete;
+
+        GenericMutexLock& operator=(GenericMutexLock const&) = delete;
+        GenericMutexLock& operator=(GenericMutexLock&&) = delete;
+
+        GenericMutexLock(Lock_ const& lock)
+            :   _lock(lock)
+        { _lock.lock(); }
+
+        ~GenericMutexLock() {
+            _lock.unlock();
+        }
+    };
 
 }

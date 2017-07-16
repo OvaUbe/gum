@@ -22,18 +22,26 @@
 
 #pragma once
 
-#include <cppgear/concurrency/ImmutableMutexWrapper.h>
-#include <cppgear/concurrency/GenericMutexLock.h>
-#include <cppgear/concurrency/TimedMutexWrapper.h>
+#include <cppgear/log/LogLevel.h>
+#include <cppgear/log/LoggerId.h>
+#include <cppgear/string/StringLiteral.h>
+#include <cppgear/string/String.h>
+#include <cppgear/time/Types.h>
 
-#include <mutex>
+#include <string>
 
 namespace cppgear {
 
-    using Mutex = ImmutableMutexWrapper<TimedMutexWrapper<std::timed_mutex>>;
-    using RecursiveMutex = ImmutableMutexWrapper<TimedMutexWrapper<std::recursive_timed_mutex>>;
+    struct LogMessage {
+        LoggerId                                    logger_id;
+        TimePoint                                   when;
+        LogLevel                                    level;
+        StringConstRef                              thread;
+        StringLiteral                               author;
+        String                                      message;
 
-    using MutexLock = GenericMutexLock<Mutex>;
-    using RecursiveMutexLock = GenericMutexLock<RecursiveMutex>;
+    public:
+        LogMessage(LoggerId logger_id, TimePoint const& when_, LogLevel level_, StringConstRef const& thread_, StringLiteral const& author_, String&& message_);
+    };
 
 }

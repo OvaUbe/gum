@@ -23,30 +23,60 @@
 #pragma once
 
 #include <cppgear/concurrency/CancellationToken.h>
+#include <cppgear/log/Logger.h>
+#include <cppgear/string/String.h>
+#include <cppgear/time/Types.h>
 
 #include <thread>
 
 namespace cppgear {
 
+    using ThreadId = std::thread::id;
+
+
     class Thread {
+        using Self = Thread;
+
         using Impl = std::thread;
 
     public:
-        using Signature = void(ICancellationHandle&);
+        using TaskSignature = void(ICancellationHandle&);
+        using TaskType = std::function<TaskSignature>;
 
     private:
+        static Logger       s_logger;
+
+        StringConstRef      _name;
+        TaskType            _task;
+
         CancellationToken   _cancellation_token;
         Impl                _impl;
 
     public:
-        template < typename Callable_ >
-        Thread(Callable_&& callable)
-            :   _impl(std::bind(std::forward<Callable_>(callable), std::ref(_cancellation_token)))
+        template < typename String_, typename Callable_ >
+        Thread(String_&& name, Callable_&& callable)
+            :   _name(make_shared_ref<String>(std::forward<String_>(name))),
+                _task(std::forward<Callable_>(callable)),
+                _impl(&Self::thread_func, this)
         { }
 
         ~Thread();
 
+        static StringConstRef get_own_name();
+        static ThreadId get_own_id();
+
+        static void sleep(Duration const& duration);
+        static void sleep(Duration const& duration, ICancellationHandle& handle);
+
+        StringConstRef get_name() const;
+        ThreadId get_id() const;
+
+        String to_string() const;
+
     private:
+        void thread_func();
+        void _thread_func();
+
         void dtor();
     };
     CPPGEAR_DECLARE_UNIQUE_REF(Thread);

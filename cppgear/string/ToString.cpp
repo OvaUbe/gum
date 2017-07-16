@@ -20,20 +20,18 @@
  * THE SOFTWARE.
  */
 
-#pragma once
+#include <cppgear/string/ToString.h>
 
-#include <cppgear/concurrency/ImmutableMutexWrapper.h>
-#include <cppgear/concurrency/GenericMutexLock.h>
-#include <cppgear/concurrency/TimedMutexWrapper.h>
-
-#include <mutex>
+#include <ctime>
+#include <iomanip>
 
 namespace cppgear {
 
-    using Mutex = ImmutableMutexWrapper<TimedMutexWrapper<std::timed_mutex>>;
-    using RecursiveMutex = ImmutableMutexWrapper<TimedMutexWrapper<std::recursive_timed_mutex>>;
-
-    using MutexLock = GenericMutexLock<Mutex>;
-    using RecursiveMutexLock = GenericMutexLock<RecursiveMutex>;
+    String to_string(TimePoint const& point) {
+        std::time_t const now_c = SystemClock::to_time_t(point);
+        std::stringstream ss;
+        ss << std::put_time(std::localtime(&now_c), "%F %T");
+        return ss.str();
+    }
 
 }

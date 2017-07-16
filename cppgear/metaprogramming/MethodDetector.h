@@ -22,18 +22,19 @@
 
 #pragma once
 
-#include <cppgear/concurrency/ImmutableMutexWrapper.h>
-#include <cppgear/concurrency/GenericMutexLock.h>
-#include <cppgear/concurrency/TimedMutexWrapper.h>
-
-#include <mutex>
-
 namespace cppgear {
 
-    using Mutex = ImmutableMutexWrapper<TimedMutexWrapper<std::timed_mutex>>;
-    using RecursiveMutex = ImmutableMutexWrapper<TimedMutexWrapper<std::recursive_timed_mutex>>;
-
-    using MutexLock = GenericMutexLock<Mutex>;
-    using RecursiveMutexLock = GenericMutexLock<RecursiveMutex>;
+#   define CPPGEAR_DECLARE_METHOD_DETECTOR(Method_) \
+        template < typename T > \
+        class HasMethod_##Method_ { \
+            using Yes = char; \
+            using No = long; \
+        \
+            template < typename C > static Yes infer(decltype(&C::Method_)) ; \
+            template < typename C > static No infer(...); \
+        \
+        public: \
+            static constexpr bool value = sizeof(infer<T>(0)) == sizeof(Yes); \
+        }
 
 }

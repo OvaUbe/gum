@@ -20,20 +20,16 @@
  * THE SOFTWARE.
  */
 
-#pragma once
-
-#include <cppgear/concurrency/ImmutableMutexWrapper.h>
-#include <cppgear/concurrency/GenericMutexLock.h>
-#include <cppgear/concurrency/TimedMutexWrapper.h>
-
-#include <mutex>
+#include <cppgear/concurrency/Mutex.h>
+#include <cppgear/log/ILoggerSink.h>
 
 namespace cppgear {
 
-    using Mutex = ImmutableMutexWrapper<TimedMutexWrapper<std::timed_mutex>>;
-    using RecursiveMutex = ImmutableMutexWrapper<TimedMutexWrapper<std::recursive_timed_mutex>>;
+    class StandardLoggerSink : public virtual ILoggerSink {
+        Mutex _mutex;
 
-    using MutexLock = GenericMutexLock<Mutex>;
-    using RecursiveMutexLock = GenericMutexLock<RecursiveMutex>;
+    public:
+        void log(LogMessage const& message) override;
+    };
 
 }

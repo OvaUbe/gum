@@ -22,7 +22,7 @@
 
 #pragma once
 
-#include <cppgear/UniquePtr.h>
+#include <cppgear/smartpointer/UniquePtr.h>
 
 namespace cppgear {
 

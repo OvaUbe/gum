@@ -22,8 +22,8 @@
 
 #pragma once
 
-#include <cppgear/UniquePtr.h>
-#include <cppgear/UniqueReference.h>
+#include <cppgear/smartpointer/UniquePtr.h>
+#include <cppgear/smartpointer/UniqueReference.h>
 
 namespace cppgear {
 
@@ -130,8 +130,8 @@ namespace cppgear {
         }
 
         template < typename Other_ >
-        bool owner_before(Other_ const& other) {
-            return _wrapped.owner_before(other);
+        bool owner_before(Other_ const& other) const {
+            return _wrapped.owner_before(other._wrapped);
         }
 
         friend void swap(WeakPtr& lhs, WeakPtr& rhs) {

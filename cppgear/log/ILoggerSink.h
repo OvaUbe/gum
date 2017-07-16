@@ -22,18 +22,16 @@
 
 #pragma once
 
-#include <cppgear/concurrency/ImmutableMutexWrapper.h>
-#include <cppgear/concurrency/GenericMutexLock.h>
-#include <cppgear/concurrency/TimedMutexWrapper.h>
-
-#include <mutex>
+#include <cppgear/log/LogMessage.h>
+#include <cppgear/smartpointer/SharedReference.h>
 
 namespace cppgear {
 
-    using Mutex = ImmutableMutexWrapper<TimedMutexWrapper<std::timed_mutex>>;
-    using RecursiveMutex = ImmutableMutexWrapper<TimedMutexWrapper<std::recursive_timed_mutex>>;
+    struct ILoggerSink {
+        virtual ~ILoggerSink() { }
 
-    using MutexLock = GenericMutexLock<Mutex>;
-    using RecursiveMutexLock = GenericMutexLock<RecursiveMutex>;
+        virtual void log(LogMessage const& message) = 0;
+    };
+    CPPGEAR_DECLARE_REF(ILoggerSink);
 
 }

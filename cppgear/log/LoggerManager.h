@@ -22,18 +22,34 @@
 
 #pragma once
 
-#include <cppgear/concurrency/ImmutableMutexWrapper.h>
-#include <cppgear/concurrency/GenericMutexLock.h>
-#include <cppgear/concurrency/TimedMutexWrapper.h>
-
-#include <mutex>
+#include <cppgear/log/ILoggerSink.h>
+#include <cppgear/token/Token.h>
+#include <cppgear/Singleton.h>
 
 namespace cppgear {
 
-    using Mutex = ImmutableMutexWrapper<TimedMutexWrapper<std::timed_mutex>>;
-    using RecursiveMutex = ImmutableMutexWrapper<TimedMutexWrapper<std::recursive_timed_mutex>>;
+    class LoggerManager {
+        CPPGEAR_SINGLETON(LoggerManager)
 
-    using MutexLock = GenericMutexLock<Mutex>;
-    using RecursiveMutexLock = GenericMutexLock<RecursiveMutex>;
+        using Self = LoggerManager;
+
+        class Impl;
+        CPPGEAR_DECLARE_REF(Impl);
+
+    private:
+        ImplRef _impl;
+
+    public:
+        LoggerManager() = default;
+
+        static Self& get();
+
+        Token register_logger_sink(ILoggerSinkRef const& logger_sink);
+        Token register_logger(LoggerId logger_id, LogLevel default_log_level);
+
+        void set_logger_level(LoggerId logger_id, LogLevel level);
+
+        void log(LogMessage const& message);
+    };
 
 }

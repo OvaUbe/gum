@@ -32,18 +32,17 @@
 namespace cppgear {
 
     template
-        < typename Key_,
-          typename Value_,
-          typename Compare_ = std::less<Key_>,
-          typename Allocator_ = std::allocator<std::pair<Key_, Value_>>,
+        < typename Value_,
+          typename Compare_ = std::less<Value_>,
+          typename Allocator_ = std::allocator<Value_>,
           template <typename, typename> class Vector_ = std::vector
         >
-    class FlatMap {
+    class FlatSet {
     public:
-        using key_type = Key_;
-        using mapped_type = Value_;
-        using value_type = std::pair<Key_, Value_>;
+        using key_type = Value_;
+        using value_type = Value_;
         using key_compare = Compare_;
+        using value_compare = Compare_;
         using allocator_type = Allocator_;
         using vector_type = Vector_<value_type, allocator_type>;
         using size_type  = typename vector_type::size_type;
@@ -56,25 +55,6 @@ namespace cppgear {
         using const_iterator = typename vector_type::const_iterator;
         using reverse_iterator = std::reverse_iterator<iterator>;
         using const_reverse_iterator = std::reverse_iterator<const_iterator>;
-
-        class value_compare {
-        public:
-            using result_type = bool;
-            using first_argument_type = value_type;
-            using second_argument_type = value_type;
-
-        public:
-            value_compare(key_compare const& wrapped) :
-                m_wrapped(wrapped) { }
-
-            result_type operator()(first_argument_type const& lhs, second_argument_type const& rhs) const {
-                return m_wrapped(lhs.first, rhs.first);
-            }
-
-        private:
-            key_compare m_wrapped;
-
-        };
 
         class equality_predicate {
         public:
@@ -90,15 +70,15 @@ namespace cppgear {
         };
 
     public:
-        explicit FlatMap(key_compare const& compare = key_compare(), allocator_type const& allocator = allocator_type()) :
+        explicit FlatSet(key_compare const& compare = key_compare(), allocator_type const& allocator = allocator_type()) :
             m_underlying(allocator),
             m_comparator(compare) { }
 
-        explicit FlatMap(allocator_type const& allocator) :
-            FlatMap(key_compare(), allocator) { }
+        explicit FlatSet(allocator_type const& allocator) :
+            FlatSet(key_compare(), allocator) { }
 
         template < typename InputIterator_ >
-        FlatMap(InputIterator_ first, InputIterator_ last, key_compare const& compare = key_compare(), allocator_type const& allocator = allocator_type()) :
+        FlatSet(InputIterator_ first, InputIterator_ last, key_compare const& compare = key_compare(), allocator_type const& allocator = allocator_type()) :
             m_underlying(first, last, allocator),
             m_comparator(compare) {
 
@@ -106,32 +86,32 @@ namespace cppgear {
         }
 
         template < typename InputIterator_ >
-        FlatMap(InputIterator_ first, InputIterator_ last, allocator_type const& allocator) :
-            FlatMap(first, last, key_compare(), allocator) { }
+        FlatSet(InputIterator_ first, InputIterator_ last, allocator_type const& allocator) :
+            FlatSet(first, last, key_compare(), allocator) { }
 
-        FlatMap(FlatMap const& other) = default;
-        FlatMap(FlatMap const& other, allocator_type const& allocator) :
+        FlatSet(FlatSet const& other) = default;
+        FlatSet(FlatSet const& other, allocator_type const& allocator) :
             m_underlying(other.m_underlying, allocator),
             m_comparator(other.m_comparator) { }
 
-        FlatMap(FlatMap&& other) = default;
-        FlatMap(FlatMap&& other, allocator_type const& allocator) :
+        FlatSet(FlatSet&& other) = default;
+        FlatSet(FlatSet&& other, allocator_type const& allocator) :
             m_underlying(std::move(other.m_underlying), allocator),
             m_comparator(std::move(other.m_comparator)) { }
 
-        FlatMap(std::initializer_list<value_type> initializer_list,
+        FlatSet(std::initializer_list<value_type> initializer_list,
                  key_compare const& compare = key_compare(), allocator_type const& allocator = allocator_type()) :
-            FlatMap(initializer_list.begin(), initializer_list.end(), compare, allocator) { }
+            FlatSet(initializer_list.begin(), initializer_list.end(), compare, allocator) { }
 
-        FlatMap(std::initializer_list<value_type> initializer_list, allocator_type const& allocator) :
-            FlatMap(initializer_list, key_compare(), allocator) { }
+        FlatSet(std::initializer_list<value_type> initializer_list, allocator_type const& allocator) :
+            FlatSet(initializer_list, key_compare(), allocator) { }
 
-        ~FlatMap() = default;
+        ~FlatSet() = default;
 
-        FlatMap& operator=(FlatMap const& other) = default;
-        FlatMap& operator=(FlatMap&& other) = default;
+        FlatSet& operator=(FlatSet const& other) = default;
+        FlatSet& operator=(FlatSet&& other) = default;
 
-        FlatMap& operator=(std::initializer_list<value_type> initializer_list) {
+        FlatSet& operator=(std::initializer_list<value_type> initializer_list) {
             m_underlying = vector_type(initializer_list);
             _sort();
             return self;
@@ -141,21 +121,21 @@ namespace cppgear {
             return m_underlying.get_allocator();
         }
 
-        mapped_type& at(key_type const& key) {
-            return const_cast<mapped_type&>(const_self.at(key));
+        value_type& at(key_type const& key) {
+            return const_cast<value_type&>(const_self.at(key));
         }
 
-        const mapped_type& at(key_type const& key) const {
+        const value_type& at(key_type const& key) const {
             const_iterator iter = find(key);
             if (iter != end()) {
-                return iter->second;
+                return iter;
             }
-            throw std::out_of_range("FlatMap::at(...): key not found");
+            throw std::out_of_range("FlatSet::at(...): key not found");
         }
 
         template < typename K >
-        mapped_type& operator[](K&& key) {
-            return emplace(std::piecewise_construct, std::forward_as_tuple(std::forward<K>(key)), std::tuple<>()).first->second;
+        value_type& operator[](K&& key) {
+            return emplace(std::piecewise_construct, std::forward_as_tuple(std::forward<K>(key)), std::tuple<>()).first;
         }
 
         iterator begin() noexcept {
@@ -300,7 +280,7 @@ namespace cppgear {
             return 1;
         }
 
-        void swap(FlatMap& other) {
+        void swap(FlatSet& other) {
             std::swap(m_underlying, other.m_underlying);
             std::swap(m_comparator, other.m_comparator);
         }
@@ -317,12 +297,12 @@ namespace cppgear {
         const_iterator find(key_type const& key) const {
             const_iterator iter = lower_bound(key);
             const_iterator last = end();
-            if (iter != last && !_less(key, iter->first)) {
+            if (iter != last && !_less(key, *iter)) {
                 return iter;
             }
             return last;
         }
-        
+
         std::pair<iterator, iterator> equal_range(key_type const& key) {
             auto range = const_self.equal_range(key);
             return { _const_iterator_cast(range.first), _const_iterator_cast(range.second) };
@@ -334,7 +314,7 @@ namespace cppgear {
             if (iter == last) {
                 return std::make_pair(last, last);
             }
-            if (!_less(key, iter->first)) {
+            if (!_less(key, iter)) {
                 return std::make_pair(iter, iter + 1);
             }
             return std::make_pair(iter, iter);
@@ -353,7 +333,7 @@ namespace cppgear {
         }
 
         const_iterator upper_bound(key_type const& key) const {
-            return std::upper_bound(make_key_iterator(begin()), make_key_iterator(end()), key, m_comparator).get_wrapped();
+            return std::upper_bound(begin(), end(), key, m_comparator);
         }
 
         key_compare key_comp() const {
@@ -374,11 +354,11 @@ namespace cppgear {
         }
 
         const_iterator _lower_bound(const_iterator first, const_iterator last, key_type const& key) const {
-            return std::lower_bound(make_key_iterator(first), make_key_iterator(last), key, m_comparator).get_wrapped();
+            return std::lower_bound(first, last, key, m_comparator);
         }
 
         std::pair<iterator, bool> _insert(const_iterator first, const_iterator last, value_type const& value) {
-            const_iterator iter = _lower_bound(first, last, value.first);
+            const_iterator iter = _lower_bound(first, last, value);
             if (iter != end() && !_less(value, *iter)) {
                 return std::make_pair(_const_iterator_cast(iter), false);
             }
@@ -391,10 +371,6 @@ namespace cppgear {
 
         bool _less(key_type const& lhs, key_type const& rhs) const {
             return m_comparator(lhs, rhs);
-        }
-
-        bool _less(value_type const& lhs, value_type const& rhs) const {
-            return _less(lhs.first, rhs.first);
         }
 
         void _sort() {
@@ -412,30 +388,30 @@ namespace cppgear {
             return m_underlying.erase(it, it);
         }
 
-        friend bool operator==(FlatMap const& lhs, FlatMap const& rhs) {
+        friend bool operator==(FlatSet const& lhs, FlatSet const& rhs) {
             return std::equal(lhs.begin(), lhs.end(), rhs.begin(), rhs.end());
         }
 
-        friend bool operator!=(FlatMap const& lhs, FlatMap const& rhs) {
+        friend bool operator!=(FlatSet const& lhs, FlatSet const& rhs) {
             return !(lhs == rhs);
         }
 
-        friend bool operator<(FlatMap const& lhs, FlatMap const& rhs) {
+        friend bool operator<(FlatSet const& lhs, FlatSet const& rhs) {
             return std::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end());
         }
 
-        friend bool operator<=(FlatMap const& lhs, FlatMap const& rhs) {
+        friend bool operator<=(FlatSet const& lhs, FlatSet const& rhs) {
             if (lhs < rhs) {
                 return true;
             }
             return lhs == rhs;
         }
 
-        friend bool operator>(FlatMap const& lhs, FlatMap const& rhs) {
+        friend bool operator>(FlatSet const& lhs, FlatSet const& rhs) {
             return !(lhs <= rhs);
         }
 
-        friend bool operator>=(FlatMap const& lhs, FlatMap const& rhs) {
+        friend bool operator>=(FlatSet const& lhs, FlatSet const& rhs) {
             return !(lhs < rhs);
         }
 
@@ -449,9 +425,9 @@ namespace cppgear {
 
 namespace std {
 
-    template < typename Key_, typename Value_, typename Compare_, typename Allocator_, template <typename, typename> class Vector_ >
-    void swap(cppgear::FlatMap<Key_, Value_, Compare_, Allocator_, Vector_>& lhs,
-              cppgear::FlatMap<Key_, Value_, Compare_, Allocator_, Vector_>& rhs) {
+    template < typename Value_, typename Compare_, typename Allocator_, template <typename, typename> class Vector_ >
+    void swap(cppgear::FlatSet<Value_, Compare_, Allocator_, Vector_>& lhs,
+              cppgear::FlatSet<Value_, Compare_, Allocator_, Vector_>& rhs) {
         return lhs.swap(rhs);
     }
 

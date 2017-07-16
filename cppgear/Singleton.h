@@ -22,18 +22,24 @@
 
 #pragma once
 
-#include <cppgear/concurrency/ImmutableMutexWrapper.h>
-#include <cppgear/concurrency/GenericMutexLock.h>
-#include <cppgear/concurrency/TimedMutexWrapper.h>
-
-#include <mutex>
-
 namespace cppgear {
 
-    using Mutex = ImmutableMutexWrapper<TimedMutexWrapper<std::timed_mutex>>;
-    using RecursiveMutex = ImmutableMutexWrapper<TimedMutexWrapper<std::recursive_timed_mutex>>;
+#   define CPPGEAR_SINGLETON(Type_) \
+            Type_(Type_ const&) = delete; \
+            Type_(Type_&&) = delete; \
+            \
+            Type_& operator=(Type_ const&) = delete; \
+            Type_& operator=(Type_&&) = delete; \
+            \
+        private:
 
-    using MutexLock = GenericMutexLock<Mutex>;
-    using RecursiveMutexLock = GenericMutexLock<RecursiveMutex>;
+
+    template < typename Derived_ >
+    struct Singleton {
+        static Derived_& get() {
+            static Derived_ instance;
+            return instance;
+        }
+    };
 
 }

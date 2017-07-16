@@ -22,18 +22,19 @@
 
 #pragma once
 
-#include <cppgear/concurrency/ImmutableMutexWrapper.h>
-#include <cppgear/concurrency/GenericMutexLock.h>
-#include <cppgear/concurrency/TimedMutexWrapper.h>
-
-#include <mutex>
+#include <cppgear/log/Logger.h>
+#include <cppgear/Singleton.h>
 
 namespace cppgear {
 
-    using Mutex = ImmutableMutexWrapper<TimedMutexWrapper<std::timed_mutex>>;
-    using RecursiveMutex = ImmutableMutexWrapper<TimedMutexWrapper<std::recursive_timed_mutex>>;
-
-    using MutexLock = GenericMutexLock<Mutex>;
-    using RecursiveMutexLock = GenericMutexLock<RecursiveMutex>;
+#   define CPPGEAR_LOGGER_SINGLETON(Name_) \
+        class Name_ : public Logger, public Singleton<Name_> { \
+            CPPGEAR_SINGLETON(Name_) \
+        \
+        public: \
+            Name_() \
+                :   Logger(#Name_) \
+            { } \
+        }
 
 }

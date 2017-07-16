@@ -20,20 +20,20 @@
  * THE SOFTWARE.
  */
 
-#pragma once
+#include <cppgear/log/Logger.h>
 
-#include <cppgear/concurrency/ImmutableMutexWrapper.h>
-#include <cppgear/concurrency/GenericMutexLock.h>
-#include <cppgear/concurrency/TimedMutexWrapper.h>
-
-#include <mutex>
+#include <cppgear/log/LoggerManager.h>
 
 namespace cppgear {
 
-    using Mutex = ImmutableMutexWrapper<TimedMutexWrapper<std::timed_mutex>>;
-    using RecursiveMutex = ImmutableMutexWrapper<TimedMutexWrapper<std::recursive_timed_mutex>>;
+    Logger::Logger(StringLiteral const& name, LogLevel default_log_level)
+        :   _name(name),
+            _registration(LoggerManager::get().register_logger(get_id(), default_log_level))
+    { }
 
-    using MutexLock = GenericMutexLock<Mutex>;
-    using RecursiveMutexLock = GenericMutexLock<RecursiveMutex>;
+
+    void Logger::set_log_level(LogLevel level) const {
+        LoggerManager::get().set_logger_level(get_id(), level);
+    }
 
 }

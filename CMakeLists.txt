@@ -31,42 +31,74 @@ set(CPPGEAR_ROOT ${CMAKE_SOURCE_DIR}/cppgear/)
 
 set(CPPGEAR_SOURCES
     concurrency/CancellationToken.cpp
+    concurrency/DummyCancellationHandle.cpp
     concurrency/Thread.cpp
     diagnostics/Backtrace.cpp
     diagnostics/Demangle.cpp
+    log/sinks/StandardLoggerSink.cpp
+    log/LogMessage.cpp
+    log/LoggerManager.cpp
+    log/LoggerStream.cpp
+    log/Logger.cpp
+    string/ToString.cpp
     Core.cpp
+    Enum.cpp
     Exception.cpp
 )
 set(CPPGEAR_PUBLIC_HEADERS
+    compare/OwnerLess.h
     concurrency/CancellationToken.h
     concurrency/ConditionVariable.h
     concurrency/DummyCancellationHandle.h
+    concurrency/GenericMutexLock.h
     concurrency/ICancellationToken.h
-    concurrency/Thread.h
+    concurrency/ImmutableMutexWrapper.h
     concurrency/Mutex.h
+    concurrency/RwMutex.h
+    concurrency/Thread.h
+    concurrency/TimedMutexWrapper.h
     container/FlatMap.h
+    container/FlatSet.h
     container/Iterator.h
     container/Lru.h
     container/TwoQ.h
     diagnostics/Backtrace.h
     diagnostics/Demangle.h
+    log/sinks/StandardLoggerSink.h
+    log/GlobalLogger.h
+    log/ILoggerSink.h
+    log/LogLevel.h
+    log/LogMessage.h
+    log/LoggerId.h
+    log/LoggerManager.h
+    log/LoggerSingleton.h
+    log/LoggerStream.h
+    log/Logger.h
+    metaprogramming/MethodDetector.h
+    smartpointer/SharedPtr.h
+    smartpointer/SharedReference.h
+    smartpointer/SmartpointerTraits.h
+    smartpointer/UniquePtr.h
+    smartpointer/UniqueReference.h
+    string/StringLiteral.h
+    string/String.h
+    string/ToString.h
+    time/Types.h
     token/FunctionToken.h
     token/ObjectToken.h
     token/Token.h
     Core.h
     Defer.h
+    Enum.h
     Exception.h
-    ExceptionWrapper.h
     IBoolean.h
     Maybe.h
     Optional.h
     Range.h
     Raw.h
-    SharedPtr.h
-    SharedReference.h
+    Singleton.h
+    Try.h
     Types.h
-    UniquePtr.h
-    UniqueReference.h
 )
 
 if (${CPPGEAR_USES_CLANG_COMPILER} OR ${CPPGEAR_USES_GCC_COMPILER})

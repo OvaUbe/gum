@@ -22,7 +22,7 @@
 
 #pragma once
 
-#include <cppgear/ExceptionWrapper.h>
+#include <cppgear/Try.h>
 
 #include <functional>
 
@@ -31,17 +31,17 @@ namespace cppgear {
     class Defer {
         using Deferrable = std::function<void()>;
 
+    private:
+        Deferrable _deferrable;
+
     public:
         template < typename Deferrable_ >
         Defer(Deferrable_ const& deferrable) :
-            m_deferrable(make_exception_wrapper(deferrable)) { }
+            _deferrable(try_(deferrable)) { }
 
         ~Defer() {
-            m_deferrable();
+            _deferrable();
         }
-
-    private:
-        Deferrable m_deferrable;
     };
 
 #   define defer cppgear::Defer __defer__##__LINE__ = [&]()

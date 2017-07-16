@@ -20,20 +20,22 @@
  * THE SOFTWARE.
  */
 
-#pragma once
+#include <cppgear/log/sinks/StandardLoggerSink.h>
+#include <cppgear/string/ToString.h>
 
-#include <cppgear/concurrency/ImmutableMutexWrapper.h>
-#include <cppgear/concurrency/GenericMutexLock.h>
-#include <cppgear/concurrency/TimedMutexWrapper.h>
-
-#include <mutex>
+#include <cstdio>
 
 namespace cppgear {
 
-    using Mutex = ImmutableMutexWrapper<TimedMutexWrapper<std::timed_mutex>>;
-    using RecursiveMutex = ImmutableMutexWrapper<TimedMutexWrapper<std::recursive_timed_mutex>>;
+    void StandardLoggerSink::log(LogMessage const& message) {
+        MutexLock const l(_mutex);
 
-    using MutexLock = GenericMutexLock<Mutex>;
-    using RecursiveMutexLock = GenericMutexLock<RecursiveMutex>;
+        printf("[%s] [%s] {%s} [%s] %s\n",
+            to_string(message.when).c_str(),
+            message.level.to_string().c_str(),
+            message.thread->c_str(),
+            message.author.c_str(),
+            message.message.c_str());
+    }
 
 }

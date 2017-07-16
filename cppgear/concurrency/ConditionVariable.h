@@ -22,8 +22,9 @@
 
 #pragma once
 
+#include <cppgear/concurrency/GenericMutexLock.h>
 #include <cppgear/concurrency/ICancellationToken.h>
-#include <cppgear/concurrency/Mutex.h>
+#include <cppgear/time/Types.h>
 
 #include <condition_variable>
 
@@ -37,16 +38,30 @@ namespace cppgear {
     public:
         template < typename Lock_ >
         void wait(Lock_ const& lock, ICancellationHandle& handle) const {
-            const Token t = handle.on_cancelled([&]{ this->cancel(lock); });
+            Token const t = handle.on_cancelled([&]{ self.cancel(lock); });
 
             _impl.wait(lock);
         }
 
         template < typename Lock_, typename Predicate_ >
         void wait(Lock_ const& lock, Predicate_ const& predicate, ICancellationHandle& handle) const {
-            const Token t = handle.on_cancelled([&]{ this->cancel(lock); });
+            Token const t = handle.on_cancelled([&]{ self.cancel(lock); });
 
-            _impl.wait(lock, predicate);
+            _impl.wait(lock, [&]{ return !handle || predicate(); });
+        }
+
+        template < typename Lock_ >
+        bool wait_for(Lock_ const& lock, Duration const& duration, ICancellationHandle& handle) const {
+            Token const t = handle.on_cancelled([&]{ self.cancel(lock); });
+
+            return _impl.wait_for(lock, duration) == std::cv_status::timeout;
+        }
+
+        template < typename Lock_, typename Predicate_ >
+        bool wait_for(Lock_ const& lock, Duration const& duration, Predicate_ const& predicate, ICancellationHandle& handle) const {
+            Token const t = handle.on_cancelled([&]{ self.cancel(lock); });
+
+            return _impl.wait_for(lock, duration, [&]{ return !handle || predicate(); });
         }
 
         void broadcast() const {
@@ -56,7 +71,7 @@ namespace cppgear {
     private:
         template < typename Lock_ >
         void cancel(Lock_ const& lock) const {
-            GenericMutexLock<Lock_> l(lock);
+            GenericMutexLock<Lock_> const l(lock);
             broadcast();
         }
     };

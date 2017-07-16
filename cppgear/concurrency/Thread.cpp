@@ -21,20 +21,72 @@
  */
 
 #include <cppgear/concurrency/Thread.h>
+#include <cppgear/string/ToString.h>
+#include <cppgear/Try.h>
 
 #include <iostream>
 
 namespace cppgear {
 
+    namespace {
+
+        thread_local StringConstRef t_thread_name = make_shared_ref<String>("__UndefinedThread");
+
+    }
+
+
+    CPPGEAR_DEFINE_LOGGER(Thread);
+
+
     Thread::~Thread() {
-        try {
-            dtor();
-        }
-        catch (std::exception const& ex) {
-            std::cout << "Thread join failed: " << ex.what() << std::endl;
-        } catch (...) {
-            std::cout << "Unknown exception in thread destructor." << std::endl;
-        }
+        CPPGEAR_TRY_LEVEL("Join failed", error, dtor());
+    }
+
+
+    StringConstRef Thread::get_own_name() {
+        return t_thread_name;
+    }
+
+
+    ThreadId Thread::get_own_id() {
+        return std::this_thread::get_id();
+    }
+
+
+    void Thread::sleep(Duration const& duration) {
+        std::this_thread::sleep_for(duration);
+    }
+
+
+    void Thread::sleep(Duration const& duration, ICancellationHandle& handle) {
+        handle.sleep(duration);
+    }
+
+
+    StringConstRef Thread::get_name() const {
+        return _name;
+    }
+
+
+    ThreadId Thread::get_id() const {
+        return _impl.get_id();
+    }
+
+
+    String Thread::to_string() const {
+        return String() << "Thread: '" << get_name() << "'";
+    }
+
+
+    void Thread::thread_func() {
+        CPPGEAR_TRY_LEVEL("Uncaught exception from internal thread function", error, _thread_func());
+    }
+
+
+    void Thread::_thread_func() {
+        t_thread_name = _name;
+
+        CPPGEAR_TRY_LEVEL("Uncaught exception from client thread function", error, _task(_cancellation_token));
     }
 
 

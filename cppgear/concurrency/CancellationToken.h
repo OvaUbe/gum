@@ -23,7 +23,7 @@
 #pragma once
 
 #include <cppgear/concurrency/ICancellationToken.h>
-#include <cppgear/SharedReference.h>
+#include <cppgear/smartpointer/SharedReference.h>
 
 namespace cppgear {
 
@@ -35,10 +35,14 @@ namespace cppgear {
         ImplRef _impl;
 
     public:
+        CancellationToken();
+
         CancellationToken(CancellationToken const&) = delete;
         CancellationToken& operator=(CancellationToken const&) = delete;
 
         explicit operator bool() const override;
+
+        void sleep(Duration const& duration) const override;
 
         Token on_cancelled(CancellationHandler const& cancellation_handler) override;
 

@@ -22,36 +22,47 @@
 
 #pragma once
 
-#include <exception>
-#include <iostream>
+#include <cppgear/log/GlobalLogger.h>
 
 namespace cppgear {
 
-    template < typename Wrapped_ >
-    class ExceptionWrapper {
-    public:
-        template < typename Wrapped__ >
-        ExceptionWrapper(Wrapped__&& wrapped) :
-            m_wrapped(std::forward<Wrapped__>(wrapped)) { }
-
-        template < typename ...Args_ >
-        void operator()(Args_&& ...args) {
-            try {
-                m_wrapped(std::forward<Args_>(args)...);
-            } catch (std::exception const& ex) {
-                std::cout << "Uncaught exception in exception wrapper: " << ex.what() << std::endl;
-            } catch (...) {
-                std::cout << "Unknown exception caught in exception wrapper" << std::endl;
-            }
+#   define CPPGEAR_TRY_LOGGER(Message_, LogLevel_, Logger_, ...) \
+        try {\
+            __VA_ARGS__; \
+        } \
+        catch (std::exception const& ex) { \
+            Logger_.LogLevel_() << Message_ << ":\n" << ex; \
+        } \
+        catch (...) { \
+            Logger_.LogLevel_() << Message_ << ":\n<unknown exception>"; \
         }
 
-    private:
-        Wrapped_ m_wrapped;
+#   define CPPGEAR_TRY_LEVEL(Message_, LogLevel_, ...) \
+        CPPGEAR_TRY_LOGGER(Message_, LogLevel_, s_logger, __VA_ARGS__)
+
+#   define CPPGEAR_TRY(Message_, ...) \
+        CPPGEAR_TRY_LEVEL(Message_, warning, __VA_ARGS__)
+
+
+    template < typename Wrapped_ >
+    class Try {
+        Wrapped_ _wrapped;
+
+    public:
+        template < typename Wrapped__ >
+        Try(Wrapped__&& wrapped) :
+            _wrapped(std::forward<Wrapped__>(wrapped))
+        { }
+
+        template < typename ...Args_ >
+        auto operator()(Args_&& ...args) {
+            CPPGEAR_TRY_LOGGER("Uncaught exception", warning, GlobalLogger::get(), return _wrapped(std::forward<Args_>(args)...));
+        }
     };
 
     template < typename Wrapped_ >
-    ExceptionWrapper<Wrapped_> make_exception_wrapper(Wrapped_&& wrapped) {
-        return ExceptionWrapper<Wrapped_>(std::forward<Wrapped_>(wrapped));
+    Try<Wrapped_> try_(Wrapped_&& wrapped) {
+        return Try<Wrapped_>(std::forward<Wrapped_>(wrapped));
     }
 
 }
