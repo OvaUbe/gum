@@ -71,6 +71,7 @@ set(CPPGEAR_PUBLIC_HEADERS
     container/TwoQ.h
     diagnostics/Backtrace.h
     diagnostics/Demangle.h
+    functional/Types.h
     log/sinks/StandardLoggerSink.h
     log/GlobalLogger.h
     log/ILoggerSink.h
