@@ -38,41 +38,34 @@ namespace cppgear {
     public:
         template < typename Lock_ >
         void wait(Lock_ const& lock, ICancellationHandle& handle) const {
-            Token const t = handle.on_cancelled([&]{ self.cancel(lock); });
+            Token const t = handle.on_cancelled([=]{ self.broadcast(); });
 
             _impl.wait(lock);
         }
 
         template < typename Lock_, typename Predicate_ >
         void wait(Lock_ const& lock, Predicate_ const& predicate, ICancellationHandle& handle) const {
-            Token const t = handle.on_cancelled([&]{ self.cancel(lock); });
+            Token const t = handle.on_cancelled([=]{ self.broadcast(); });
 
             _impl.wait(lock, [&]{ return !handle || predicate(); });
         }
 
         template < typename Lock_ >
         bool wait_for(Lock_ const& lock, Duration const& duration, ICancellationHandle& handle) const {
-            Token const t = handle.on_cancelled([&]{ self.cancel(lock); });
+            Token const t = handle.on_cancelled([=]{ self.broadcast(); });
 
             return _impl.wait_for(lock, duration) == std::cv_status::timeout;
         }
 
         template < typename Lock_, typename Predicate_ >
         bool wait_for(Lock_ const& lock, Duration const& duration, Predicate_ const& predicate, ICancellationHandle& handle) const {
-            Token const t = handle.on_cancelled([&]{ self.cancel(lock); });
+            Token const t = handle.on_cancelled([=]{ self.broadcast(); });
 
             return _impl.wait_for(lock, duration, [&]{ return !handle || predicate(); });
         }
 
         void broadcast() const {
             _impl.notify_all();
-        }
-
-    private:
-        template < typename Lock_ >
-        void cancel(Lock_ const& lock) const {
-            GenericMutexLock<Lock_> const l(lock);
-            broadcast();
         }
     };
 
