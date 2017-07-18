@@ -63,7 +63,7 @@ namespace cppgear {
                     break;
         }
 
-        bool on_cancelled(ICancellationToken::CancellationHandler const& cancellation_handler) {
+        bool on_cancelled(CancellationHandler const& cancellation_handler) {
             if (_is_cancelled)
                 return false;
 
