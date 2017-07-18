@@ -90,23 +90,8 @@ namespace cppgear {
         Maybe(ValueType_&& value) :
             m_wrapped(std::forward<ValueType_>(value)) { }
 
-        template < typename ValueType_ >
-        auto and_(ValueType_ other) {
-            return and_bind([&](auto){ return other; });
-        }
-
-        template < typename ValueType_ >
-        auto or_(ValueType_ other) {
-            return or_bind([&]{ return other; });
-        }
-
-        template < typename ValueType_, typename Maybe_ = detail::ToMaybe<ValueType_> >
-        Maybe_ chain(ValueType_&& other) {
-            return std::forward<ValueType_>(other);
-        }
-
         template < typename Callable_ >
-        auto and_bind(Callable_&& callable) {
+        auto and_(Callable_&& callable) {
             using Chaining = detail::CallChaining;
             using Result = std::result_of_t<Chaining(Wrapped&&, Callable_&&, Value&)>;
             using MaybeType = detail::ToMaybe<Result>;
@@ -115,10 +100,25 @@ namespace cppgear {
         }
 
         template < typename Callable_ >
-        auto or_bind(Callable_&& callable) {
+        auto or_(Callable_&& callable) {
             using Chaining = detail::CallChaining;
 
             return m_wrapped ? std::move(self) : Maybe(Chaining()(Wrapped(), callable));
+        }
+
+        template < typename ValueType_ >
+        auto and_bind(ValueType_ other) {
+            return and_([&](auto){ return other; });
+        }
+
+        template < typename ValueType_ >
+        auto or_bind(ValueType_ other) {
+            return or_([&]{ return other; });
+        }
+
+        template < typename ValueType_, typename Maybe_ = detail::ToMaybe<ValueType_> >
+        Maybe_ chain(ValueType_&& other) {
+            return std::forward<ValueType_>(other);
         }
 
         explicit operator bool () const {
