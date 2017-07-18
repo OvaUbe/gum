@@ -121,6 +121,10 @@ namespace cppgear {
             return m_wrapped ? std::move(self) : Maybe(Chaining()(Wrapped(), callable));
         }
 
+        explicit operator bool () const {
+            return (bool)m_wrapped;
+        }
+
         Value unwrap() {
             CPPGEAR_CHECK(m_wrapped, EmptyMaybeException());
             return std::move(*m_wrapped);
