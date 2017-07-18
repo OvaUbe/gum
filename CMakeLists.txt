@@ -76,6 +76,7 @@ set(CPPGEAR_SOURCES
     concurrency/ThreadId.cpp
     concurrency/ThreadInfo.cpp
     concurrency/Thread.cpp
+    concurrency/Worker.cpp
     diagnostics/Backtrace.cpp
     diagnostics/Demangle.cpp
     log/sinks/StandardLoggerSink.cpp
@@ -105,6 +106,7 @@ set(CPPGEAR_PUBLIC_HEADERS
     concurrency/ThreadInfo.h
     concurrency/Thread.h
     concurrency/TimedMutexWrapper.h
+    concurrency/Worker.h
     container/FlatMap.h
     container/FlatSet.h
     container/Iterator.h
