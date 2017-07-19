@@ -113,13 +113,13 @@ namespace cppgear {
 
     Token LoggerManager::register_logger_sink(ILoggerSinkRef const& logger_sink) {
         _impl->register_logger_sink(logger_sink);
-        return make_token<FunctionToken>([=]{ _impl->unregister_logger_sink(logger_sink); });
+        return make_token<FunctionToken>([=,impl=_impl]{ impl->unregister_logger_sink(logger_sink); });
     }
 
 
     Token LoggerManager::register_logger(LoggerId logger_id, LogLevel default_log_level) {
         _impl->register_logger(logger_id, default_log_level);
-        return make_token<FunctionToken>([=]{ _impl->unregister_logger(logger_id); });
+        return make_token<FunctionToken>([=,impl=_impl]{ impl->unregister_logger(logger_id); });
     }
 
 
