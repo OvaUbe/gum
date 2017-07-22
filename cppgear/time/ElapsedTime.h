@@ -42,6 +42,11 @@ namespace cppgear {
         DurationType elapsed() const {
             return Clock_::now() - _pivot;
         }
+
+        template < typename Duration_ >
+        Duration_ elapsed_to() const {
+            return duration_caster(Clock_::now() - _pivot);
+        }
     };
 
     using ElapsedTime = GenericElapsedTime<SystemClock>;
