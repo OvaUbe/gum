@@ -107,7 +107,7 @@ namespace cppgear {
                         continue;
 
                     LifeTokenLogger::get().warning()
-                        << "Could not acquire life token owned by: " << _owner << " for " << elapsed.elapsed() << "."
+                        << "Could not acquire life token owned by: " << _owner << " for " << elapsed.elapsed_to<Seconds>() << "."
                         << " There is probably a deadlock.\nBacktrace: " << Backtrace();
                 }
             }
