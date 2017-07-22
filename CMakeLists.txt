@@ -9,9 +9,9 @@ detect_clang_compiler(CPPGEAR_USES_CLANG_COMPILER)
 detect_gcc_compiler(CPPGEAR_USES_GCC_COMPILER)
 
 if (${CPPGEAR_USES_CLANG_COMPILER})
-    add_definitions(-DCPPGEAR_USES_CLANG_COMPILER)
+    register_definitions(CPPGEAR_USES_CLANG_COMPILER)
 elseif (${CPPGEAR_USES_GCC_COMPILER})
-    add_definitions(-DCPPGEAR_USES_GCC_COMPILER)
+    register_definitions(CPPGEAR_USES_GCC_COMPILER)
 endif()
 
 find_package(Threads REQUIRED)
@@ -116,10 +116,13 @@ if (${CPPGEAR_USES_CLANG_COMPILER} OR ${CPPGEAR_USES_GCC_COMPILER})
         backend/gnu/diagnostics/Backtrace.cpp
         backend/gnu/diagnostics/Demangle.cpp
     )
-    add_definitions(
-        -DCPPGEAR_USES_GNU_BACKEND
+    register_definitions(
+        CPPGEAR_USES_GNU_BACKEND
     )
 endif()
+
+message("Definitions:")
+dump_definitions()
 
 string_prepend(CPPGEAR_SOURCES ${CPPGEAR_ROOT} ${CPPGEAR_SOURCES})
 
