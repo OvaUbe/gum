@@ -69,9 +69,4 @@ namespace cppgear {
         return detail::DurationCastProxy<Representation_, Period_>(duration);
     }
 
-    template < typename To_, typename Representation_, typename Period_ >
-    auto duration_cast(BasicDuration<Representation_, Period_> const& duration) {
-        return std::chrono::duration_cast<To_>(duration);
-    }
-
 }
