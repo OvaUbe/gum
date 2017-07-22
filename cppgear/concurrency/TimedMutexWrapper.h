@@ -25,6 +25,7 @@
 #include <cppgear/concurrency/ThreadInfo.h>
 #include <cppgear/log/LoggerSingleton.h>
 #include <cppgear/string/ToString.h>
+#include <cppgear/time/ElapsedTime.h>
 
 namespace cppgear {
 
@@ -50,13 +51,11 @@ namespace cppgear {
 
         void lock() {
             const Seconds Threshold = Seconds(3);
+            const ElapsedTime elapsed;
 
-            Seconds duration(0);
             while (!_impl.try_lock_for(Threshold)) {
-                duration += Threshold;
-
                 MutexLogger::get().warning()
-                    << "Could not lock mutex owned by: " << _owner << " for " << duration << "."
+                    << "Could not lock mutex owned by: " << _owner << " for " << elapsed.elapsed() << "."
                     << " There is probably a deadlock.\nBacktrace: " << Backtrace();
             }
 

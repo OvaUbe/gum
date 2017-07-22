@@ -100,16 +100,14 @@ namespace cppgear {
         private:
             void wait() const {
                 const Seconds Threshold = Seconds(3);
-                Seconds duration(0);
+                const ElapsedTime elapsed;
 
                 while (_owner) {
                     if (!_condition_varaible.wait_for(_mutex, Threshold, *DummyCancellationHandle()))
                         continue;
 
-                    duration += Threshold;
-
                     LifeTokenLogger::get().warning()
-                        << "Could not acquire life token owned by: " << _owner << " for " << duration << "."
+                        << "Could not acquire life token owned by: " << _owner << " for " << elapsed.elapsed() << "."
                         << " There is probably a deadlock.\nBacktrace: " << Backtrace();
                 }
             }
