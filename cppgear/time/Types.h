@@ -53,7 +53,15 @@ namespace cppgear {
 
         template < typename Representation_, typename Period_ >
         class DurationCastProxy {
-            BasicDuration<Representation_, Period_> _wrapped;
+            using DurationType = BasicDuration<Representation_, Period_>;
+
+        private:
+             DurationType _wrapped;
+
+        public:
+            DurationCastProxy(DurationType const& wrapped)
+                :   _wrapped(wrapped)
+            { }
 
             template < typename To_ >
             operator To_() const {
