@@ -5,6 +5,30 @@ include(cmake/utils/Misc.cmake)
 include(cmake/utils/Platform.cmake)
 include(cmake/utils/String.cmake)
 
+message("Cmake build type: " ${CMAKE_BUILD_TYPE})
+
+if(CMAKE_BUILD_TYPE STREQUAL Debug)
+    set(CPPGEAR_RELEASE_BUILD False)
+    set(CPPGEAR_DEBUG_BUILD True)
+    register_definitions(CPPGEAR_DEBUG_BUILD)
+else()
+    set(CPPGEAR_RELEASE_BUILD True)
+    set(CPPGEAR_DEBUG_BUILD False)
+    register_definitions(CPPGEAR_RELEASE_BUILD)
+endif()
+
+if(CMAKE_BUILD_TYPE MATCHES Debug)
+    set(CPPGEAR_INCLUDE_DEBUG_INFO True)
+else()
+    set(CPPGEAR_INCLUDE_DEBUG_INFO False)
+endif()
+
+if(CMAKE_BUILD_TYPE STREQUAL MinSizeRel)
+    set(CPPGEAR_OPTIMIZE_FOR_SIZE True)
+else()
+    set(CPPGEAR_OPTIMIZE_FOR_SIZE False)
+endif()
+
 detect_clang_compiler(CPPGEAR_USES_CLANG_COMPILER)
 detect_gcc_compiler(CPPGEAR_USES_GCC_COMPILER)
 
@@ -110,6 +134,12 @@ set(CPPGEAR_PUBLIC_HEADERS
     Try.h
     Types.h
 )
+
+if (${CPPGEAR_RELEASE_BUILD})
+    register_definitions(
+        CPPGEAR_CONCURRENCY_USES_LIGHTWEIGHT_OWNER_INFO
+    )
+endif()
 
 if (${CPPGEAR_USES_CLANG_COMPILER} OR ${CPPGEAR_USES_GCC_COMPILER})
     set(CPPGEAR_SOURCES ${CPPGEAR_SOURCES}
