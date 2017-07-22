@@ -133,6 +133,7 @@ set(CPPGEAR_PUBLIC_HEADERS
     string/StringLiteral.h
     string/String.h
     string/ToString.h
+    time/ElapsedTime.h
     time/Types.h
     token/FunctionToken.h
     token/ObjectToken.h
