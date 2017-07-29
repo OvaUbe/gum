@@ -62,6 +62,10 @@ namespace cppgear {
         return ss.str();
     }
 
+    inline String to_string(bool b) {
+        return b ? "true" : "false";
+    }
+
     inline String to_string(std::exception const& ex) {
         return ex.what();
     }
