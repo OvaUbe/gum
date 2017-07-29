@@ -55,7 +55,7 @@ namespace cppgear {
 
             while (!_impl.try_lock_for(Threshold)) {
                 MutexLogger::get().warning()
-                    << "Could not lock mutex owned by: " << _owner << " for " << elapsed.elapsed_to<Seconds>() << "."
+                    << "Could not lock mutex " << &_impl << " owned by: " << _owner << " for " << elapsed.elapsed_to<Seconds>() << "."
                     << " There is probably a deadlock.\nBacktrace: " << Backtrace();
             }
 
