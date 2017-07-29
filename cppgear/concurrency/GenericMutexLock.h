@@ -24,9 +24,9 @@
 
 namespace cppgear {
 
-    template < typename Lock_ >
+    template < typename Mutex_ >
     class GenericMutexLock {
-        Lock_ const& _lock;
+        Mutex_ const& _mutex;
 
     public:
         GenericMutexLock() = delete;
@@ -36,12 +36,12 @@ namespace cppgear {
         GenericMutexLock& operator=(GenericMutexLock const&) = delete;
         GenericMutexLock& operator=(GenericMutexLock&&) = delete;
 
-        GenericMutexLock(Lock_ const& lock)
-            :   _lock(lock)
-        { _lock.lock(); }
+        GenericMutexLock(Mutex_ const& mutex)
+            :   _mutex(mutex)
+        { _mutex.lock(); }
 
         ~GenericMutexLock() {
-            _lock.unlock();
+            _mutex.unlock();
         }
     };
 
