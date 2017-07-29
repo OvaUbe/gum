@@ -38,28 +38,28 @@ namespace cppgear {
     public:
         template < typename Lock_ >
         void wait(Lock_ const& lock, ICancellationHandle& handle) const {
-            Token const t = handle.on_cancelled([=]{ self.broadcast(); });
+            Token t = handle.on_cancelled([=]{ broadcast(); });
 
             _impl.wait(lock);
         }
 
         template < typename Lock_, typename Predicate_ >
         void wait(Lock_ const& lock, Predicate_ const& predicate, ICancellationHandle& handle) const {
-            Token const t = handle.on_cancelled([=]{ self.broadcast(); });
+            Token t = handle.on_cancelled([=]{ broadcast(); });
 
             _impl.wait(lock, [&]{ return !handle || predicate(); });
         }
 
         template < typename Lock_ >
         bool wait_for(Lock_ const& lock, Duration const& duration, ICancellationHandle& handle) const {
-            Token const t = handle.on_cancelled([=]{ self.broadcast(); });
+            Token t = handle.on_cancelled([=]{ broadcast(); });
 
             return _impl.wait_for(lock, duration) == std::cv_status::timeout;
         }
 
         template < typename Lock_, typename Predicate_ >
         bool wait_for(Lock_ const& lock, Duration const& duration, Predicate_ const& predicate, ICancellationHandle& handle) const {
-            Token const t = handle.on_cancelled([=]{ self.broadcast(); });
+            Token t = handle.on_cancelled([=]{ broadcast(); });
 
             return _impl.wait_for(lock, duration, [&]{ return !handle || predicate(); });
         }
