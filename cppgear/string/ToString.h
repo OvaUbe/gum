@@ -55,6 +55,13 @@ namespace cppgear {
         return ss.str();
     }
 
+    template < typename Value_ >
+    std::enable_if_t<std::is_pointer<Value_>::value, String> to_string(Value_ value) {
+        std::stringstream ss;
+        ss << std::hex << value;
+        return ss.str();
+    }
+
     inline String to_string(std::exception const& ex) {
         return ex.what();
     }
