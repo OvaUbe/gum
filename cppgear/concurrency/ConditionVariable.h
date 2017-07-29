@@ -39,6 +39,8 @@ namespace cppgear {
         template < typename Mutex_ >
         void wait(Mutex_ const& mutex, ICancellationHandle& handle) const {
             Token t = handle.on_cancelled([this, &mutex]{ cancel(mutex); });
+            if (!handle)
+                return;
 
             _impl.wait(mutex);
         }
@@ -46,6 +48,8 @@ namespace cppgear {
         template < typename Mutex_, typename Predicate_ >
         void wait(Mutex_ const& mutex, Predicate_ const& predicate, ICancellationHandle& handle) const {
             Token t = handle.on_cancelled([this, &mutex]{ cancel(mutex); });
+            if (!handle)
+                return;
 
             _impl.wait(mutex, [&]{ return !handle || predicate(); });
         }
@@ -53,6 +57,8 @@ namespace cppgear {
         template < typename Mutex_ >
         bool wait_for(Mutex_ const& mutex, Duration const& duration, ICancellationHandle& handle) const {
             Token t = handle.on_cancelled([this, &mutex]{ cancel(mutex); });
+            if (!handle)
+                return false;
 
             return _impl.wait_for(mutex, duration) == std::cv_status::timeout;
         }
@@ -60,6 +66,8 @@ namespace cppgear {
         template < typename Mutex_, typename Predicate_ >
         bool wait_for(Mutex_ const& mutex, Duration const& duration, Predicate_ const& predicate, ICancellationHandle& handle) const {
             Token t = handle.on_cancelled([this, &mutex]{ cancel(mutex); });
+            if (!handle)
+                return predicate();
 
             return _impl.wait_for(mutex, duration, [&]{ return !handle || predicate(); });
         }
