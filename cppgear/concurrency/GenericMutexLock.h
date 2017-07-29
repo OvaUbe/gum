@@ -33,9 +33,6 @@ namespace cppgear {
         GenericMutexLock(GenericMutexLock const&) = delete;
         GenericMutexLock(GenericMutexLock&&) = delete;
 
-        GenericMutexLock& operator=(GenericMutexLock const&) = delete;
-        GenericMutexLock& operator=(GenericMutexLock&&) = delete;
-
         GenericMutexLock(Mutex_ const& mutex)
             :   _mutex(mutex)
         { _mutex.lock(); }
@@ -43,6 +40,9 @@ namespace cppgear {
         ~GenericMutexLock() {
             _mutex.unlock();
         }
+
+        GenericMutexLock& operator=(GenericMutexLock const&) = delete;
+        GenericMutexLock& operator=(GenericMutexLock&&) = delete;
     };
 
 }
