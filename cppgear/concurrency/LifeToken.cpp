@@ -103,7 +103,7 @@ namespace cppgear {
                 const ElapsedTime elapsed;
 
                 while (_owner) {
-                    if (!_condition_varaible.wait_for(_mutex, Threshold, *DummyCancellationHandle()))
+                    if (_condition_varaible.wait_for(_mutex, Threshold, *DummyCancellationHandle()) == ConditionVariable::WaitResult::Woken)
                         continue;
 
                     LifeTokenLogger::get().warning()

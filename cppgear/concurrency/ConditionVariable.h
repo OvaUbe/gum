@@ -25,6 +25,7 @@
 #include <cppgear/concurrency/GenericMutexLock.h>
 #include <cppgear/concurrency/ICancellationToken.h>
 #include <cppgear/time/Types.h>
+#include <cppgear/Enum.h>
 
 #include <condition_variable>
 
@@ -33,6 +34,13 @@ namespace cppgear {
     class ConditionVariable {
         using Impl = std::condition_variable_any;
 
+    public:
+        CPPGEAR_ENUM(WaitResult,
+            TimedOut,
+            Woken
+        );
+
+    private:
         mutable Impl _impl;
 
     public:
@@ -55,12 +63,12 @@ namespace cppgear {
         }
 
         template < typename Mutex_ >
-        bool wait_for(Mutex_ const& mutex, Duration const& duration, ICancellationHandle& handle) const {
+        WaitResult wait_for(Mutex_ const& mutex, Duration const& duration, ICancellationHandle& handle) const {
             Token t = handle.on_cancelled([this, &mutex]{ cancel(mutex); });
             if (!handle)
-                return false;
+                return WaitResult::Woken;
 
-            return _impl.wait_for(mutex, duration) == std::cv_status::timeout;
+            return _impl.wait_for(mutex, duration) == std::cv_status::timeout ? WaitResult::TimedOut : WaitResult::Woken;
         }
 
         template < typename Mutex_, typename Predicate_ >

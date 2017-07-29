@@ -59,7 +59,7 @@ namespace cppgear {
             MutexLock l(_mutex);
 
             while (!_is_cancelled)
-                if (_cancel_condition.wait_for(_mutex, duration, *DummyCancellationHandle()))
+                if (_cancel_condition.wait_for(_mutex, duration, *DummyCancellationHandle()) == ConditionVariable::WaitResult::TimedOut)
                     break;
         }
 
