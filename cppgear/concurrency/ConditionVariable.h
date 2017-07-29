@@ -36,36 +36,43 @@ namespace cppgear {
         mutable Impl _impl;
 
     public:
-        template < typename Lock_ >
-        void wait(Lock_ const& lock, ICancellationHandle& handle) const {
-            Token t = handle.on_cancelled([=]{ broadcast(); });
+        template < typename Mutex_ >
+        void wait(Mutex_ const& mutex, ICancellationHandle& handle) const {
+            Token t = handle.on_cancelled([this, &mutex]{ cancel(mutex); });
 
-            _impl.wait(lock);
+            _impl.wait(mutex);
         }
 
-        template < typename Lock_, typename Predicate_ >
-        void wait(Lock_ const& lock, Predicate_ const& predicate, ICancellationHandle& handle) const {
-            Token t = handle.on_cancelled([=]{ broadcast(); });
+        template < typename Mutex_, typename Predicate_ >
+        void wait(Mutex_ const& mutex, Predicate_ const& predicate, ICancellationHandle& handle) const {
+            Token t = handle.on_cancelled([this, &mutex]{ cancel(mutex); });
 
-            _impl.wait(lock, [&]{ return !handle || predicate(); });
+            _impl.wait(mutex, [&]{ return !handle || predicate(); });
         }
 
-        template < typename Lock_ >
-        bool wait_for(Lock_ const& lock, Duration const& duration, ICancellationHandle& handle) const {
-            Token t = handle.on_cancelled([=]{ broadcast(); });
+        template < typename Mutex_ >
+        bool wait_for(Mutex_ const& mutex, Duration const& duration, ICancellationHandle& handle) const {
+            Token t = handle.on_cancelled([this, &mutex]{ cancel(mutex); });
 
-            return _impl.wait_for(lock, duration) == std::cv_status::timeout;
+            return _impl.wait_for(mutex, duration) == std::cv_status::timeout;
         }
 
-        template < typename Lock_, typename Predicate_ >
-        bool wait_for(Lock_ const& lock, Duration const& duration, Predicate_ const& predicate, ICancellationHandle& handle) const {
-            Token t = handle.on_cancelled([=]{ broadcast(); });
+        template < typename Mutex_, typename Predicate_ >
+        bool wait_for(Mutex_ const& mutex, Duration const& duration, Predicate_ const& predicate, ICancellationHandle& handle) const {
+            Token t = handle.on_cancelled([this, &mutex]{ cancel(mutex); });
 
-            return _impl.wait_for(lock, duration, [&]{ return !handle || predicate(); });
+            return _impl.wait_for(mutex, duration, [&]{ return !handle || predicate(); });
         }
 
         void broadcast() const {
             _impl.notify_all();
+        }
+
+    private:
+        template < typename Mutex_ >
+        void cancel(Mutex_ const& mutex) const {
+            GenericMutexLock<Mutex_> l(mutex);
+            broadcast();
         }
     };
 
