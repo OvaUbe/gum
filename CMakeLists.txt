@@ -79,6 +79,7 @@ set(CPPGEAR_SOURCES
     concurrency/Worker.cpp
     diagnostics/Backtrace.cpp
     diagnostics/Demangle.cpp
+    log/sinks/AnsiTerminalLoggerSink.cpp
     log/sinks/StandardLoggerSink.cpp
     log/LogMessage.cpp
     log/LoggerManager.cpp
@@ -116,6 +117,7 @@ set(CPPGEAR_PUBLIC_HEADERS
     diagnostics/Demangle.h
     functional/Invoker.h
     functional/Types.h
+    log/sinks/AnsiTerminalLoggerSink.h
     log/sinks/StandardLoggerSink.h
     log/GlobalLogger.h
     log/ILoggerSink.h

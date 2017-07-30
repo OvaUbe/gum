@@ -20,22 +20,16 @@
  * THE SOFTWARE.
  */
 
-#include <cppgear/log/sinks/StandardLoggerSink.h>
-#include <cppgear/string/ToString.h>
-
-#include <cstdio>
+#include <cppgear/concurrency/Mutex.h>
+#include <cppgear/log/ILoggerSink.h>
 
 namespace cppgear {
 
-    void StandardLoggerSink::log(LogMessage const& message) {
-        MutexLock const l(_mutex);
+    class AnsiTerminalLoggerSink : public virtual ILoggerSink {
+        Mutex _mutex;
 
-        printf("[%s] {%s} [%s] [%s] %s\n",
-            to_string(message.when).c_str(),
-            message.thread->c_str(),
-            message.author.c_str(),
-            message.level.to_string().c_str(),
-            message.message.c_str());
-    }
+    public:
+        void log(LogMessage const& message) override;
+    };
 
 }
