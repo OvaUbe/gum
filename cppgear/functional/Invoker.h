@@ -22,48 +22,14 @@
 
 #pragma once
 
-#include <cppgear/concurrency/ThreadInfo.h>
-#include <cppgear/log/LoggerSingleton.h>
-#include <cppgear/string/ToString.h>
-#include <cppgear/time/ElapsedTime.h>
+#include <utility>
 
 namespace cppgear {
 
-    CPPGEAR_LOGGER_SINGLETON(MutexLogger);
-
-
-    template < typename TimedMutex_ >
-    class TimedMutexWrapper {
-        TimedMutex_         _impl;
-
-        OwnerInfo           _owner;
-
-    public:
-        TimedMutexWrapper() = default;
-
-        TimedMutexWrapper(TimedMutexWrapper&& other)
-            :   _impl(std::move(other._impl))
-        { }
-
-        TimedMutexWrapper(TimedMutex_&& impl)
-            :   _impl(std::move(impl))
-        { }
-
-        void lock() {
-            const Seconds Threshold = Seconds(3);
-            const ElapsedTime elapsed;
-
-            while (!_impl.try_lock_for(Threshold)) {
-                MutexLogger::get().warning()
-                    << "Could not lock mutex " << &_impl << " owned by: " << _owner << " for " << elapsed.elapsed_to<Seconds>() << "."
-                    << " There is probably a deadlock.\nBacktrace: " << Backtrace();
-            }
-
-            _owner.acquire();
-        }
-
-        void unlock() {
-            _impl.unlock();
+    struct Invoker {
+        template < typename Callable_, typename ...Args_ >
+        auto operator()(Callable_&& callable, Args_&&... args) const {
+            return callable(std::forward<Args_>(args)...);
         }
     };
 

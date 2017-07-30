@@ -25,6 +25,7 @@
 #include <cppgear/concurrency/GenericMutexLock.h>
 #include <cppgear/concurrency/ICancellationToken.h>
 #include <cppgear/time/Types.h>
+#include <cppgear/Enum.h>
 
 #include <condition_variable>
 
@@ -33,35 +34,50 @@ namespace cppgear {
     class ConditionVariable {
         using Impl = std::condition_variable_any;
 
+    public:
+        CPPGEAR_ENUM(WaitResult,
+            TimedOut,
+            Woken
+        );
+
+    private:
         mutable Impl _impl;
 
     public:
-        template < typename Lock_ >
-        void wait(Lock_ const& lock, ICancellationHandle& handle) const {
-            Token const t = handle.on_cancelled([&]{ self.cancel(lock); });
+        template < typename Mutex_ >
+        void wait(Mutex_ const& mutex, ICancellationHandle& handle) const {
+            Token t = handle.on_cancelled([this, &mutex]{ cancel(mutex); });
+            if (!handle)
+                return;
 
-            _impl.wait(lock);
+            _impl.wait(mutex);
         }
 
-        template < typename Lock_, typename Predicate_ >
-        void wait(Lock_ const& lock, Predicate_ const& predicate, ICancellationHandle& handle) const {
-            Token const t = handle.on_cancelled([&]{ self.cancel(lock); });
+        template < typename Mutex_, typename Predicate_ >
+        void wait(Mutex_ const& mutex, Predicate_ const& predicate, ICancellationHandle& handle) const {
+            Token t = handle.on_cancelled([this, &mutex]{ cancel(mutex); });
+            if (!handle)
+                return;
 
-            _impl.wait(lock, [&]{ return !handle || predicate(); });
+            _impl.wait(mutex, [&]{ return !handle || predicate(); });
         }
 
-        template < typename Lock_ >
-        bool wait_for(Lock_ const& lock, Duration const& duration, ICancellationHandle& handle) const {
-            Token const t = handle.on_cancelled([&]{ self.cancel(lock); });
+        template < typename Mutex_ >
+        WaitResult wait_for(Mutex_ const& mutex, Duration const& duration, ICancellationHandle& handle) const {
+            Token t = handle.on_cancelled([this, &mutex]{ cancel(mutex); });
+            if (!handle)
+                return WaitResult::Woken;
 
-            return _impl.wait_for(lock, duration) == std::cv_status::timeout;
+            return _impl.wait_for(mutex, duration) == std::cv_status::timeout ? WaitResult::TimedOut : WaitResult::Woken;
         }
 
-        template < typename Lock_, typename Predicate_ >
-        bool wait_for(Lock_ const& lock, Duration const& duration, Predicate_ const& predicate, ICancellationHandle& handle) const {
-            Token const t = handle.on_cancelled([&]{ self.cancel(lock); });
+        template < typename Mutex_, typename Predicate_ >
+        bool wait_for(Mutex_ const& mutex, Duration const& duration, Predicate_ const& predicate, ICancellationHandle& handle) const {
+            Token t = handle.on_cancelled([this, &mutex]{ cancel(mutex); });
+            if (!handle)
+                return predicate();
 
-            return _impl.wait_for(lock, duration, [&]{ return !handle || predicate(); });
+            return _impl.wait_for(mutex, duration, [&]{ return !handle || predicate(); });
         }
 
         void broadcast() const {
@@ -69,9 +85,9 @@ namespace cppgear {
         }
 
     private:
-        template < typename Lock_ >
-        void cancel(Lock_ const& lock) const {
-            GenericMutexLock<Lock_> const l(lock);
+        template < typename Mutex_ >
+        void cancel(Mutex_ const& mutex) const {
+            GenericMutexLock<Mutex_> l(mutex);
             broadcast();
         }
     };

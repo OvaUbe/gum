@@ -22,49 +22,47 @@
 
 #pragma once
 
-#include <cppgear/concurrency/ThreadInfo.h>
-#include <cppgear/log/LoggerSingleton.h>
-#include <cppgear/string/ToString.h>
-#include <cppgear/time/ElapsedTime.h>
+#include <cppgear/concurrency/ThreadId.h>
+#include <cppgear/smartpointer/UniqueReference.h>
+#include <cppgear/string/String.h>
 
 namespace cppgear {
 
-    CPPGEAR_LOGGER_SINGLETON(MutexLogger);
-
-
-    template < typename TimedMutex_ >
-    class TimedMutexWrapper {
-        TimedMutex_         _impl;
-
-        OwnerInfo           _owner;
+    class ThreadInfo {
+        ThreadId            _id;
+        StringConstRef      _name;
 
     public:
-        TimedMutexWrapper() = default;
+        ThreadInfo(ThreadId const& id, StringConstRef const& name);
 
-        TimedMutexWrapper(TimedMutexWrapper&& other)
-            :   _impl(std::move(other._impl))
-        { }
-
-        TimedMutexWrapper(TimedMutex_&& impl)
-            :   _impl(std::move(impl))
-        { }
-
-        void lock() {
-            const Seconds Threshold = Seconds(3);
-            const ElapsedTime elapsed;
-
-            while (!_impl.try_lock_for(Threshold)) {
-                MutexLogger::get().warning()
-                    << "Could not lock mutex " << &_impl << " owned by: " << _owner << " for " << elapsed.elapsed_to<Seconds>() << "."
-                    << " There is probably a deadlock.\nBacktrace: " << Backtrace();
-            }
-
-            _owner.acquire();
+        ThreadId get_id() const {
+            return _id;
         }
 
-        void unlock() {
-            _impl.unlock();
+        StringConstRef get_name() const {
+            return _name;
         }
+
+        String to_string() const;
+    };
+    CPPGEAR_DECLARE_PTR(ThreadInfo);
+    CPPGEAR_DECLARE_REF(ThreadInfo);
+
+
+    class OwnerInfo {
+        class Impl;
+        CPPGEAR_DECLARE_UNIQUE_REF(Impl);
+
+    private:
+        ImplUniqueRef _impl;
+
+    public:
+        OwnerInfo();
+        ~OwnerInfo();
+
+        void acquire();
+
+        String to_string() const;
     };
 
 }

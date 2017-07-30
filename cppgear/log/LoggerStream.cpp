@@ -37,13 +37,13 @@ namespace cppgear {
     LoggerStream::~LoggerStream() {
         try {
             try {
-                LoggerManager::get().log(LogMessage(_logger_id, SystemClock::now(), _level, Thread::get_own_name(), _logger_name, std::move(_message)));
+                LoggerManager::get().log(LogMessage(_logger_id, SystemClock::now(), _level, Thread::get_own_info()->get_name(), _logger_name, std::move(_message)));
             } catch (std::exception const& ex) {
                 String message = String() << "Caught exception during logging, next failure will be silently swallowed:\n" << ex;
-                LoggerManager::get().log(LogMessage(_logger_id, SystemClock::now(), LogLevel::Error, Thread::get_own_name(), _logger_name, std::move(message)));
+                LoggerManager::get().log(LogMessage(_logger_id, SystemClock::now(), LogLevel::Error, Thread::get_own_info()->get_name(), _logger_name, std::move(message)));
             } catch (...) {
                 String message = String() << "Caught unknown exception during logging, next failure will be silently swallowed.";
-                LoggerManager::get().log(LogMessage(_logger_id, SystemClock::now(), LogLevel::Error, Thread::get_own_name(), _logger_name, std::move(message)));
+                LoggerManager::get().log(LogMessage(_logger_id, SystemClock::now(), LogLevel::Error, Thread::get_own_info()->get_name(), _logger_name, std::move(message)));
             }
         } catch (...) { }
     }

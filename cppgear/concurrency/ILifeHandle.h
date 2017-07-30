@@ -22,48 +22,37 @@
 
 #pragma once
 
-#include <cppgear/concurrency/ThreadInfo.h>
-#include <cppgear/log/LoggerSingleton.h>
-#include <cppgear/string/ToString.h>
-#include <cppgear/time/ElapsedTime.h>
+#include <cppgear/smartpointer/SharedPtr.h>
+#include <cppgear/smartpointer/SharedReference.h>
 
 namespace cppgear {
 
-    CPPGEAR_LOGGER_SINGLETON(MutexLogger);
+    struct ILifeHandle {
+        virtual ~ILifeHandle() { }
+
+        virtual bool lock() const = 0;
+        virtual void unlock() const = 0;
+    };
+    CPPGEAR_DECLARE_PTR(ILifeHandle);
+    CPPGEAR_DECLARE_REF(ILifeHandle);
 
 
-    template < typename TimedMutex_ >
-    class TimedMutexWrapper {
-        TimedMutex_         _impl;
-
-        OwnerInfo           _owner;
+    class LifeHandleLock {
+        ILifeHandleRef     _handle;
+        bool               _alive;
 
     public:
-        TimedMutexWrapper() = default;
-
-        TimedMutexWrapper(TimedMutexWrapper&& other)
-            :   _impl(std::move(other._impl))
+        LifeHandleLock(ILifeHandleRef const& handle)
+            :   _handle(handle),
+                _alive(_handle->lock())
         { }
 
-        TimedMutexWrapper(TimedMutex_&& impl)
-            :   _impl(std::move(impl))
-        { }
-
-        void lock() {
-            const Seconds Threshold = Seconds(3);
-            const ElapsedTime elapsed;
-
-            while (!_impl.try_lock_for(Threshold)) {
-                MutexLogger::get().warning()
-                    << "Could not lock mutex " << &_impl << " owned by: " << _owner << " for " << elapsed.elapsed_to<Seconds>() << "."
-                    << " There is probably a deadlock.\nBacktrace: " << Backtrace();
-            }
-
-            _owner.acquire();
+        explicit operator bool () const {
+            return _alive;
         }
 
-        void unlock() {
-            _impl.unlock();
+        ~LifeHandleLock() {
+            _handle->unlock();
         }
     };
 

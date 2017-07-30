@@ -22,35 +22,23 @@
 
 #pragma once
 
-#include <cppgear/Try.h>
+#include <cppgear/string/String.h>
 
-#include <functional>
+#include <thread>
 
 namespace cppgear {
 
-    class Defer {
-        using Deferrable = std::function<void()>;
+    class ThreadId {
+        using Impl = std::thread::id;
 
     private:
-        Deferrable _deferrable;
+        Impl _impl;
 
     public:
-        template < typename Deferrable_ >
-        Defer(Deferrable_&& deferrable)
-            :   _deferrable(std::forward<Deferrable_>(deferrable))
-        { }
+        ThreadId() = default;
+        ThreadId(Impl const& impl);
 
-        Defer(Defer const&) = default;
-        Defer(Defer&&) = default;
-
-        ~Defer() {
-            _deferrable();
-        }
-
-        Defer& operator=(Defer const&) = default;
-        Defer& operator=(Defer&&) = default;
+        String to_string() const;
     };
-
-#   define defer cppgear::Defer __defer__##__LINE__ = [&]()
 
 }

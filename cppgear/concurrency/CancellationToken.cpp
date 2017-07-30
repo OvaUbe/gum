@@ -59,11 +59,11 @@ namespace cppgear {
             MutexLock l(_mutex);
 
             while (!_is_cancelled)
-                if (_cancel_condition.wait_for(_mutex, duration, *DummyCancellationHandle()))
+                if (_cancel_condition.wait_for(_mutex, duration, *DummyCancellationHandle()) == ConditionVariable::WaitResult::TimedOut)
                     break;
         }
 
-        bool on_cancelled(ICancellationToken::CancellationHandler const& cancellation_handler) {
+        bool on_cancelled(CancellationHandler const& cancellation_handler) {
             if (_is_cancelled)
                 return false;
 
@@ -138,7 +138,7 @@ namespace cppgear {
 
     Token CancellationToken::on_cancelled(CancellationHandler const& cancellation_handler) {
         if (_impl->on_cancelled(cancellation_handler))
-            return make_token<FunctionToken>([=]{ _impl->unregister_cancellation_handler(); });
+            return make_token<FunctionToken>([impl=_impl]{ impl->unregister_cancellation_handler(); });
         return Token();
     }
 
@@ -154,7 +154,7 @@ namespace cppgear {
 
 
     Token CancellationToken::get_cancellator() const {
-        return make_token<FunctionToken>([=]{ _impl->cancel(); });
+        return make_token<FunctionToken>([impl=_impl]{ impl->cancel(); });
     }
 
 }

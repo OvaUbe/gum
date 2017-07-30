@@ -386,7 +386,7 @@ namespace cppgear {
 
         static Optional<Value&> _insert_hint(Map_& map, Value const& value) {
             return maybe(_find(map, value))
-                .or_bind([&] {
+                .or_([&] {
                     auto const pos = Generator<size_t>(0, map.size())();
                     map.insert(_iterator_at(map, pos), value);
                 })
@@ -399,7 +399,7 @@ namespace cppgear {
 
         static Optional<Value&> _emplace_hint(Map_& map, Value const& value) {
             return maybe(_find(map, value))
-                .or_bind([&] {
+                .or_([&] {
                     auto const pos = Generator<size_t>(0, map.size())();
                     map.emplace_hint(_iterator_at(map, pos), value.first, value.second);
                 })
@@ -408,7 +408,7 @@ namespace cppgear {
 
         static Optional<Value&> _operator_subscript(Map_& map, Value const& value) {
             return maybe(_find(map, value))
-                .or_bind([&] { map[value.first] = value.second; })
+                .or_([&] { map[value.first] = value.second; })
                 .take();
         }
     };
@@ -431,8 +431,8 @@ namespace cppgear {
 
             EXPECT_EQ((bool)testee_result, (bool)sample_result);
             maybe(testee_result)
-                .and_(sample_result)
-                .and_bind([&](auto) { EXPECT_TRUE(PairComparator()(*testee_result, *sample_result)); });
+                .and_bind(sample_result)
+                .and_([&](auto) { EXPECT_TRUE(PairComparator()(*testee_result, *sample_result)); });
 
             ASSERT_TRUE(std::is_sorted(testee.begin(), testee.end(), testee.value_comp()));
             ASSERT_TRUE(std::equal(sample.begin(), sample.end(), testee.begin(), testee.end(), PairComparator()));
@@ -530,8 +530,8 @@ namespace cppgear {
 
         static Optional<Value> _erase(Map_& map, Key const& key) {
             return maybe(_find(map, key))
-                .and_bind([&](auto){ map.erase(key); })
-                .and_bind(OptionalBuilder<Value>())
+                .and_([&](auto){ map.erase(key); })
+                .and_(OptionalBuilder<Value>())
                 .take();
         }
 

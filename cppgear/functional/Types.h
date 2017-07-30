@@ -22,35 +22,10 @@
 
 #pragma once
 
-#include <cppgear/Try.h>
-
 #include <functional>
 
 namespace cppgear {
 
-    class Defer {
-        using Deferrable = std::function<void()>;
-
-    private:
-        Deferrable _deferrable;
-
-    public:
-        template < typename Deferrable_ >
-        Defer(Deferrable_&& deferrable)
-            :   _deferrable(std::forward<Deferrable_>(deferrable))
-        { }
-
-        Defer(Defer const&) = default;
-        Defer(Defer&&) = default;
-
-        ~Defer() {
-            _deferrable();
-        }
-
-        Defer& operator=(Defer const&) = default;
-        Defer& operator=(Defer&&) = default;
-    };
-
-#   define defer cppgear::Defer __defer__##__LINE__ = [&]()
+    using namespace std::placeholders;
 
 }

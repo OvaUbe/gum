@@ -20,37 +20,21 @@
  * THE SOFTWARE.
  */
 
-#pragma once
+#include <cppgear/concurrency/ThreadId.h>
 
-#include <cppgear/Try.h>
-
-#include <functional>
+#include <sstream>
 
 namespace cppgear {
 
-    class Defer {
-        using Deferrable = std::function<void()>;
+    ThreadId::ThreadId(Impl const& impl)
+        :   _impl(impl)
+    { }
 
-    private:
-        Deferrable _deferrable;
 
-    public:
-        template < typename Deferrable_ >
-        Defer(Deferrable_&& deferrable)
-            :   _deferrable(std::forward<Deferrable_>(deferrable))
-        { }
-
-        Defer(Defer const&) = default;
-        Defer(Defer&&) = default;
-
-        ~Defer() {
-            _deferrable();
-        }
-
-        Defer& operator=(Defer const&) = default;
-        Defer& operator=(Defer&&) = default;
-    };
-
-#   define defer cppgear::Defer __defer__##__LINE__ = [&]()
+    String ThreadId::to_string() const {
+        std::stringstream ss;
+        ss << _impl;
+        return ss.str();
+    }
 
 }

@@ -24,13 +24,11 @@
 #include <cppgear/string/ToString.h>
 #include <cppgear/Try.h>
 
-#include <iostream>
-
 namespace cppgear {
 
     namespace {
 
-        thread_local StringConstRef t_thread_name = make_shared_ref<String>("__UndefinedThread");
+        thread_local ThreadInfoRef t_thread_info = make_shared_ref<ThreadInfo>(ThreadId(), make_shared_ref<String>("__UndefinedThread"));
 
     }
 
@@ -43,13 +41,8 @@ namespace cppgear {
     }
 
 
-    StringConstRef Thread::get_own_name() {
-        return t_thread_name;
-    }
-
-
-    ThreadId Thread::get_own_id() {
-        return std::this_thread::get_id();
+    ThreadInfoRef Thread::get_own_info() {
+        return t_thread_info;
     }
 
 
@@ -63,18 +56,13 @@ namespace cppgear {
     }
 
 
-    StringConstRef Thread::get_name() const {
-        return _name;
-    }
-
-
-    ThreadId Thread::get_id() const {
-        return _impl.get_id();
+    ThreadInfoRef Thread::get_info() const {
+        return _info;
     }
 
 
     String Thread::to_string() const {
-        return String() << "Thread: '" << get_name() << "'";
+        return String() << "Thread: " << get_info();
     }
 
 
@@ -84,15 +72,21 @@ namespace cppgear {
 
 
     void Thread::_thread_func() {
-        t_thread_name = _name;
+        t_thread_info = _info;
+
+        s_logger.info() << get_info() << " spawned.";
 
         CPPGEAR_TRY_LEVEL("Uncaught exception from client thread function", error, _task(_cancellation_token));
     }
 
 
     void Thread::dtor() {
+        ThreadInfoRef const info = get_info();
+
         _cancellation_token.cancel();
         _impl.join();
+
+        s_logger.info() << info << " joined.";
     }
 
 }

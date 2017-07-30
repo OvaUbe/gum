@@ -119,9 +119,11 @@ namespace cppgear {
         void swap(Optional& other) {
             if (self) {
                 if (other) {
-                    return std::swap(*self, *other);
+                    std::swap(*self, *other);
+                    return;
                 }
                 other._consume(self);
+                return;
             }
             if (other) {
                 self._consume(other);
@@ -143,8 +145,8 @@ namespace cppgear {
         }
 
         void _initialize(Value_ const& other) {
-            m_valid = true;
             m_storage.ctor(other);
+            m_valid = true;
         }
 
         void _initialize(Optional&& other) {
@@ -155,8 +157,8 @@ namespace cppgear {
         }
 
         void _initialize(Value_&& other) {
-            m_valid = true;
             m_storage.ctor(std::move(other));
+            m_valid = true;
         }
 
         template < typename Other_ >
@@ -167,7 +169,7 @@ namespace cppgear {
         }
 
         void _consume(Optional& other) {
-            m_storage.ctor(std::move(other.m_storage.ref()));
+            _initialize(std::move(other.m_storage.ref()));
             other.reset();
         }
 

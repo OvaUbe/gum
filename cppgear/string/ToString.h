@@ -55,6 +55,17 @@ namespace cppgear {
         return ss.str();
     }
 
+    template < typename Value_ >
+    std::enable_if_t<std::is_pointer<Value_>::value, String> to_string(Value_ value) {
+        std::stringstream ss;
+        ss << std::hex << value;
+        return ss.str();
+    }
+
+    inline String to_string(bool b) {
+        return b ? "true" : "false";
+    }
+
     inline String to_string(std::exception const& ex) {
         return ex.what();
     }
@@ -72,11 +83,11 @@ namespace cppgear {
 
     template < typename Representation_, typename Period_ >
     String to_string(BasicDuration<Representation_, Period_> const& duration) {
-        s64 const ms = duration_cast<Milliseconds>(duration).count();
-        s64 const sec = duration_cast<Seconds>(duration).count();
-        s64 const min = duration_cast<Minutes>(duration).count();
+        Milliseconds const ms = duration_caster(duration);
+        Seconds const sec = duration_caster(duration);
+        Minutes const min = duration_caster(duration);
 
-        return String() << "[" <<  to_string(min) << ":" <<  to_string(sec) << ":" <<  to_string(ms) << "]";
+        return String() << "[" <<  to_string(min.count()) << ":" <<  to_string(sec.count()) << ":" <<  to_string(ms.count()) << "]";
     }
 
     inline String to_string(Seconds const& duration) {

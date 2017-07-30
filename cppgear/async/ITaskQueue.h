@@ -22,35 +22,22 @@
 
 #pragma once
 
-#include <cppgear/Try.h>
+#include <cppgear/smartpointer/SharedPtr.h>
+#include <cppgear/smartpointer/SharedReference.h>
 
 #include <functional>
 
 namespace cppgear {
 
-    class Defer {
-        using Deferrable = std::function<void()>;
-
-    private:
-        Deferrable _deferrable;
+    struct ITaskQueue {
+        using Task = std::function<void()>;
 
     public:
-        template < typename Deferrable_ >
-        Defer(Deferrable_&& deferrable)
-            :   _deferrable(std::forward<Deferrable_>(deferrable))
-        { }
+        virtual ~ITaskQueue() { }
 
-        Defer(Defer const&) = default;
-        Defer(Defer&&) = default;
-
-        ~Defer() {
-            _deferrable();
-        }
-
-        Defer& operator=(Defer const&) = default;
-        Defer& operator=(Defer&&) = default;
+        virtual void push(Task&& task) = 0;
     };
-
-#   define defer cppgear::Defer __defer__##__LINE__ = [&]()
+    CPPGEAR_DECLARE_PTR(ITaskQueue);
+    CPPGEAR_DECLARE_REF(ITaskQueue);
 
 }

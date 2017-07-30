@@ -22,49 +22,33 @@
 
 #pragma once
 
-#include <cppgear/concurrency/ThreadInfo.h>
-#include <cppgear/log/LoggerSingleton.h>
-#include <cppgear/string/ToString.h>
-#include <cppgear/time/ElapsedTime.h>
+#include <cppgear/time/Types.h>
 
 namespace cppgear {
 
-    CPPGEAR_LOGGER_SINGLETON(MutexLogger);
+    template < typename Clock_ >
+    class GenericElapsedTime {
+        using TimePointType = typename Clock_::time_point;
+        using DurationType = typename Clock_::duration;
 
-
-    template < typename TimedMutex_ >
-    class TimedMutexWrapper {
-        TimedMutex_         _impl;
-
-        OwnerInfo           _owner;
+    private:
+        TimePointType _pivot;
 
     public:
-        TimedMutexWrapper() = default;
-
-        TimedMutexWrapper(TimedMutexWrapper&& other)
-            :   _impl(std::move(other._impl))
+        GenericElapsedTime()
+            :   _pivot(Clock_::now())
         { }
 
-        TimedMutexWrapper(TimedMutex_&& impl)
-            :   _impl(std::move(impl))
-        { }
-
-        void lock() {
-            const Seconds Threshold = Seconds(3);
-            const ElapsedTime elapsed;
-
-            while (!_impl.try_lock_for(Threshold)) {
-                MutexLogger::get().warning()
-                    << "Could not lock mutex " << &_impl << " owned by: " << _owner << " for " << elapsed.elapsed_to<Seconds>() << "."
-                    << " There is probably a deadlock.\nBacktrace: " << Backtrace();
-            }
-
-            _owner.acquire();
+        DurationType elapsed() const {
+            return Clock_::now() - _pivot;
         }
 
-        void unlock() {
-            _impl.unlock();
+        template < typename Duration_ >
+        Duration_ elapsed_to() const {
+            return duration_caster(Clock_::now() - _pivot);
         }
     };
+
+    using ElapsedTime = GenericElapsedTime<SystemClock>;
 
 }

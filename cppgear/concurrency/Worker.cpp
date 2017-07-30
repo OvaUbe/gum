@@ -20,37 +20,57 @@
  * THE SOFTWARE.
  */
 
-#pragma once
+#include <cppgear/concurrency/Worker.h>
 
+#include <cppgear/functional/Invoker.h>
+#include <cppgear/Maybe.h>
 #include <cppgear/Try.h>
-
-#include <functional>
 
 namespace cppgear {
 
-    class Defer {
-        using Deferrable = std::function<void()>;
+    CPPGEAR_DEFINE_LOGGER(Worker);
 
-    private:
-        Deferrable _deferrable;
 
-    public:
-        template < typename Deferrable_ >
-        Defer(Deferrable_&& deferrable)
-            :   _deferrable(std::forward<Deferrable_>(deferrable))
-        { }
+    void Worker::push(Task&& task) {
+        MutexLock l(_mutex);
 
-        Defer(Defer const&) = default;
-        Defer(Defer&&) = default;
+        _queue.push_back([task = std::move(task)]{ CPPGEAR_TRY("Uncaught exception in worker task", task()); });
+        _condition_variable.broadcast();
+    }
 
-        ~Defer() {
-            _deferrable();
-        }
 
-        Defer& operator=(Defer const&) = default;
-        Defer& operator=(Defer&&) = default;
-    };
+    void Worker::thread_func(ICancellationHandle& handle) {
+        while (maybe(pop(handle)).and_(Invoker()));
 
-#   define defer cppgear::Defer __defer__##__LINE__ = [&]()
+        while (maybe(pop()).and_(Invoker()));
+    }
+
+
+    Optional<Worker::Task> Worker::pop(ICancellationHandle& handle) {
+        MutexLock l(_mutex);
+
+        _condition_variable.wait(_mutex, [this]{ return !_queue.empty(); }, handle);
+        if (!handle)
+            return nullptr;
+
+        return do_pop();
+    }
+
+
+    Optional<Worker::Task> Worker::pop() {
+        MutexLock l(_mutex);
+
+        if (_queue.empty())
+            return nullptr;
+
+        return do_pop();
+    }
+
+
+    Worker::Task Worker::do_pop() {
+        Task task = std::move(_queue.front());
+        _queue.pop_front();
+        return task;
+    }
 
 }

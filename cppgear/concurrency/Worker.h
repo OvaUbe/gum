@@ -22,49 +22,45 @@
 
 #pragma once
 
-#include <cppgear/concurrency/ThreadInfo.h>
-#include <cppgear/log/LoggerSingleton.h>
-#include <cppgear/string/ToString.h>
-#include <cppgear/time/ElapsedTime.h>
+#include <cppgear/async/ITaskQueue.h>
+#include <cppgear/concurrency/ConditionVariable.h>
+#include <cppgear/concurrency/Mutex.h>
+#include <cppgear/concurrency/Thread.h>
+#include <cppgear/functional/Types.h>
+#include <cppgear/Optional.h>
+
+#include <deque>
 
 namespace cppgear {
 
-    CPPGEAR_LOGGER_SINGLETON(MutexLogger);
+    class Worker : public virtual ITaskQueue {
+        using Self = Worker;
 
+        using Queue = std::deque<Task>;
 
-    template < typename TimedMutex_ >
-    class TimedMutexWrapper {
-        TimedMutex_         _impl;
+    private:
+        static Logger       s_logger;
 
-        OwnerInfo           _owner;
+        Queue               _queue;
+        Mutex               _mutex;
+        ConditionVariable   _condition_variable;
+
+        Thread              _thread;
 
     public:
-        TimedMutexWrapper() = default;
-
-        TimedMutexWrapper(TimedMutexWrapper&& other)
-            :   _impl(std::move(other._impl))
+        template < typename String_ >
+        Worker(String_&& name)
+            :   _thread(std::forward<String_>(name), std::bind(&Self::thread_func, this, _1))
         { }
 
-        TimedMutexWrapper(TimedMutex_&& impl)
-            :   _impl(std::move(impl))
-        { }
+        void push(Task&& task) override;
 
-        void lock() {
-            const Seconds Threshold = Seconds(3);
-            const ElapsedTime elapsed;
+    private:
+        void thread_func(ICancellationHandle& handle);
 
-            while (!_impl.try_lock_for(Threshold)) {
-                MutexLogger::get().warning()
-                    << "Could not lock mutex " << &_impl << " owned by: " << _owner << " for " << elapsed.elapsed_to<Seconds>() << "."
-                    << " There is probably a deadlock.\nBacktrace: " << Backtrace();
-            }
-
-            _owner.acquire();
-        }
-
-        void unlock() {
-            _impl.unlock();
-        }
+        Optional<Task> pop(ICancellationHandle& handle);
+        Optional<Task> pop();
+        Task do_pop();
     };
 
 }
