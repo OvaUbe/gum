@@ -50,8 +50,8 @@ namespace cppgear {
 
     public:
         template < typename Wrapped__ >
-        Try(Wrapped__&& wrapped) :
-            _wrapped(std::forward<Wrapped__>(wrapped))
+        Try(Wrapped__&& wrapped)
+            :   _wrapped(std::forward<Wrapped__>(wrapped))
         { }
 
         template < typename ...Args_ >
@@ -61,8 +61,8 @@ namespace cppgear {
     };
 
     template < typename Wrapped_ >
-    Try<Wrapped_> try_(Wrapped_&& wrapped) {
-        return Try<Wrapped_>(std::forward<Wrapped_>(wrapped));
+    auto try_(Wrapped_&& wrapped) {
+        return Try<std::decay_t<Wrapped_>>(std::forward<Wrapped_>(wrapped));
     }
 
 }
