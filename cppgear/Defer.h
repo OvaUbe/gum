@@ -36,12 +36,19 @@ namespace cppgear {
 
     public:
         template < typename Deferrable_ >
-        Defer(Deferrable_ const& deferrable) :
-            _deferrable(try_(deferrable)) { }
+        Defer(Deferrable_&& deferrable)
+            :   _deferrable(std::forward<Deferrable_>(deferrable))
+        { }
+
+        Defer(Defer const&) = default;
+        Defer(Defer&&) = default;
 
         ~Defer() {
             _deferrable();
         }
+
+        Defer& operator=(Defer const&) = default;
+        Defer& operator=(Defer&&) = default;
     };
 
 #   define defer cppgear::Defer __defer__##__LINE__ = [&]()
