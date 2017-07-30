@@ -25,6 +25,8 @@
 #include <cppgear/concurrency/Thread.h>
 #include <cppgear/log/LoggerManager.h>
 
+#include <iostream>
+
 namespace cppgear {
 
     LoggerStream::LoggerStream(LoggerId logger_id, StringLiteral const& logger_name, LogLevel level)
@@ -36,16 +38,21 @@ namespace cppgear {
 
     LoggerStream::~LoggerStream() {
         try {
+            LogMessage message(_logger_id, SystemClock::now(), _level, Thread::get_own_info()->get_name(), _logger_name, std::move(_message));
             try {
-                LoggerManager::get().log(LogMessage(_logger_id, SystemClock::now(), _level, Thread::get_own_info()->get_name(), _logger_name, std::move(_message)));
+                LoggerManager::get().log(message);
             } catch (std::exception const& ex) {
-                String message = String() << "Caught exception during logging, next failure will be silently swallowed:\n" << ex;
-                LoggerManager::get().log(LogMessage(_logger_id, SystemClock::now(), LogLevel::Error, Thread::get_own_info()->get_name(), _logger_name, std::move(message)));
+                message.message = String() << "Uncaught exception in LoggerStream::~LoggerStream(), next failure will be dumped to stderr:\n" << ex;
+                LoggerManager::get().log(message);
             } catch (...) {
-                String message = String() << "Caught unknown exception during logging, next failure will be silently swallowed.";
-                LoggerManager::get().log(LogMessage(_logger_id, SystemClock::now(), LogLevel::Error, Thread::get_own_info()->get_name(), _logger_name, std::move(message)));
+                message.message = String() << "Uncaught exception in LoggerStream::~LoggerStream(), next failure will be dumped to stderr:\n<unknown exception>";
+                LoggerManager::get().log(message);
             }
-        } catch (...) { }
+        } catch (std::exception const& ex) {
+            std::cerr << "Uncaught exception in LoggerStream::~LoggerStream():\n" << ex.what() << std::endl;
+        } catch (...) {
+            std::cerr << "Uncaught exception in LoggerStream::~LoggerStream():\n<unknown exception>" << std::endl;
+        }
     }
 
 }

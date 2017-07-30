@@ -29,6 +29,7 @@
 #include <cppgear/token/FunctionToken.h>
 #include <cppgear/Optional.h>
 
+#include <iostream>
 #include <unordered_map>
 
 namespace cppgear {
@@ -88,8 +89,15 @@ namespace cppgear {
 
             SharedMutexLock const l(_sinks_mutex.get_shared());
 
-            for (auto const& sink : _sinks)
-                sink->log(message);
+            for (auto const& sink : _sinks) {
+                try {
+                    sink->log(message);
+                } catch (std::exception const& ex) {
+                    std::cerr << "Uncaught exception from logger sink:\n" << ex.what() << std::endl;
+                } catch (...) {
+                    std::cerr << "Uncaught exception from logger sink:\n<unknown exception>" << std::endl;
+                }
+            }
         }
 
     private:
