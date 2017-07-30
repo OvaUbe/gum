@@ -41,19 +41,18 @@ namespace cppgear {
     private:
         static Logger       s_logger;
 
+        StringConstRef      _name;
         TaskType            _task;
 
         CancellationToken   _cancellation_token;
         Impl                _impl;
 
-        ThreadInfoRef       _info;
-
     public:
         template < typename String_, typename Callable_ >
         Thread(String_&& name, Callable_&& callable)
-            :   _task(std::forward<Callable_>(callable)),
-                _impl(&Self::thread_func, this),
-                _info(make_shared_ref<ThreadInfo>(_impl.get_id(), make_shared_ref<String>(std::forward<String_>(name))))
+            :   _name(make_shared_ref<String>(std::forward<String_>(name))),
+                _task(std::forward<Callable_>(callable)),
+                _impl(&Self::thread_func, this)
         { }
 
         ~Thread();
@@ -63,7 +62,7 @@ namespace cppgear {
         static void sleep(Duration const& duration);
         static void sleep(Duration const& duration, ICancellationHandle& handle);
 
-        ThreadInfoRef get_info() const;
+        ThreadInfo get_info() const;
 
         String to_string() const;
 
