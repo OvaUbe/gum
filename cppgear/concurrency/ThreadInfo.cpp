@@ -99,8 +99,8 @@ namespace cppgear {
     }
 
 
-    ThreadInfo::ThreadInfo(ThreadId const& id, StringConstRef const& name)
-        :   _id(id),
+    ThreadInfo::ThreadInfo(StringConstRef const& name)
+        :   _id(std::this_thread::get_id()),
             _name(name)
     { }
 
