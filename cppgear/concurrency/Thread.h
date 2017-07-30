@@ -53,7 +53,7 @@ namespace cppgear {
         Thread(String_&& name, Callable_&& callable)
             :   _task(std::forward<Callable_>(callable)),
                 _impl(&Self::thread_func, this),
-                _info(make_shared_ref<ThreadInfo>(make_shared_ref<String>(std::forward<String_>(name))))
+                _info(make_shared_ref<ThreadInfo>(_impl.get_id(), make_shared_ref<String>(std::forward<String_>(name))))
         { }
 
         ~Thread();

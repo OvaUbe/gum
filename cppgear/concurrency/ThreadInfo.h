@@ -33,7 +33,7 @@ namespace cppgear {
         StringConstRef      _name;
 
     public:
-        ThreadInfo(StringConstRef const& name);
+        ThreadInfo(ThreadId const& id, StringConstRef const& name);
 
         ThreadId get_id() const {
             return _id;

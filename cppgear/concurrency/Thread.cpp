@@ -28,7 +28,7 @@ namespace cppgear {
 
     namespace {
 
-        thread_local ThreadInfoRef t_thread_info = make_shared_ref<ThreadInfo>(make_shared_ref<String>("__UndefinedThread"));
+        thread_local ThreadInfoRef t_thread_info = make_shared_ref<ThreadInfo>(ThreadId(), make_shared_ref<String>("__UndefinedThread"));
 
     }
 
