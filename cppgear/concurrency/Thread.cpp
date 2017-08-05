@@ -28,7 +28,7 @@ namespace cppgear {
 
     namespace {
 
-        thread_local ThreadInfoRef t_thread_info = make_shared_ref<ThreadInfo>(make_shared_ref<String>("__UndefinedThread"));
+        thread_local ThreadInfoRef t_thread_info = make_shared_ref<ThreadInfo>(ThreadId(), make_shared_ref<String>("__UndefinedThread"));
 
     }
 
@@ -56,8 +56,8 @@ namespace cppgear {
     }
 
 
-    ThreadInfoRef Thread::get_info() const {
-        return _info;
+    ThreadInfo Thread::get_info() const {
+        return ThreadInfo(_impl.get_id(), _name);
     }
 
 
@@ -72,16 +72,16 @@ namespace cppgear {
 
 
     void Thread::_thread_func() {
-        t_thread_info = _info;
+        t_thread_info = make_shared_ref<ThreadInfo>(std::this_thread::get_id(), _name);
 
-        s_logger.info() << get_info() << " spawned.";
+        s_logger.info() << get_own_info() << " spawned.";
 
         CPPGEAR_TRY_LEVEL("Uncaught exception from client thread function", error, _task(_cancellation_token));
     }
 
 
     void Thread::dtor() {
-        ThreadInfoRef const info = get_info();
+        ThreadInfo const info = get_info();
 
         _cancellation_token.cancel();
         _impl.join();
