@@ -34,7 +34,7 @@ namespace cppgear {
     void Worker::push(Task&& task) {
         MutexLock l(_mutex);
 
-        _queue.push_back([task = std::move(task)]{ CPPGEAR_TRY_LEVEL("Uncaught exception in worker task", error, task()); });
+        _queue.push_back([task = std::move(task)]{ CPPGEAR_TRY_LEVEL("Uncaught exception in worker task", LogLevel::Error, task()); });
         _condition_variable.broadcast();
     }
 
