@@ -48,12 +48,14 @@ namespace cppgear {
     class Try {
         Wrapped_        _wrapped;
         LogLevel        _log_level;
+        StringLiteral   _message;
         Logger&         _logger;
 
     public:
         template < typename Wrapped__ >
-        Try(Wrapped__&& wrapped, LogLevel log_level, Logger& logger)
+        Try(Wrapped__&& wrapped, LogLevel log_level, StringLiteral const& message, Logger& logger)
             :   _wrapped(std::forward<Wrapped__>(wrapped)),
+                _message(message),
                 _log_level(log_level),
                 _logger(logger)
         { }
@@ -64,17 +66,17 @@ namespace cppgear {
                 _wrapped(std::forward<Args_>(args)...);
             }
             catch (std::exception const& ex) {
-                _logger.log(_log_level) << "Uncaught exception:\n" << ex; \
-            } \
+                _logger.log(_log_level) << _message << ":\n" << ex;
+            }
             catch (...) {
-                _logger.log(_log_level) << "Uncaught exception:\n<unknown exception>"; \
+                _logger.log(_log_level) << _message << ":\n<unknown exception>";
             }
         }
     };
 
     template < typename Wrapped_ >
-    auto try_(Wrapped_&& wrapped, LogLevel log_level = LogLevel::Warning, Logger& logger = GlobalLogger::get()) {
-        return Try<std::decay_t<Wrapped_>>(std::forward<Wrapped_>(wrapped), log_level, logger);
+    auto try_(Wrapped_&& wrapped, LogLevel log_level = LogLevel::Warning, StringLiteral const& message = "Uncaught exception", Logger& logger = GlobalLogger::get()) {
+        return Try<std::decay_t<Wrapped_>>(std::forward<Wrapped_>(wrapped), message, log_level, logger);
     }
 
 }
