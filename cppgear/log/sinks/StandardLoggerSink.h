@@ -20,6 +20,8 @@
  * THE SOFTWARE.
  */
 
+#pragma once
+
 #include <cppgear/concurrency/Mutex.h>
 #include <cppgear/log/ILoggerSink.h>
 
