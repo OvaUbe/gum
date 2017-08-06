@@ -36,12 +36,26 @@
 
 namespace cppgear {
 
-    namespace signal_policies {
+    namespace signal {
 
         CPPGEAR_ENUM(ThreadSafety,
             Synchronized,
             Unsynchronized
         );
+
+
+        template < typename Signature_ >
+        using SlotType = std::function<Signature_>;
+
+        template < typename SlotType_ >
+        using PopulatorType = std::function<void(SlotType_ const&)>;
+
+
+        using SynchronizedMutexType = RecursiveMutex;
+        using UnsynchronizedMutexType = DummyMutex;
+
+        template < typename ThreadSafety::Enum ThreadSafety_ >
+        using MutexType = std::conditional_t<ThreadSafety_ == ThreadSafety::Synchronized, SynchronizedMutexType, UnsynchronizedMutexType>;
 
     }
 
@@ -50,33 +64,18 @@ namespace cppgear {
 
         CPPGEAR_LOGGER_SINGLETON(SignalLogger);
 
-
-        template < typename Signature_ >
-        using SignalSlotType = std::function<Signature_>;
-
-        template < typename SlotType_ >
-        using SignalPopulatorType = std::function<void(SlotType_ const&)>;
-
-
-        using SignalSynchronizedMutexType = RecursiveMutex;
-        using SignalUnsynchronizedMutexType = DummyMutex;
-
-        template < typename signal_policies::ThreadSafety::Enum ThreadSafety_ >
-        using SignalMutexType = std::conditional_t<ThreadSafety_ == signal_policies::ThreadSafety::Synchronized, SignalSynchronizedMutexType, SignalUnsynchronizedMutexType>;
-
-
-        template < signal_policies::ThreadSafety::Enum >
+        template < signal::ThreadSafety::Enum >
         struct LifeTokenFactory;
 
         template < >
-        struct LifeTokenFactory<signal_policies::ThreadSafety::Synchronized> {
+        struct LifeTokenFactory<signal::ThreadSafety::Synchronized> {
             LifeToken operator()() const {
                 return LifeToken::make_synchronized();
             }
         };
 
         template < >
-        struct LifeTokenFactory<signal_policies::ThreadSafety::Unsynchronized> {
+        struct LifeTokenFactory<signal::ThreadSafety::Unsynchronized> {
             LifeToken operator()() const {
                 return LifeToken::make_unsynchronized();
             }
@@ -85,7 +84,7 @@ namespace cppgear {
 
         template < typename Signature_ >
         struct ISignalHandle {
-            using SlotType = SignalSlotType<Signature_>;
+            using SlotType = signal::SlotType<Signature_>;
 
         public:
             virtual ~ISignalHandle() { }
@@ -100,15 +99,15 @@ namespace cppgear {
         };
 
 
-        template < signal_policies::ThreadSafety::Enum ThreadSafety_, typename Signature_ >
+        template < signal::ThreadSafety::Enum ThreadSafety_, typename Signature_ >
         class SignalImpl {
         public:
             using Signature = Signature_;
 
-            using SlotType = SignalSlotType<Signature>;
-            using PopulatorType = SignalPopulatorType<SlotType>;
+            using SlotType = signal::SlotType<Signature>;
+            using PopulatorType = signal::PopulatorType<SlotType>;
 
-            using MutexType = SignalMutexType<ThreadSafety_>;
+            using MutexType = signal::MutexType<ThreadSafety_>;
             using MutexLockType = GenericMutexLock<MutexType>;
 
         private:
@@ -181,7 +180,7 @@ namespace cppgear {
 
         template < typename Signature_ >
         class DummySignalHandle : public virtual ISignalHandle<Signature_> {
-            using SlotType = SignalSlotType<Signature_>;
+            using SlotType = signal::SlotType<Signature_>;
 
         public:
             Token connect(SlotType&&) const override {
@@ -200,12 +199,12 @@ namespace cppgear {
         };
 
 
-        template < signal_policies::ThreadSafety::Enum ThreadSafety_, typename Signature_ >
+        template < signal::ThreadSafety::Enum ThreadSafety_, typename Signature_ >
         class DefaultSignalHandle : public virtual ISignalHandle<Signature_> {
             using Impl = detail::SignalImpl<ThreadSafety_, Signature_>;
             CPPGEAR_DECLARE_REF(Impl);
 
-            using SlotType = SignalSlotType<Signature_>;
+            using SlotType = signal::SlotType<Signature_>;
             CPPGEAR_DECLARE_REF(SlotType);
 
             using PopulatorType = typename Impl::PopulatorType;
@@ -234,24 +233,24 @@ namespace cppgear {
 
             Token connect(SlotType&& slot) const override {
                 LifeToken life_token = LifeTokenFactoryType()();
-                const SlotTypeRef slot_ref = make_shared_ref<SlotType>(make_cancellable(std::move(slot), life_token.get_handle()));
+                SlotTypeRef const slot_ref = make_shared_ref<SlotType>(make_cancellable(std::move(slot), life_token.get_handle()));
                 return make_token<Connection>(_impl->connect(slot_ref, _impl), std::move(life_token));
             }
 
 
             Token connect(SlotType&& slot, ITaskQueueRef const& task_queue) const override {
                 LifeToken life_token = LifeTokenFactoryType()();
-                const SlotTypeRef slot_ref = make_shared_ref<SlotType>(make_async(make_cancellable(std::move(slot), life_token.get_handle()), task_queue));
+                SlotTypeRef const slot_ref = make_shared_ref<SlotType>(make_async(make_cancellable(std::move(slot), life_token.get_handle()), task_queue));
                 return make_token<Connection>(_impl->connect(slot_ref, _impl), std::move(life_token));
             }
 
             void connect(SlotType&& slot, IGuardedTokenPool& token_pool) const override {
-                const SlotTypeRef slot_ref = make_shared_ref<SlotType>(make_cancellable(std::move(slot), token_pool.get_handle()));
+                SlotTypeRef const slot_ref = make_shared_ref<SlotType>(make_cancellable(std::move(slot), token_pool.get_handle()));
                 token_pool += _impl->connect(slot_ref, _impl);
             }
 
             void connect(SlotType&& slot, ITaskQueueRef const& task_queue, IGuardedTokenPool& token_pool) const override {
-                const SlotTypeRef slot_ref = make_shared_ref<SlotType>(make_async(make_cancellable(std::move(slot), token_pool.get_handle()), task_queue));
+                SlotTypeRef const slot_ref = make_shared_ref<SlotType>(make_async(make_cancellable(std::move(slot), token_pool.get_handle()), task_queue));
                 token_pool += _impl->connect(slot_ref, _impl);
             }
 
@@ -311,7 +310,7 @@ namespace cppgear {
     };
 
 
-    template < signal_policies::ThreadSafety::Enum ThreadSafety_, typename Signature_ >
+    template < signal::ThreadSafety::Enum ThreadSafety_, typename Signature_ >
     class BasicSignal {
         using Impl = detail::SignalImpl<ThreadSafety_, Signature_>;
         CPPGEAR_DECLARE_REF(Impl);
@@ -370,12 +369,12 @@ namespace cppgear {
 
 
     template < typename Signature_ >
-    using Signal = BasicSignal<signal_policies::ThreadSafety::Synchronized, Signature_>;
+    using Signal = BasicSignal<signal::ThreadSafety::Synchronized, Signature_>;
 
     template < typename Signature_ >
-    using UnsynchronizedSignal = BasicSignal<signal_policies::ThreadSafety::Unsynchronized, Signature_>;
+    using UnsynchronizedSignal = BasicSignal<signal::ThreadSafety::Unsynchronized, Signature_>;
 
 
-    using SignalLock = GenericMutexLock<detail::SignalSynchronizedMutexType>;
+    using SignalLock = GenericMutexLock<signal::SynchronizedMutexType>;
 
 }
