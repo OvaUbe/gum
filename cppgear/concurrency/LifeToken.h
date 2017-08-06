@@ -45,7 +45,6 @@ namespace cppgear {
 
         static LifeToken make_valid();
         static LifeToken make_released();
-        static LifeToken make_dummy();
 
         LifeHandle get_handle() const;
 

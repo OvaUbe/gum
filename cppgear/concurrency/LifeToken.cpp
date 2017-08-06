@@ -126,18 +126,6 @@ namespace cppgear {
         };
         CPPGEAR_DECLARE_REF(ReleasedLifeHandle);
 
-
-        struct DummyLifeHandle : public virtual ILifeHandleImpl {
-            bool lock() const override {
-                return true;
-            }
-
-            void unlock() const override { }
-
-            void release() override { }
-        };
-        CPPGEAR_DECLARE_REF(DummyLifeHandle);
-
     }
 
 
@@ -189,11 +177,6 @@ namespace cppgear {
 
     LifeToken LifeToken::make_released() {
         return LifeToken(make_unique_ref<Impl>(ReleasedLifeHandleRef()));
-    }
-
-
-    LifeToken LifeToken::make_dummy() {
-        return LifeToken(make_unique_ref<Impl>(DummyLifeHandleRef()));
     }
 
 
