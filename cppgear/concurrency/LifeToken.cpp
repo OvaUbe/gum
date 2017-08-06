@@ -156,6 +156,10 @@ namespace cppgear {
         ILifeHandleRef get_handle() const {
             return _handle;
         }
+
+        void release() {
+            _handle->release();
+        }
     };
 
 
@@ -199,7 +203,7 @@ namespace cppgear {
 
 
     void LifeToken::release() {
-        _impl = make_unique_ref<Impl>(ReleasedLifeHandleRef());
+        _impl->release();
     }
 
 }
