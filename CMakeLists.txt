@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 2.8)
 
+project(cppgear)
+
 include(cmake/utils/Install.cmake)
 include(cmake/utils/Misc.cmake)
 include(cmake/utils/Platform.cmake)
