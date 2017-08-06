@@ -31,7 +31,7 @@ namespace cppgear {
         StringLiteral const GreenColorStart("\033[32m");
         StringLiteral const YellowColorStart("\033[33m");
         StringLiteral const BlueColorStart("\033[34m");
-        StringLiteral const MagnetaColorStart("\033[35m");
+        StringLiteral const MagentaColorStart("\033[35m");
         StringLiteral const CyanColorStart("\033[36m");
         StringLiteral const WhiteColorStart("\033[37m");
 
@@ -40,7 +40,7 @@ namespace cppgear {
         StringLiteral const BrightGreenColorStart("\033[32;1m");
         StringLiteral const BrightYellowColorStart("\033[33;1m");
         StringLiteral const BrightBlueColorStart("\033[34;1m");
-        StringLiteral const BrightMagnetaColorStart("\033[35;1m");
+        StringLiteral const BrightMagentaColorStart("\033[35;1m");
         StringLiteral const BrightCyanColorStart("\033[36;1m");
         StringLiteral const BrightWhiteColorStart("\033[37;1m");
 
@@ -74,7 +74,7 @@ namespace cppgear {
         MutexLock l(_mutex);
 
         static StringLiteral const WhenColorStart = BlueColorStart;
-        static StringLiteral const ThreadNameColorStart = MagnetaColorStart;
+        static StringLiteral const ThreadNameColorStart = MagentaColorStart;
         static StringLiteral const AuthorColorStart = GreenColorStart;
 
         StringLiteral const LogLevelColorStart = LogLevelColorMapper()(message.level);
