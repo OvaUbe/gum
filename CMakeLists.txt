@@ -3,11 +3,12 @@ cmake_minimum_required(VERSION 2.8)
 project(cppgear)
 
 include(cmake/utils/Install.cmake)
+include(cmake/utils/Log.cmake)
 include(cmake/utils/Misc.cmake)
 include(cmake/utils/Platform.cmake)
 include(cmake/utils/String.cmake)
 
-message("Cmake build type: " ${CMAKE_BUILD_TYPE})
+log(info "Cmake build type:" ${CMAKE_BUILD_TYPE})
 
 if(CMAKE_BUILD_TYPE STREQUAL Debug)
     set(CPPGEAR_RELEASE_BUILD False)
@@ -67,7 +68,7 @@ string_join(CPPGEAR_CXX_COMPILEFLAGS " "
     ${CPPGEAR_CXX_DEBUG_INFO_SWITCH}
 )
 
-message("C++ compile flags: " ${CPPGEAR_CXX_COMPILEFLAGS})
+log(info "C++ compile flags:" ${CPPGEAR_CXX_COMPILEFLAGS})
 
 set(CPPGEAR_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/cppgear/)
 
@@ -182,7 +183,7 @@ if (${CPPGEAR_USES_CLANG_COMPILER} OR ${CPPGEAR_USES_GCC_COMPILER})
     )
 endif()
 
-message("Definitions:")
+log(info "Definitions:")
 dump_definitions()
 
 string_prepend(CPPGEAR_SOURCES ${CPPGEAR_ROOT} ${CPPGEAR_SOURCES})
