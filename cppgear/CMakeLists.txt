@@ -4,7 +4,8 @@ project(cppgear)
 
 message("Building cppgear.")
 
-message("Linking with: " ${CPPGEAR_EXTERNAL_LIBS})
+string_join(CPPGEAR_EXTERNAL_LIBS_STRING " " ${CPPGEAR_EXTERNAL_LIBS})
+message("Linking with: " ${CPPGEAR_EXTERNAL_LIBS_STRING})
 
 add_library(cppgear-static STATIC ${CPPGEAR_SOURCES})
 set_target_properties(cppgear-static PROPERTIES
