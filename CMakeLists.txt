@@ -67,7 +67,7 @@ string_join(CPPGEAR_CXX_COMPILEFLAGS " "
 
 message("C++ compile flags: " ${CPPGEAR_CXX_COMPILEFLAGS})
 
-set(CPPGEAR_ROOT ${CMAKE_SOURCE_DIR}/cppgear/)
+set(CPPGEAR_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/cppgear/)
 
 set(CPPGEAR_SOURCES
     concurrency/CancellationToken.cpp
@@ -185,7 +185,7 @@ dump_definitions()
 
 string_prepend(CPPGEAR_SOURCES ${CPPGEAR_ROOT} ${CPPGEAR_SOURCES})
 
-include_directories(${CMAKE_SOURCE_DIR})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 add_subdirectory(cppgear)
 add_subdirectory(test)
