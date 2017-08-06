@@ -2,10 +2,10 @@ cmake_minimum_required(VERSION 2.8)
 
 project(cppgear)
 
-message("Building cppgear.")
+log(info "Building cppgear.")
 
 string_join(CPPGEAR_EXTERNAL_LIBS_STRING " " ${CPPGEAR_EXTERNAL_LIBS})
-message("Linking with: " ${CPPGEAR_EXTERNAL_LIBS_STRING})
+log(info "Linking with:" ${CPPGEAR_EXTERNAL_LIBS_STRING})
 
 add_library(cppgear-static STATIC ${CPPGEAR_SOURCES})
 set_target_properties(cppgear-static PROPERTIES
