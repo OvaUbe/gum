@@ -37,22 +37,52 @@ namespace cppgear {
     CPPGEAR_DECLARE_REF(ILifeHandle);
 
 
-    class LifeHandleLock {
-        ILifeHandleRef     _handle;
-        bool               _alive;
+    class LifeHandle {
+        using Impl = ILifeHandle;
+        CPPGEAR_DECLARE_REF(Impl);
+
+        struct DummyImpl : public virtual ILifeHandle {
+            bool lock() const override {
+                return true;
+            }
+
+            void unlock() const override { }
+        };
+
+    private:
+        ImplRef _impl;
 
     public:
-        LifeHandleLock(ILifeHandleRef const& handle)
-            :   _handle(handle),
-                _alive(_handle->lock())
+        LifeHandle(ImplRef const& impl = make_shared_ref<DummyImpl>())
+            :   _impl(impl)
         { }
+
+        bool lock() const {
+            return _impl->lock();
+        }
+
+        void unlock() const {
+            _impl->unlock();
+        }
+    };
+
+
+    class LifeHandleLock {
+        LifeHandle     _handle;
+        bool           _alive;
+
+    public:
+        LifeHandleLock(LifeHandle const& handle)
+            :   _handle(handle),
+                _alive(_handle.lock())
+        { }
+
+        ~LifeHandleLock() {
+            _handle.unlock();
+        }
 
         explicit operator bool () const {
             return _alive;
-        }
-
-        ~LifeHandleLock() {
-            _handle->unlock();
         }
     };
 

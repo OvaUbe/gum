@@ -22,7 +22,7 @@
 
 #pragma once
 
-#include <cppgear/concurrency/ILifeHandle.h>
+#include <cppgear/async/LifeHandle.h>
 #include <cppgear/smartpointer/UniqueReference.h>
 
 namespace cppgear {
@@ -47,7 +47,7 @@ namespace cppgear {
         static LifeToken make_released();
         static LifeToken make_dummy();
 
-        ILifeHandleRef get_handle() const;
+        LifeHandle get_handle() const;
 
         void release();
     };

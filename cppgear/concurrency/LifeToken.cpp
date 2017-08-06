@@ -193,7 +193,7 @@ namespace cppgear {
     }
 
 
-    ILifeHandleRef LifeToken::get_handle() const {
+    LifeHandle LifeToken::get_handle() const {
         return _impl->get_handle();
     }
 

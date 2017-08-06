@@ -92,13 +92,13 @@ set(CPPGEAR_SOURCES
 )
 set(CPPGEAR_PUBLIC_HEADERS
     async/ITaskQueue.h
+    async/LifeHandle.h
     compare/OwnerLess.h
     concurrency/CancellationToken.h
     concurrency/ConditionVariable.h
     concurrency/DummyCancellationHandle.h
     concurrency/GenericMutexLock.h
     concurrency/ICancellationToken.h
-    concurrency/ILifeHandle.h
     concurrency/ImmutableMutexWrapper.h
     concurrency/LifeToken.h
     concurrency/Mutex.h
