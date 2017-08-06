@@ -42,7 +42,7 @@ namespace cppgear {
         CPPGEAR_DECLARE_REF(ILifeHandleImpl);
 
 
-        class DefaultLifeHandle : public virtual ILifeHandleImpl {
+        class SynchronizedLifeHandle : public virtual ILifeHandleImpl {
             mutable std::atomic<bool>   _alive;
             mutable ThreadInfoPtr       _owner;
 
@@ -50,7 +50,7 @@ namespace cppgear {
             ConditionVariable           _condition_varaible;
 
         public:
-            DefaultLifeHandle()
+            SynchronizedLifeHandle()
                 :   _alive(true)
             { }
 
@@ -112,7 +112,28 @@ namespace cppgear {
                 }
             }
         };
-        CPPGEAR_DECLARE_REF(DefaultLifeHandle);
+        CPPGEAR_DECLARE_REF(SynchronizedLifeHandle);
+
+
+        class UnsynchronizedLifeHandle : public virtual ILifeHandleImpl {
+            bool _alive;
+
+        public:
+            UnsynchronizedLifeHandle()
+                :   _alive(true)
+            { }
+
+            bool lock() const override {
+                return _alive;
+            }
+
+            void unlock() const override { }
+
+            void release() override {
+                _alive = false;
+            }
+        };
+        CPPGEAR_DECLARE_REF(UnsynchronizedLifeHandle);
 
 
         struct ReleasedLifeHandle : public virtual ILifeHandleImpl {
@@ -125,18 +146,6 @@ namespace cppgear {
             void release() override { }
         };
         CPPGEAR_DECLARE_REF(ReleasedLifeHandle);
-
-
-        struct DummyLifeHandle : public virtual ILifeHandleImpl {
-            bool lock() const override {
-                return true;
-            }
-
-            void unlock() const override { }
-
-            void release() override { }
-        };
-        CPPGEAR_DECLARE_REF(DummyLifeHandle);
 
     }
 
@@ -156,11 +165,20 @@ namespace cppgear {
         ILifeHandleRef get_handle() const {
             return _handle;
         }
+
+        void release() {
+            _handle->release();
+        }
     };
 
 
     LifeToken::LifeToken(ImplUniqueRef&& impl)
         :   _impl(std::move(impl))
+    { }
+
+
+    LifeToken::LifeToken()
+        :   _impl(make_unique_ref<Impl>(SynchronizedLifeHandleRef()))
     { }
 
 
@@ -178,8 +196,13 @@ namespace cppgear {
     }
 
 
-    LifeToken LifeToken::make_valid() {
-        return LifeToken(make_unique_ref<Impl>(DefaultLifeHandleRef()));
+    LifeToken LifeToken::make_synchronized() {
+        return LifeToken(make_unique_ref<Impl>(SynchronizedLifeHandleRef()));
+    }
+
+
+    LifeToken LifeToken::make_unsynchronized() {
+        return LifeToken(make_unique_ref<Impl>(UnsynchronizedLifeHandleRef()));
     }
 
 
@@ -188,18 +211,13 @@ namespace cppgear {
     }
 
 
-    LifeToken LifeToken::make_dummy() {
-        return LifeToken(make_unique_ref<Impl>(DummyLifeHandleRef()));
-    }
-
-
-    ILifeHandleRef LifeToken::get_handle() const {
+    LifeHandle LifeToken::get_handle() const {
         return _impl->get_handle();
     }
 
 
     void LifeToken::release() {
-        _impl = make_unique_ref<Impl>(ReleasedLifeHandleRef());
+        _impl->release();
     }
 
 }

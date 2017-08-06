@@ -22,38 +22,15 @@
 
 #pragma once
 
-#include <cppgear/smartpointer/SharedPtr.h>
-#include <cppgear/smartpointer/SharedReference.h>
+#include <cppgear/async/ITaskQueue.h>
 
 namespace cppgear {
 
-    struct ILifeHandle {
-        virtual ~ILifeHandle() { }
-
-        virtual bool lock() const = 0;
-        virtual void unlock() const = 0;
-    };
-    CPPGEAR_DECLARE_PTR(ILifeHandle);
-    CPPGEAR_DECLARE_REF(ILifeHandle);
-
-
-    class LifeHandleLock {
-        ILifeHandleRef     _handle;
-        bool               _alive;
-
-    public:
-        LifeHandleLock(ILifeHandleRef const& handle)
-            :   _handle(handle),
-                _alive(_handle->lock())
-        { }
-
-        explicit operator bool () const {
-            return _alive;
-        }
-
-        ~LifeHandleLock() {
-            _handle->unlock();
-        }
-    };
+    template < typename Callable_ >
+    auto make_async(Callable_&& callable, ITaskQueueRef const& task_queue) {
+        return [callable=std::forward<Callable_>(callable), task_queue](auto&& ...args) {
+            task_queue->push(std::bind(callable, std::forward<decltype(args)>(args)...));
+        };
+    }
 
 }

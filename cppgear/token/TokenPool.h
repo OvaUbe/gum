@@ -22,16 +22,41 @@
 
 #pragma once
 
+#include <cppgear/concurrency/DummyMutex.h>
+#include <cppgear/concurrency/GenericMutexLock.h>
 #include <cppgear/concurrency/Mutex.h>
-#include <cppgear/log/ILoggerSink.h>
+#include <cppgear/token/ITokenPool.h>
+
+#include <vector>
 
 namespace cppgear {
 
-    class StandardLoggerSink : public virtual ILoggerSink {
-        Mutex _mutex;
+    template < bool IsSynchronized_ >
+    class BasicTokenPool : public virtual ITokenPool {
+        using Tokens = std::vector<Token>;
+
+        using MutexType = std::conditional_t<IsSynchronized_, Mutex, DummyMutex>;
+        using MutexLockType = GenericMutexLock<MutexType>;
+
+    private:
+        Tokens      _tokens;
+        MutexType   _mutex;
 
     public:
-        void log(LogMessage const& message) override;
+        void operator += (Token&& token) override {
+            MutexLockType l(_mutex);
+            _tokens.push_back(std::move(token));
+        }
+
+        void release() {
+            Tokens tokens;
+
+            MutexLockType l(_mutex);
+            _tokens.swap(tokens);
+        }
     };
+
+    using TokenPool = BasicTokenPool<false>;
+    using SynchronizedTokenPool = BasicTokenPool<true>;
 
 }

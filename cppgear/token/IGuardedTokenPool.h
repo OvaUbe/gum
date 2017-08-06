@@ -22,16 +22,13 @@
 
 #pragma once
 
-#include <cppgear/concurrency/Mutex.h>
-#include <cppgear/log/ILoggerSink.h>
+#include <cppgear/async/LifeHandle.h>
+#include <cppgear/token/ITokenPool.h>
 
 namespace cppgear {
 
-    class StandardLoggerSink : public virtual ILoggerSink {
-        Mutex _mutex;
-
-    public:
-        void log(LogMessage const& message) override;
+    struct IGuardedTokenPool : public virtual ITokenPool {
+        virtual LifeHandle get_handle() const = 0;
     };
 
 }

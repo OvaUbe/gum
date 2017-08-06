@@ -22,16 +22,40 @@
 
 #pragma once
 
-#include <cppgear/concurrency/Mutex.h>
-#include <cppgear/log/ILoggerSink.h>
+#include <cppgear/concurrency/LifeToken.h>
+#include <cppgear/token/IGuardedTokenPool.h>
+#include <cppgear/token/TokenPool.h>
 
 namespace cppgear {
 
-    class StandardLoggerSink : public virtual ILoggerSink {
-        Mutex _mutex;
+    template < bool IsSynchronized_ >
+    class BasicGuardedTokenPool : public virtual IGuardedTokenPool {
+        using TokenPoolType = BasicTokenPool<IsSynchronized_>;
+
+    private:
+        TokenPoolType       _tokens;
+        LifeToken           _life_token;
 
     public:
-        void log(LogMessage const& message) override;
+        BasicGuardedTokenPool(LifeToken&& life_token = LifeToken())
+            :   _life_token(std::move(life_token))
+        { }
+
+        void operator += (Token&& token) override {
+            _tokens += std::move(token);
+        }
+
+        LifeHandle get_handle() const override {
+            return _life_token.get_handle();
+        }
+
+        void release() {
+            _life_token.release();
+            _tokens.release();
+        }
     };
+
+    using GuardedTokenPool = BasicGuardedTokenPool<false>;
+    using SynchronizedGuardedTokenPool = BasicGuardedTokenPool<true>;
 
 }

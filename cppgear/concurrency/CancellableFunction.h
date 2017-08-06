@@ -22,16 +22,19 @@
 
 #pragma once
 
-#include <cppgear/concurrency/Mutex.h>
-#include <cppgear/log/ILoggerSink.h>
+#include <cppgear/async/LifeHandle.h>
 
 namespace cppgear {
 
-    class StandardLoggerSink : public virtual ILoggerSink {
-        Mutex _mutex;
+    template < typename Callable_ >
+    auto make_cancellable(Callable_&& callable, LifeHandle const& life_handle) {
+        return [callable=std::forward<Callable_>(callable), life_handle](auto&& ...args) {
+            LifeHandleLock l(life_handle);
 
-    public:
-        void log(LogMessage const& message) override;
-    };
+            if (l) {
+                callable(std::forward<decltype(args)>(args)...);
+            }
+        };
+    }
 
 }

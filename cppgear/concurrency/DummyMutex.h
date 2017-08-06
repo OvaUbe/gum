@@ -22,16 +22,15 @@
 
 #pragma once
 
-#include <cppgear/concurrency/Mutex.h>
-#include <cppgear/log/ILoggerSink.h>
+#include <cppgear/concurrency/GenericMutexLock.h>
 
 namespace cppgear {
 
-    class StandardLoggerSink : public virtual ILoggerSink {
-        Mutex _mutex;
-
-    public:
-        void log(LogMessage const& message) override;
+    struct DummyMutex {
+        void lock() const { }
+        void unlock() const { }
     };
+
+    using DummyMutexLock = GenericMutexLock<DummyMutex>;
 
 }

@@ -22,16 +22,14 @@
 
 #pragma once
 
-#include <cppgear/concurrency/Mutex.h>
-#include <cppgear/log/ILoggerSink.h>
+#include <cppgear/token/Token.h>
 
 namespace cppgear {
 
-    class StandardLoggerSink : public virtual ILoggerSink {
-        Mutex _mutex;
+    struct ITokenPool {
+        virtual ~ITokenPool() { }
 
-    public:
-        void log(LogMessage const& message) override;
+        virtual void operator += (Token&& token) = 0;
     };
 
 }

@@ -37,7 +37,7 @@ namespace cppgear {
 
 
     Thread::~Thread() {
-        CPPGEAR_TRY_LEVEL("Join failed", error, dtor());
+        CPPGEAR_TRY_LEVEL("Join failed", LogLevel::Error, dtor());
     }
 
 
@@ -67,7 +67,7 @@ namespace cppgear {
 
 
     void Thread::thread_func() {
-        CPPGEAR_TRY_LEVEL("Uncaught exception from internal thread function", error, _thread_func());
+        CPPGEAR_TRY_LEVEL("Uncaught exception from internal thread function", LogLevel::Error, _thread_func());
     }
 
 
@@ -76,7 +76,7 @@ namespace cppgear {
 
         s_logger.info() << get_own_info() << " spawned.";
 
-        CPPGEAR_TRY_LEVEL("Uncaught exception from client thread function", error, _task(_cancellation_token));
+        CPPGEAR_TRY_LEVEL("Uncaught exception from client thread function", LogLevel::Error, _task(_cancellation_token));
     }
 
 
