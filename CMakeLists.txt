@@ -91,12 +91,16 @@ set(CPPGEAR_SOURCES
     Exception.cpp
 )
 set(CPPGEAR_PUBLIC_HEADERS
+    async/AsyncFunction.h
     async/ITaskQueue.h
     async/LifeHandle.h
+    async/Signal.h
     compare/OwnerLess.h
+    concurrency/CancellableFunction.h
     concurrency/CancellationToken.h
     concurrency/ConditionVariable.h
     concurrency/DummyCancellationHandle.h
+    concurrency/DummyMutex.h
     concurrency/GenericMutexLock.h
     concurrency/ICancellationToken.h
     concurrency/ImmutableMutexWrapper.h
@@ -140,7 +144,11 @@ set(CPPGEAR_PUBLIC_HEADERS
     time/ElapsedTime.h
     time/Types.h
     token/FunctionToken.h
+    token/GuardedTokenPool.h
+    token/IGuardedTokenPool.h
+    token/ITokenPool.h
     token/ObjectToken.h
+    token/TokenPool.h
     token/Token.h
     Core.h
     Defer.h
