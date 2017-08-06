@@ -38,12 +38,14 @@ namespace cppgear {
         LifeToken(ImplUniqueRef&& impl);
 
     public:
+        LifeToken();
         ~LifeToken();
 
         LifeToken(LifeToken&& other);
         LifeToken& operator=(LifeToken&& other);
 
-        static LifeToken make_valid();
+        static LifeToken make_synchronized();
+        static LifeToken make_unsynchronized();
         static LifeToken make_released();
 
         LifeHandle get_handle() const;
