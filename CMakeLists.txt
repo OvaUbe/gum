@@ -188,7 +188,7 @@ string_prepend(CPPGEAR_SOURCES ${CPPGEAR_ROOT} ${CPPGEAR_SOURCES})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 add_subdirectory(cppgear)
-add_subdirectory(test)
+add_subdirectory(test EXCLUDE_FROM_ALL)
 
 highlight_matching(${CPPGEAR_ROOT}/*.h)
 highlight_matching(${CPPGEAR_ROOT}/*.cpp)
