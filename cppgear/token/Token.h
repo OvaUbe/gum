@@ -54,7 +54,7 @@ namespace cppgear {
 
     template < typename Token_, typename ...Args_ >
     auto make_token(Args_&&... args) {
-        return Token(make_unique<Token_>(args)...);
+        return Token(make_unique<Token_>(std::forward<Args_>(args)...));
     }
 
 }
