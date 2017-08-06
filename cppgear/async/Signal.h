@@ -64,6 +64,7 @@ namespace cppgear {
 
         CPPGEAR_LOGGER_SINGLETON(SignalLogger);
 
+
         template < signal::ThreadSafety::Enum >
         struct LifeTokenFactory;
 
@@ -89,37 +90,68 @@ namespace cppgear {
         public:
             virtual ~ISignalHandle() { }
 
-            virtual Token connect(SlotType&& slot) const = 0;
-            virtual Token connect(SlotType&& slot, ITaskQueueRef const& task_queue) const = 0;
+            virtual Token connect(SlotType&& slot) = 0;
+            virtual Token connect(SlotType&& slot, ITaskQueueRef const& task_queue) = 0;
 
-            virtual void connect(SlotType&& slot, IGuardedTokenPool& token_pool) const = 0;
-            virtual void connect(SlotType&& slot, ITaskQueueRef const& task_queue, IGuardedTokenPool& token_pool) const = 0;
+            virtual void connect(SlotType&& slot, IGuardedTokenPool& token_pool) = 0;
+            virtual void connect(SlotType&& slot, ITaskQueueRef const& task_queue, IGuardedTokenPool& token_pool) = 0;
 
             virtual void populate(SlotType const& slot) const = 0;
         };
 
 
-        template < typename Signature_, signal::ThreadSafety::Enum ThreadSafety_ >
-        class SignalImpl {
-        public:
-            using Signature = Signature_;
+        template < typename Signature_ >
+        class DummySignalHandle : public virtual ISignalHandle<Signature_> {
+            using SlotType = signal::SlotType<Signature_>;
 
-            using SlotType = signal::SlotType<Signature>;
+        public:
+            Token connect(SlotType&&) override {
+                return Token();
+            }
+
+            Token connect(SlotType&&, ITaskQueueRef const&) override {
+                return Token();
+            }
+
+            void connect(SlotType&&, IGuardedTokenPool&) override { }
+
+            void connect(SlotType&&, ITaskQueueRef const&, IGuardedTokenPool&) override { }
+
+            void populate(SlotType const&) const override { }
+        };
+
+
+        template < typename Signature_, signal::ThreadSafety::Enum ThreadSafety_ >
+        class SignalImpl : public virtual ISignalHandle<Signature_> {
+            using Self = SignalImpl<Signature_, ThreadSafety_>;
+            CPPGEAR_DECLARE_PTR(Self);
+            CPPGEAR_DECLARE_REF(Self);
+
+            using SlotType = signal::SlotType<Signature_>;
+            CPPGEAR_DECLARE_PTR(SlotType);
+            CPPGEAR_DECLARE_REF(SlotType);
+
             using PopulatorType = signal::PopulatorType<SlotType>;
 
             using MutexType = signal::MutexType<ThreadSafety_>;
             using MutexLockType = GenericMutexLock<MutexType>;
+            using LifeTokenFactoryType = LifeTokenFactory<ThreadSafety_>;
 
-        private:
-            using Self = SignalImpl<Signature, ThreadSafety_>;
-            CPPGEAR_DECLARE_REF(Self);
+            class Connection : public virtual IToken {
+                Token           _slot_token;
+                LifeToken       _life_token;
 
-            CPPGEAR_DECLARE_PTR(SlotType);
-            CPPGEAR_DECLARE_REF(SlotType);
+            public:
+                Connection(Token&& slot_token, LifeToken&& life_token)
+                    :   _slot_token(std::move(slot_token)),
+                        _life_token(std::move(life_token))
+                { }
+            };
 
             using Slots = FlatSet<SlotTypeWeakPtr, OwnerLess>;
 
         private:
+            SelfWeakPtr         _self_weak;
             PopulatorType       _populator;
 
             Slots               _slots;
@@ -130,12 +162,34 @@ namespace cppgear {
                 :   _populator(std::move(populator))
             { }
 
-            Token connect(SlotTypeRef const& slot_ref, SelfRef const& self_ref) {
-                do_connect(slot_ref);
-                return make_token<FunctionToken>([self_ref, slot_ref]{ self_ref->pop_slot(slot_ref); });
+            void set_self(SelfWeakPtr const& self_weak) {
+                _self_weak = self_weak;
             }
 
-            void populate(SlotType const& slot) const {
+            Token connect(SlotType&& slot) override {
+                LifeToken life_token = LifeTokenFactoryType()();
+                SlotTypeRef const slot_ref = make_shared_ref<SlotType>(make_cancellable(std::move(slot), life_token.get_handle()));
+                return make_token<Connection>(connect(slot_ref), std::move(life_token));
+            }
+
+            Token connect(SlotType&& slot, ITaskQueueRef const& task_queue) override {
+                LifeToken life_token = LifeTokenFactoryType()();
+                SlotTypeRef const slot_ref = make_shared_ref<SlotType>(make_async(make_cancellable(std::move(slot), life_token.get_handle()), task_queue));
+                return make_token<Connection>(connect(slot_ref), std::move(life_token));
+            }
+
+            void connect(SlotType&& slot, IGuardedTokenPool& token_pool) override {
+                SlotTypeRef const slot_ref = make_shared_ref<SlotType>(make_cancellable(std::move(slot), token_pool.get_handle()));
+                token_pool += connect(slot_ref);
+            }
+
+            void connect(SlotType&& slot, ITaskQueueRef const& task_queue, IGuardedTokenPool& token_pool) override {
+                SlotTypeRef const slot_ref = make_shared_ref<SlotType>(make_async(make_cancellable(std::move(slot), token_pool.get_handle()), task_queue));
+                token_pool += connect(slot_ref);
+            }
+
+
+            void populate(SlotType const& slot) const override {
                 MutexLockType l(_mutex);
                 do_populate(slot);
             }
@@ -154,6 +208,13 @@ namespace cppgear {
             }
 
         private:
+            Token connect(SlotTypeRef const& slot_ref) {
+                do_connect(slot_ref);
+
+                SelfRef const self_ref = _self_weak.lock();
+                return make_token<FunctionToken>([self_ref, slot_ref]{ self_ref->pop_slot(slot_ref); });
+            }
+
             void do_connect(SlotTypeRef const& slot_ref) {
                 MutexLockType l(_mutex);
 
@@ -174,97 +235,6 @@ namespace cppgear {
             void pop_slot(SlotTypeRef const& slot) {
                 MutexLockType l(_mutex);
                 _slots.erase(SlotTypeWeakPtr(slot));
-            }
-        };
-
-
-        template < typename Signature_ >
-        class DummySignalHandle : public virtual ISignalHandle<Signature_> {
-            using SlotType = signal::SlotType<Signature_>;
-
-        public:
-            Token connect(SlotType&&) const override {
-                return Token();
-            }
-
-            Token connect(SlotType&&, ITaskQueueRef const&) const override {
-                return Token();
-            }
-
-            void connect(SlotType&&, IGuardedTokenPool&) const override { }
-
-            void connect(SlotType&&, ITaskQueueRef const&, IGuardedTokenPool&) const override { }
-
-            void populate(SlotType const&) const override { }
-        };
-
-
-        template < typename Signature_, signal::ThreadSafety::Enum ThreadSafety_ >
-        class DefaultSignalHandle : public virtual ISignalHandle<Signature_> {
-            using Impl = detail::SignalImpl<Signature_, ThreadSafety_>;
-            CPPGEAR_DECLARE_REF(Impl);
-
-            using SlotType = signal::SlotType<Signature_>;
-            CPPGEAR_DECLARE_REF(SlotType);
-
-            using PopulatorType = typename Impl::PopulatorType;
-
-            using MutexType = typename Impl::MutexType;
-            using LifeTokenFactoryType = LifeTokenFactory<ThreadSafety_>;
-
-            class Connection : public virtual IToken {
-                Token           _slot_token;
-                LifeToken       _life_token;
-
-            public:
-                Connection(Token&& slot_token, LifeToken&& life_token)
-                    :   _slot_token(std::move(slot_token)),
-                        _life_token(std::move(life_token))
-                { }
-            };
-
-        private:
-            ImplRef _impl;
-
-        public:
-            DefaultSignalHandle(ImplRef const& impl)
-                :   _impl(impl)
-            { }
-
-            Token connect(SlotType&& slot) const override {
-                LifeToken life_token = LifeTokenFactoryType()();
-                SlotTypeRef const slot_ref = make_shared_ref<SlotType>(make_cancellable(std::move(slot), life_token.get_handle()));
-                return make_token<Connection>(_impl->connect(slot_ref, _impl), std::move(life_token));
-            }
-
-
-            Token connect(SlotType&& slot, ITaskQueueRef const& task_queue) const override {
-                LifeToken life_token = LifeTokenFactoryType()();
-                SlotTypeRef const slot_ref = make_shared_ref<SlotType>(make_async(make_cancellable(std::move(slot), life_token.get_handle()), task_queue));
-                return make_token<Connection>(_impl->connect(slot_ref, _impl), std::move(life_token));
-            }
-
-            void connect(SlotType&& slot, IGuardedTokenPool& token_pool) const override {
-                SlotTypeRef const slot_ref = make_shared_ref<SlotType>(make_cancellable(std::move(slot), token_pool.get_handle()));
-                token_pool += _impl->connect(slot_ref, _impl);
-            }
-
-            void connect(SlotType&& slot, ITaskQueueRef const& task_queue, IGuardedTokenPool& token_pool) const override {
-                SlotTypeRef const slot_ref = make_shared_ref<SlotType>(make_async(make_cancellable(std::move(slot), token_pool.get_handle()), task_queue));
-                token_pool += _impl->connect(slot_ref, _impl);
-            }
-
-            void populate(SlotType const& slot) const override {
-                _impl->populate(slot);
-            }
-
-            template < typename ...Args__ >
-            void invoke(Args__&& ...args) const {
-                _impl->invoke(std::forward<Args__>(args)...);
-            }
-
-            MutexType const& get_mutex() const {
-                return _impl->get_mutex();
             }
         };
 
@@ -315,43 +285,24 @@ namespace cppgear {
         using Impl = detail::SignalImpl<Signature_, ThreadSafety_>;
         CPPGEAR_DECLARE_REF(Impl);
 
-        using SignalHandleImpl = detail::DefaultSignalHandle<Signature_, ThreadSafety_>;
-        CPPGEAR_DECLARE_REF(SignalHandleImpl);
-
         using SignalHandleType = SignalHandle<Signature_>;
 
-        using SlotType = typename Impl::SlotType;
-        using PopulatorType = typename Impl::PopulatorType;
+        using SlotType = signal::SlotType<Signature_>;
+        using PopulatorType = signal::PopulatorType<SlotType>;
 
-        using MutexType = typename Impl::MutexType;
+        using MutexType = signal::MutexType<ThreadSafety_>;
 
     private:
-        SignalHandleImplRef _impl;
+        ImplRef _impl;
 
     public:
         BasicSignal(PopulatorType&& populator = [](auto){ })
-            :   _impl(make_shared_ref<SignalHandleImpl>(make_shared_ref<Impl>(std::move(populator))))
-        { }
+            :   _impl(make_shared_ref<Impl>(std::move(populator)))
+        { _impl->set_self(_impl); }
 
-        Token connect(SlotType&& slot) const {
-            return _impl->connect(std::move(slot));
-        }
+        BasicSignal(BasicSignal const&) = delete;
 
-        Token connect(SlotType&& slot, ITaskQueueRef const& task_queue) const {
-            return _impl->connect(std::move(slot), task_queue);
-        }
-
-        void connect(SlotType&& slot, IGuardedTokenPool& token_pool) const {
-            _impl->connect(std::move(slot), token_pool);
-        }
-
-        void connect(SlotType&& slot, ITaskQueueRef const& task_queue, IGuardedTokenPool& token_pool) const {
-            _impl->connect(std::move(slot), task_queue, token_pool);
-        }
-
-        void populate(SlotType const& slot) const {
-            _impl->populate(slot);
-        }
+        BasicSignal& operator=(BasicSignal const&) = delete;
 
         template < typename ...Args__ >
         void operator()(Args__&& ...args) const {
