@@ -99,7 +99,7 @@ namespace cppgear {
         };
 
 
-        template < signal::ThreadSafety::Enum ThreadSafety_, typename Signature_ >
+        template < typename Signature_, signal::ThreadSafety::Enum ThreadSafety_ >
         class SignalImpl {
         public:
             using Signature = Signature_;
@@ -111,7 +111,7 @@ namespace cppgear {
             using MutexLockType = GenericMutexLock<MutexType>;
 
         private:
-            using Self = SignalImpl<ThreadSafety_, Signature>;
+            using Self = SignalImpl<Signature, ThreadSafety_>;
             CPPGEAR_DECLARE_REF(Self);
 
             CPPGEAR_DECLARE_PTR(SlotType);
@@ -199,9 +199,9 @@ namespace cppgear {
         };
 
 
-        template < signal::ThreadSafety::Enum ThreadSafety_, typename Signature_ >
+        template < typename Signature_, signal::ThreadSafety::Enum ThreadSafety_ >
         class DefaultSignalHandle : public virtual ISignalHandle<Signature_> {
-            using Impl = detail::SignalImpl<ThreadSafety_, Signature_>;
+            using Impl = detail::SignalImpl<Signature_, ThreadSafety_>;
             CPPGEAR_DECLARE_REF(Impl);
 
             using SlotType = signal::SlotType<Signature_>;
@@ -310,12 +310,12 @@ namespace cppgear {
     };
 
 
-    template < signal::ThreadSafety::Enum ThreadSafety_, typename Signature_ >
+    template < typename Signature_, signal::ThreadSafety::Enum ThreadSafety_ >
     class BasicSignal {
-        using Impl = detail::SignalImpl<ThreadSafety_, Signature_>;
+        using Impl = detail::SignalImpl<Signature_, ThreadSafety_>;
         CPPGEAR_DECLARE_REF(Impl);
 
-        using SignalHandleImpl = detail::DefaultSignalHandle<ThreadSafety_, Signature_>;
+        using SignalHandleImpl = detail::DefaultSignalHandle<Signature_, ThreadSafety_>;
         CPPGEAR_DECLARE_REF(SignalHandleImpl);
 
         using SignalHandleType = SignalHandle<Signature_>;
@@ -369,10 +369,10 @@ namespace cppgear {
 
 
     template < typename Signature_ >
-    using Signal = BasicSignal<signal::ThreadSafety::Synchronized, Signature_>;
+    using Signal = BasicSignal<Signature_, signal::ThreadSafety::Synchronized>;
 
     template < typename Signature_ >
-    using UnsynchronizedSignal = BasicSignal<signal::ThreadSafety::Unsynchronized, Signature_>;
+    using UnsynchronizedSignal = BasicSignal<Signature_, signal::ThreadSafety::Unsynchronized>;
 
 
     using SignalLock = GenericMutexLock<signal::SynchronizedMutexType>;
