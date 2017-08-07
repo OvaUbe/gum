@@ -183,7 +183,6 @@ if (${CPPGEAR_USES_CLANG_COMPILER} OR ${CPPGEAR_USES_GCC_COMPILER})
     )
 endif()
 
-log(info "Definitions:")
 dump_definitions()
 
 string_prepend(CPPGEAR_SOURCES ${CPPGEAR_ROOT} ${CPPGEAR_SOURCES})
