@@ -2,11 +2,11 @@ cmake_minimum_required(VERSION 2.8)
 
 project(gum)
 
-include(cmake/utils/Install.cmake)
-include(cmake/utils/Log.cmake)
-include(cmake/utils/Misc.cmake)
-include(cmake/utils/Platform.cmake)
-include(cmake/utils/String.cmake)
+include(cmake/castella/Install.cmake)
+include(cmake/castella/Log.cmake)
+include(cmake/castella/Misc.cmake)
+include(cmake/castella/Platform.cmake)
+include(cmake/castella/String.cmake)
 
 log(info "Cmake build type:" ${CMAKE_BUILD_TYPE})
 
