@@ -20,17 +20,17 @@
  * THE SOFTWARE.
  */
 
-#include <cppgear/container/FlatMap.h>
-#include <cppgear/Maybe.h>
-#include <cppgear/Optional.h>
-#include <cppgear/Range.h>
+#include <gum/container/FlatMap.h>
+#include <gum/Maybe.h>
+#include <gum/Optional.h>
+#include <gum/Range.h>
 
 #include <functional>
 #include <random>
 
 #include <gtest/gtest.h>
 
-namespace cppgear {
+namespace gum {
 
     using namespace std::placeholders;
 
