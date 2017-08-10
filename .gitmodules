@@ -1,3 +1,0 @@
-[submodule "cmake/utils"]
-	path = cmake/utils
-	url = git@gitlab.com:OvaUbe/cmake-utils.git
