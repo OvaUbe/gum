@@ -160,8 +160,8 @@ namespace gum {
 
 
 #   define GUM_DECLARE_UNIQUE_PTR(Type_) \
-        using Type_##UniquePtr = UniquePtr<Type_>; \
-        using Type_##ConstUniquePtr = UniquePtr<const Type_>
+        using Type_##UniquePtr = gum::UniquePtr<Type_>; \
+        using Type_##ConstUniquePtr = gum::UniquePtr<const Type_>
 
 }
 

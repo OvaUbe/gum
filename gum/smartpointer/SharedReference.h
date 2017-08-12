@@ -240,8 +240,8 @@ namespace gum {
 
 
 #   define GUM_DECLARE_REF(Type_) \
-        using Type_##Ref = SharedReference<Type_>; \
-        using Type_##ConstRef = SharedReference<const Type_>
+        using Type_##Ref = gum::SharedReference<Type_>; \
+        using Type_##ConstRef = gum::SharedReference<const Type_>
 
 }
 

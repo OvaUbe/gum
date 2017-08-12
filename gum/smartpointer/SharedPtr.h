@@ -369,10 +369,10 @@ namespace gum {
 
 
 #   define GUM_DECLARE_PTR(Type_) \
-        using Type_##Ptr = SharedPtr<Type_>; \
-        using Type_##ConstPtr = SharedPtr<const Type_>; \
-        using Type_##WeakPtr = WeakPtr<Type_>; \
-        using Type_##ConstWeakPtr = WeakPtr<const Type_>
+        using Type_##Ptr = gum::SharedPtr<Type_>; \
+        using Type_##ConstPtr = gum::SharedPtr<const Type_>; \
+        using Type_##WeakPtr = gum::WeakPtr<Type_>; \
+        using Type_##ConstWeakPtr = gum::WeakPtr<const Type_>
 
 }
 

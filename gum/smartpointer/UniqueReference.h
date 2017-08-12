@@ -151,8 +151,8 @@ namespace gum {
 
 
 #   define GUM_DECLARE_UNIQUE_REF(Type_) \
-        using Type_##UniqueRef = UniqueReference<Type_>; \
-        using Type_##ConstUniqueRef = UniqueReference<const Type_>
+        using Type_##UniqueRef = gum::UniqueReference<Type_>; \
+        using Type_##ConstUniqueRef = gum::UniqueReference<const Type_>
 
 }
 
