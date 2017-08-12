@@ -139,6 +139,7 @@ set(GUM_PUBLIC_HEADERS
     log/LoggerStream.h
     log/Logger.h
     metaprogramming/MethodDetector.h
+    smartpointer/DynamicCaster.h
     smartpointer/SharedPtr.h
     smartpointer/SharedReference.h
     smartpointer/SmartpointerTraits.h
@@ -159,6 +160,7 @@ set(GUM_PUBLIC_HEADERS
     token/Token.h
     Core.h
     Defer.h
+    DynamicCaster.h
     Enum.h
     IBoolean.h
     Maybe.h
