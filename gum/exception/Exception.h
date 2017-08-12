@@ -97,4 +97,12 @@ namespace gum {
 #   define GUM_CHECK_INDEX(Index_, Size_) \
         GUM_CHECK((Index_ < Size_), gum::IndexOutOfRangeException(Index_, Size_))
 
+
+    template < typename From_, typename To_ >
+    struct InvalidCastException : public Exception {
+        InvalidCastException(From_ const& from)
+            :   Exception(String() << "Invalid cast from '" << demangle(typeid(from).name()) << "' to '" << demangle(typeid(To_).name()) << "'")
+        { }
+    };
+
 }
