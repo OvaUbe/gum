@@ -22,9 +22,9 @@
 
 #pragma once
 
-#include <gum/smartpointer/SharedPtr.h>
-#include <gum/smartpointer/SharedReference.h>
-#include <gum/exception/Exception.h>
+#include <gum/exception/ExceptionDetails.h>
+
+#include <sstream>
 
 namespace gum {
 
@@ -91,12 +91,12 @@ namespace gum {
         }
 
         reference at(size_t index){
-            GUM_CHECK_INDEX(index, size());
+            check_index(index, size());
             return _impl[index];
         }
 
         const_reference at(size_t index) const {
-            GUM_CHECK_INDEX(index, size());
+            check_index(index, size());
             return _impl[index];
         }
 
@@ -117,12 +117,12 @@ namespace gum {
         }
 
         reference back() {
-            GUM_CHECK_INDEX(0, size());
+            check_index(0, size());
             return _impl.back();
         }
 
         const_reference back() const {
-            GUM_CHECK_INDEX(0, size());
+            check_index(0, size());
             return _impl.back();
         }
 
@@ -225,11 +225,23 @@ namespace gum {
             _impl += ch;
             return self;
         }
+
+    private:
+        void check_index(size_t index, size_t size) {
+            if (GUM_UNLIKELY(index >= size)) {
+                std::stringstream ss;
+                ss << "Index out of range! Index: ";
+                ss << index;
+                ss << ". Size: ";
+                ss << size;
+                ss << ".";
+
+                throw detail::make_exception(detail::Exception(ss.str()), GUM_WHERE, gum::Backtrace());
+            }
+        }
     };
 
 
     using String = BasicString<char>;
-    GUM_DECLARE_PTR(String);
-    GUM_DECLARE_REF(String);
 
 }

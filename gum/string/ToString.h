@@ -27,7 +27,6 @@
 #include <gum/string/String.h>
 #include <gum/time/Types.h>
 
-#include <sstream>
 #include <type_traits>
 
 namespace gum {

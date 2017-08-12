@@ -25,7 +25,7 @@
 #include <gum/log/LogLevel.h>
 #include <gum/log/LoggerId.h>
 #include <gum/string/StringLiteral.h>
-#include <gum/string/String.h>
+#include <gum/string/StringRef.h>
 #include <gum/time/Types.h>
 
 #include <string>

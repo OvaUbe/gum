@@ -24,6 +24,7 @@
 
 #include <gum/string/String.h>
 #include <gum/Singleton.h>
+#include <gum/Types.h>
 
 #include <unordered_map>
 

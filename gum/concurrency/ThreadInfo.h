@@ -24,7 +24,7 @@
 
 #include <gum/concurrency/ThreadId.h>
 #include <gum/smartpointer/UniqueReference.h>
-#include <gum/string/String.h>
+#include <gum/string/StringRef.h>
 
 namespace gum {
 

@@ -22,59 +22,37 @@
 
 #pragma once
 
-#include <gum/diagnostics/Backtrace.h>
-#include <gum/Core.h>
-#include <gum/Types.h>
+#include <gum/diagnostics/Demangle.h>
+#include <gum/exception/ExceptionDetails.h>
 
-#include <stdexcept>
-#include <typeinfo>
+#include <gum/string/String.h>
+#include <gum/Types.h>
 
 namespace gum {
 
-    struct Exception : public std::runtime_error {
-        Exception(std::string const& message)
-            : std::runtime_error(message)
+    struct Exception : public detail::Exception {
+        Exception(String const& message)
+            : detail::Exception(std::string(message))
         { }
 
         Exception(char const* message)
-            : std::runtime_error(message)
+            : detail::Exception(message)
         { }
     };
 
 
     namespace detail {
 
-        std::string get_diagnostics_message(char const* message, std::type_info const& client_type_info, Where const& where, Backtrace const& backtrace);
-
-
-        template < typename ClientException_ >
-        class ExceptionTemplate : public ClientException_ {
-            std::string _what;
-
-        public:
-            template < typename ClientException__ >
-            ExceptionTemplate(ClientException__&& ex, Where const& where, Backtrace const& backtrace)
-                :   ClientException_(std::forward<ClientException__>(ex)),
-                    _what(get_diagnostics_message(ex.what(), typeid(ClientException_), where, backtrace))
-            { }
-
-            char const* what() const noexcept override {
-                return _what.c_str();
-            }
-        };
-
-
-        template < typename Exception_ >
-        inline auto make_exception(Exception_&& ex, Where const& where, Backtrace const& backtrace) {
-            return ExceptionTemplate<Exception_>(std::forward<Exception_>(ex), where, backtrace);
+        inline auto make_exception(String const& message, Where const& where, Backtrace const& backtrace) {
+            return make_exception(gum::Exception(message), where, backtrace);
         }
 
-        inline auto make_exception(std::string const& message, Where const& where, Backtrace const& backtrace) {
-            return make_exception(Exception(message), where, backtrace);
+        inline auto make_exception(String&& message, Where const& where, Backtrace const& backtrace) {
+            return make_exception(gum::Exception(message), where, backtrace);
         }
 
         inline auto make_exception(char const* message, Where const& where, Backtrace const& backtrace) {
-            return make_exception(Exception(message), where, backtrace);
+            return make_exception(gum::Exception(message), where, backtrace);
         }
 
     }
@@ -84,17 +62,17 @@ namespace gum {
         throw gum::detail::make_exception(Ex_, GUM_WHERE, gum::Backtrace())
 
 #   define GUM_CHECK(Condition_, Otherwise_) \
-        if (GUM_UNLIKELY(!Condition_)) GUM_THROW(Otherwise_)
+        if (GUM_UNLIKELY(!(Condition_))) GUM_THROW(Otherwise_)
 
 
 #   define GUM_DECLARE_EXCEPTION(Type_, DefaultMessage_) \
-        struct Type_ : public Exception { \
+        struct Type_ : public gum::Exception { \
             Type_() \
-                :   Exception(DefaultMessage_) \
+                :   gum::Exception(DefaultMessage_) \
             { } \
             \
-            Type_(const std::string& message) \
-                :   Exception(std::string(DefaultMessage_) + ": " + message) \
+            Type_(const String& message) \
+                :   gum::Exception(String() << DefaultMessage_ << ": " << message) \
             { } \
         }
 
@@ -108,15 +86,15 @@ namespace gum {
     struct IndexOutOfRangeException : public Exception {
         IndexOutOfRangeException(u64 index, u64 begin, u64 end);
         IndexOutOfRangeException(s64 index, s64 begin, s64 end);
-
         IndexOutOfRangeException(u64 index, u64 size);
         IndexOutOfRangeException(s64 index, s64 size);
     };
 
+
 #   define GUM_CHECK_RANGE(Index_, Begin_, End_) \
-        GUM_CHECK((Index_ >= Begin_) && (Index_ < End_), IndexOutOfRangeException(Index_, Begin_, End_))
+        GUM_CHECK((Index_ >= Begin_) && (Index_ < End_), gum::IndexOutOfRangeException(Index_, Begin_, End_))
 
 #   define GUM_CHECK_INDEX(Index_, Size_) \
-        GUM_CHECK((Index_ < Size_), IndexOutOfRangeException(Index_, Size_))
+        GUM_CHECK((Index_ < Size_), gum::IndexOutOfRangeException(Index_, Size_))
 
 }
