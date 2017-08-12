@@ -37,4 +37,10 @@ namespace gum {
         { }
     };
 
+
+    template < typename Object_ >
+    auto make_object_token(Object_&& object) {
+        return make_token<ObjectToken<std::decay_t<Object_>>>(std::forward<Object_>(object));
+    }
+
 }
