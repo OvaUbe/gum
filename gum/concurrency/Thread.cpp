@@ -74,7 +74,7 @@ namespace gum {
     void Thread::_thread_func() {
         t_thread_info = make_shared_ref<ThreadInfo>(std::this_thread::get_id(), _name);
 
-        s_logger.info() << get_own_info() << " spawned.";
+        _logger.info() << get_own_info() << " spawned.";
 
         GUM_TRY_LEVEL("Uncaught exception from client thread function", LogLevel::Error, _task(_cancellation_token));
     }
@@ -86,7 +86,7 @@ namespace gum {
         _cancellation_token.cancel();
         _impl.join();
 
-        s_logger.info() << info << " joined.";
+        _logger.info() << info << " joined.";
     }
 
 }

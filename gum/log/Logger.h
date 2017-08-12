@@ -71,9 +71,9 @@ namespace gum {
     };
 
 #   define GUM_DEFINE_LOGGER(Type_) \
-        Logger Type_::s_logger(#Type_)
+        Logger Type_::_logger(#Type_)
 
 #   define GUM_DEFINE_NAMED_LOGGER(Type_, Name_) \
-        Logger Type_::s_logger(#Name_)
+        Logger Type_::_logger(#Name_)
 
 }

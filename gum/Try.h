@@ -38,7 +38,7 @@ namespace gum {
         }
 
 #   define GUM_TRY_LEVEL(Message_, LogLevel_, ...) \
-        GUM_TRY_LOGGER(Message_, LogLevel_, s_logger, __VA_ARGS__)
+        GUM_TRY_LOGGER(Message_, LogLevel_, _logger, __VA_ARGS__)
 
 #   define GUM_TRY(Message_, ...) \
         GUM_TRY_LEVEL(Message_, LogLevel::Warning, __VA_ARGS__)

@@ -39,7 +39,7 @@ namespace gum {
         using TaskType = std::function<TaskSignature>;
 
     private:
-        static Logger       s_logger;
+        static Logger       _logger;
 
         StringConstRef      _name;
         TaskType            _task;

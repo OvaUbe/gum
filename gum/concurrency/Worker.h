@@ -39,7 +39,7 @@ namespace gum {
         using Queue = std::deque<Task>;
 
     private:
-        static Logger       s_logger;
+        static Logger       _logger;
 
         Queue               _queue;
         Mutex               _mutex;
