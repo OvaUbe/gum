@@ -49,6 +49,7 @@ namespace gum {
         friend class SharedPtr;
 
     public:
+        using value_type = Value_;
         using pointer = Value_*;
         using reference = Value_&;
 

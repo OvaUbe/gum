@@ -51,6 +51,7 @@ namespace gum {
         friend SharedReference<Value__> make_shared_ref(Args_&&...);
 
     public:
+        using value_type = Value_;
         using pointer = Value_*;
         using reference = Value_&;
 

@@ -157,6 +157,7 @@ namespace gum {
         friend SharedPtr<Value__> make_shared(Args_&&...);
 
     public:
+        using value_type = Value_;
         using pointer = Value_*;
         using reference = Value_&;
 
