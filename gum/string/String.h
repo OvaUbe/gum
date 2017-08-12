@@ -24,7 +24,7 @@
 
 #include <gum/smartpointer/SharedPtr.h>
 #include <gum/smartpointer/SharedReference.h>
-#include <gum/Exception.h>
+#include <gum/exception/Exception.h>
 
 namespace gum {
 

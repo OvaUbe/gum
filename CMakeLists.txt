@@ -82,6 +82,7 @@ set(GUM_SOURCES
     concurrency/Worker.cpp
     diagnostics/Backtrace.cpp
     diagnostics/Demangle.cpp
+    exception/Exception.cpp
     log/sinks/AnsiTerminalLoggerSink.cpp
     log/sinks/StandardLoggerSink.cpp
     log/LogMessage.cpp
@@ -91,7 +92,6 @@ set(GUM_SOURCES
     string/ToString.cpp
     Core.cpp
     Enum.cpp
-    Exception.cpp
 )
 set(GUM_PUBLIC_HEADERS
     async/AsyncFunction.h
@@ -122,6 +122,7 @@ set(GUM_PUBLIC_HEADERS
     container/TwoQ.h
     diagnostics/Backtrace.h
     diagnostics/Demangle.h
+    exception/Exception.h
     functional/Invoker.h
     functional/Types.h
     log/sinks/AnsiTerminalLoggerSink.h
@@ -156,7 +157,6 @@ set(GUM_PUBLIC_HEADERS
     Core.h
     Defer.h
     Enum.h
-    Exception.h
     IBoolean.h
     Maybe.h
     Optional.h

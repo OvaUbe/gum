@@ -22,7 +22,7 @@
 
 #pragma once
 
-#include <gum/Exception.h>
+#include <gum/exception/Exception.h>
 #include <gum/Raw.h>
 
 namespace gum {

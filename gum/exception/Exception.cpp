@@ -1,4 +1,4 @@
-#include <gum/Exception.h>
+#include <gum/exception/Exception.h>
 
 #include <gum/diagnostics/Demangle.h>
 #include <gum/string/ToString.h>
