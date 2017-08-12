@@ -145,6 +145,7 @@ set(GUM_PUBLIC_HEADERS
     smartpointer/SmartpointerTraits.h
     smartpointer/UniquePtr.h
     smartpointer/UniqueReference.h
+    string/IStringRepresentable.h
     string/StringLiteral.h
     string/StringRef.h
     string/String.h
