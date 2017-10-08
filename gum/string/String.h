@@ -67,6 +67,10 @@ namespace gum {
             :   _impl(cstring)
         { }
 
+        BasicString(size_t count, Char_ ch = Char_())
+            :   _impl(count, ch)
+        { }
+
         template < typename InputIterator_ >
         BasicString(InputIterator_ first, InputIterator_ last)
             :   _impl(first, last)
@@ -196,6 +200,10 @@ namespace gum {
 
         const_reverse_iterator crend() const {
             return _impl.crend();
+        }
+
+        void push_back(Char_ ch) {
+            _impl.push_back(ch);
         }
 
         explicit operator Impl_ () const& {
