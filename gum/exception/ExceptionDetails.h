@@ -42,8 +42,8 @@ namespace gum {
 
 
         template < typename Exception_ >
-        inline auto make_exception(Exception_&& ex, Where const& where, Backtrace const& backtrace) {
-            return ExceptionTemplate<Exception_>(std::forward<Exception_>(ex), where, backtrace);
+        inline auto do_make_exception(Exception_&& ex, Where const& where, Backtrace const& backtrace) {
+            return ExceptionTemplate<std::decay_t<Exception_>>(std::forward<Exception_>(ex), where, backtrace);
         }
 
     }

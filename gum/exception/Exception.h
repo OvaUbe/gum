@@ -43,16 +43,20 @@ namespace gum {
 
     namespace detail {
 
+        inline auto make_exception(std::exception const& ex, Where const& where, Backtrace const& backtrace) {
+            return do_make_exception(ex, where, backtrace);
+        }
+
         inline auto make_exception(String const& message, Where const& where, Backtrace const& backtrace) {
-            return make_exception(gum::Exception(message), where, backtrace);
+            return do_make_exception(gum::Exception(message), where, backtrace);
         }
 
         inline auto make_exception(String&& message, Where const& where, Backtrace const& backtrace) {
-            return make_exception(gum::Exception(message), where, backtrace);
+            return do_make_exception(gum::Exception(message), where, backtrace);
         }
 
         inline auto make_exception(char const* message, Where const& where, Backtrace const& backtrace) {
-            return make_exception(gum::Exception(message), where, backtrace);
+            return do_make_exception(gum::Exception(message), where, backtrace);
         }
 
     }

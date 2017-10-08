@@ -236,7 +236,7 @@ namespace gum {
                 ss << size;
                 ss << ".";
 
-                throw detail::make_exception(detail::Exception(ss.str()), GUM_WHERE, gum::Backtrace());
+                throw detail::do_make_exception(detail::Exception(ss.str()), GUM_WHERE, gum::Backtrace());
             }
         }
     };

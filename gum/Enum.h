@@ -22,7 +22,7 @@
 
 #pragma once
 
-#include <gum/string/String.h>
+#include <gum/exception/Exception.h>
 #include <gum/Singleton.h>
 #include <gum/Types.h>
 
