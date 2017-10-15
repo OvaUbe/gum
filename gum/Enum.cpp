@@ -41,7 +41,7 @@ namespace detail {
         String stream;
 
         String name;
-        Optional<UnderlyingIntType> number(0);
+        Optional<UnderlyingIntType> number;
         bool currently_parsing_name(true);
 
         auto appender = [&] {
