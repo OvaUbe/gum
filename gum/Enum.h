@@ -84,6 +84,10 @@ namespace gum {
             String const& to_string() const { \
                 return StringMapping::get().map(_e); \
             } \
+            \
+            bool operator<(Name_ const& other) const { \
+                return _e < other._e;\
+            } \
         }
 
 }
