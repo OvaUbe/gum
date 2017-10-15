@@ -234,6 +234,10 @@ namespace gum {
             return self;
         }
 
+        bool operator<(BasicString const& other) const {
+            return std::lexicographical_compare(begin(), end(), other.begin(), other.end());
+        }
+
     private:
         void check_index(size_t index, size_t size) {
             if (GUM_UNLIKELY(index >= size)) {
