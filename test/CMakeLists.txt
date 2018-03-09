@@ -6,7 +6,7 @@ log(info "Building gum-test.")
 
 set(GUM_TEST_EXTERNAL_LIBS ${GUM_EXTERNAL_LIBS})
 
-find_package(GTest)
+find_package(GTest Required)
 include_directories(${GTEST_INCLUDE_DIRS})
 set(GUM_TEST_EXTERNAL_LIBS ${GUM_TEST_EXTERNAL_LIBS} ${GTEST_BOTH_LIBRARIES})
 
