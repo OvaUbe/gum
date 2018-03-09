@@ -6,9 +6,12 @@ include(cmake/castella/Install.cmake)
 include(cmake/castella/Log.cmake)
 include(cmake/castella/Misc.cmake)
 include(cmake/castella/Platform.cmake)
+include(cmake/castella/Options.cmake)
 include(cmake/castella/String.cmake)
 
 log(info "Cmake build type:" ${CMAKE_BUILD_TYPE})
+
+set_option(GUM_BUILD_TESTS OFF "Build tests")
 
 if(CMAKE_BUILD_TYPE STREQUAL Debug)
     set(GUM_RELEASE_BUILD False)
@@ -196,7 +199,9 @@ string_prepend(GUM_SOURCES ${GUM_ROOT} ${GUM_SOURCES})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 add_subdirectory(gum)
-add_subdirectory(test EXCLUDE_FROM_ALL)
+if (${GUM_BUILD_TESTS})
+    add_subdirectory(test EXCLUDE_FROM_ALL)
+endif()
 
 highlight_matching(${GUM_ROOT}/*.h)
 highlight_matching(${GUM_ROOT}/*.cpp)
