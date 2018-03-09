@@ -1,3 +1,3 @@
 [submodule "cmake/castella"]
 	path = cmake/castella
-	url = git@gitlab.com:OvaUbe/castella.git
+	url = https://github.com/OvaUbe/castella
