@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.2)
 
 project(gum)
 
@@ -9,7 +9,10 @@ include(cmake/castella/Platform.cmake)
 include(cmake/castella/Options.cmake)
 include(cmake/castella/String.cmake)
 
+set(CMAKE_CXX_STANDARD 14)
+
 log(info "Cmake build type:" ${CMAKE_BUILD_TYPE})
+log(info "C++ standard:" ${CMAKE_CXX_STANDARD})
 
 set_option(GUM_BUILD_TESTS OFF "Build tests")
 
@@ -47,7 +50,6 @@ endif()
 find_package(Threads REQUIRED)
 set(GUM_EXTERNAL_LIBS ${GUM_EXTERNAL_LIBS} ${CMAKE_THREAD_LIBS_INIT})
 
-set(GUM_CXX_STANDARD_SWITCH "-std=c++14")
 set(GUM_CXX_COMPILER_DIAGNOSTICS_SWITCH "-Wall -Wextra -Wpedantic")
 
 if(${GUM_OPTIMIZE_FOR_SIZE})
@@ -61,7 +63,6 @@ if(${GUM_INCLUDE_DEBUG_INFO})
 endif()
 
 string_join(GUM_CXX_COMPILEFLAGS " "
-    ${GUM_CXX_STANDARD_SWITCH}
     ${GUM_CXX_COMPILER_DIAGNOSTICS_SWITCH}
     ${GUM_CXX_OPTIMIZATION_SWITCH}
     ${GUM_CXX_DEBUG_INFO_SWITCH}
