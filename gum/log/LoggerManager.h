@@ -40,7 +40,7 @@ namespace gum {
         ImplRef _impl;
 
     public:
-        LoggerManager() = default;
+        LoggerManager();
 
         static Self& get();
 

@@ -57,10 +57,6 @@ namespace gum {
         SmartpointerType _wrapped;
 
     public:
-        UniqueReference()
-            :   _wrapped(new Value_)
-        { }
-
         UniqueReference(pointer ptr)
             :   _wrapped(check_ptr(ptr))
         { }

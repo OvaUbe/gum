@@ -178,7 +178,7 @@ namespace gum {
 
 
     LifeToken::LifeToken()
-        :   _impl(make_unique_ref<Impl>(SynchronizedLifeHandleRef()))
+        :   _impl(make_unique_ref<Impl>(make_shared_ref<SynchronizedLifeHandle>()))
     { }
 
 
@@ -197,17 +197,17 @@ namespace gum {
 
 
     LifeToken LifeToken::make_synchronized() {
-        return LifeToken(make_unique_ref<Impl>(SynchronizedLifeHandleRef()));
+        return LifeToken(make_unique_ref<Impl>(make_shared_ref<SynchronizedLifeHandle>()));
     }
 
 
     LifeToken LifeToken::make_unsynchronized() {
-        return LifeToken(make_unique_ref<Impl>(UnsynchronizedLifeHandleRef()));
+        return LifeToken(make_unique_ref<Impl>(make_shared_ref<UnsynchronizedLifeHandle>()));
     }
 
 
     LifeToken LifeToken::make_released() {
-        return LifeToken(make_unique_ref<Impl>(ReleasedLifeHandleRef()));
+        return LifeToken(make_unique_ref<Impl>(make_shared_ref<ReleasedLifeHandle>()));
     }
 
 

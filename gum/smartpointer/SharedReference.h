@@ -64,10 +64,6 @@ namespace gum {
         { }
 
     public:
-        SharedReference()
-            :   _wrapped(std::make_shared<Value_>())
-        { }
-
         template < typename Compatible_ >
         SharedReference(Compatible_* ptr)
             : _wrapped(check_ptr(ptr))

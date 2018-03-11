@@ -113,6 +113,10 @@ namespace gum {
     };
 
 
+    LoggerManager::LoggerManager()
+        :   _impl(make_shared_ref<Impl>()) { }
+
+
     LoggerManager& LoggerManager::get() {
         static Self instance;
         return instance;

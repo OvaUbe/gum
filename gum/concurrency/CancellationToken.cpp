@@ -123,7 +123,8 @@ namespace gum {
     };
 
 
-    CancellationToken::CancellationToken() { }
+    CancellationToken::CancellationToken()
+        :   _impl(make_shared_ref<Impl>()) { }
 
 
     CancellationToken::operator bool() const {

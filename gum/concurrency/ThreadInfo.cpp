@@ -83,7 +83,8 @@ namespace gum {
     { };
 
 
-    OwnerInfo::OwnerInfo() { }
+    OwnerInfo::OwnerInfo()
+        :   _impl(make_unique_ref<Impl>()) { }
 
 
     OwnerInfo::~OwnerInfo() { }
