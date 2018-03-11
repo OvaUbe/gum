@@ -73,6 +73,7 @@ log(info "C++ compile flags:" ${GUM_CXX_COMPILEFLAGS})
 set(GUM_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/gum/)
 
 set(GUM_SOURCES
+    async/TaskQueue.cpp
     concurrency/CancellationToken.cpp
     concurrency/DummyCancellationHandle.cpp
     concurrency/LifeToken.cpp
@@ -99,6 +100,7 @@ set(GUM_PUBLIC_HEADERS
     async/ITaskQueue.h
     async/LifeHandle.h
     async/Signal.h
+    async/TaskQueue.h
     compare/OwnerLess.h
     concurrency/CancellableFunction.h
     concurrency/CancellationToken.h
