@@ -46,7 +46,7 @@ namespace gum {
 
     public:
         bool operator==(Derived_ const& other) const {
-            return derived_self.equals(other);
+            return static_cast<Derived_&>(*this).equals(other);
         }
 
         bool operator!=(Derived_ const& other) const {
@@ -54,7 +54,7 @@ namespace gum {
         }
 
         reference operator*() {
-            return derived_self.dereference();
+            return static_cast<Derived_&>(*this).dereference();
         }
 
         pointer operator->() {
@@ -62,24 +62,24 @@ namespace gum {
         }
 
         Derived_& operator++() {
-            derived_self.increment();
-            return derived_self;
+            static_cast<Derived_&>(*this).increment();
+            return static_cast<Derived_&>(*this);
         }
 
         Derived_ operator++(int) {
-            Derived_ tmp(derived_self);
-            derived_self.increment();
+            Derived_ tmp(static_cast<Derived_&>(*this));
+            static_cast<Derived_&>(*this).increment();
             return tmp;
         }
 
         Derived_& operator--() {
-            derived_self.decrement();
-            return derived_self;
+            static_cast<Derived_&>(*this).decrement();
+            return static_cast<Derived_&>(*this);
         }
 
         Derived_ operator--(int) {
-            Derived_ tmp(derived_self);
-            derived_self.decrement();
+            Derived_ tmp(static_cast<Derived_&>(*this));
+            static_cast<Derived_&>(*this).decrement();
             return tmp;
         }
     };

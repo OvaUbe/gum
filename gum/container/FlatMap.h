@@ -134,7 +134,7 @@ namespace gum {
         FlatMap& operator=(std::initializer_list<value_type> initializer_list) {
             m_underlying = vector_type(initializer_list);
             _sort();
-            return self;
+            return *this;
         }
 
         allocator_type get_allocator() const {
@@ -142,7 +142,7 @@ namespace gum {
         }
 
         mapped_type& at(key_type const& key) {
-            return const_cast<mapped_type&>(const_self.at(key));
+            return const_cast<mapped_type&>(static_cast<FlatMap const&>(*this).at(key));
         }
 
         const mapped_type& at(key_type const& key) const {
@@ -311,7 +311,7 @@ namespace gum {
         }
 
         iterator find(key_type const& key) {
-            return _const_iterator_cast(const_self.find(key));
+            return _const_iterator_cast(static_cast<FlatMap const&>(*this).find(key));
         }
 
         const_iterator find(key_type const& key) const {
@@ -324,7 +324,7 @@ namespace gum {
         }
         
         std::pair<iterator, iterator> equal_range(key_type const& key) {
-            auto range = const_self.equal_range(key);
+            auto range = static_cast<FlatMap const&>(*this).equal_range(key);
             return { _const_iterator_cast(range.first), _const_iterator_cast(range.second) };
         }
 
@@ -349,7 +349,7 @@ namespace gum {
         }
 
         iterator upper_bound(key_type const& key) {
-            return _const_iterator_cast(const_self.upper_bound(key));
+            return _const_iterator_cast(static_cast<FlatMap const&>(*this).upper_bound(key));
         }
 
         const_iterator upper_bound(key_type const& key) const {
@@ -370,7 +370,7 @@ namespace gum {
 
     private:
         iterator _lower_bound(iterator first, iterator last, key_type const& key) {
-            return _const_iterator_cast(const_self.lower_bound(first, last, key));
+            return _const_iterator_cast(static_cast<FlatMap const&>(*this).lower_bound(first, last, key));
         }
 
         const_iterator _lower_bound(const_iterator first, const_iterator last, key_type const& key) const {

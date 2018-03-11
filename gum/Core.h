@@ -27,27 +27,6 @@
 
 namespace gum {
 
-#   define SelfType \
-        std::remove_reference<decltype(self)>::type
-
-#   define self \
-        (*this)
-
-#   define const_self \
-        (static_cast<typename SelfType const&>(self))
-
-#   define const_this \
-        (&const_self)
-
-#   define derived_self \
-        (static_cast<typename std::conditional \
-                        <std::is_const<typename SelfType>::value, \
-                         Derived_ const&, \
-                         Derived_& \
-                        >::type \
-                    >(self))
-
-
 #if __GNUC__ >= 3 || defined(__clang__)
 #	define GUM_FUNCTION __PRETTY_FUNCTION__
 #else

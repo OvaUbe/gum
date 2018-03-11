@@ -36,7 +36,7 @@ namespace gum {
         }
 
         DummyCancellationHandle& operator*() {
-            return self;
+            return *this;
         }
     };
 

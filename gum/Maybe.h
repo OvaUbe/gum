@@ -103,7 +103,7 @@ namespace gum {
         auto or_(Callable_&& callable) {
             using Chaining = detail::CallChaining;
 
-            return m_wrapped ? std::move(self) : Maybe(Chaining()(Wrapped(), callable));
+            return m_wrapped ? std::move(*this) : Maybe(Chaining()(Wrapped(), callable));
         }
 
         template < typename ValueType_ >

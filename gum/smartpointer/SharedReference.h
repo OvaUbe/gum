@@ -133,48 +133,48 @@ namespace gum {
 
         SharedReference& operator=(const SharedReference& other) {
             _wrapped = other._wrapped;
-            return self;
+            return *this;
         }
 
         template < typename Compatible_ >
         SharedReference& operator=(SharedReference<Compatible_> const& other) {
             _wrapped = other._wrapped;
-            return self;
+            return *this;
         }
 
         template < typename Compatible_ >
         SharedReference& operator=(SharedPtr<Compatible_> const& other) {
             _wrapped = check_ptr(other)._wrapped;
-            return self;
+            return *this;
         }
 
         SharedReference& operator=(SharedReference&& other) {
             _wrapped = std::move(other._wrapped);
-            return self;
+            return *this;
         }
 
         template < typename Compatible_ >
         SharedReference& operator=(SharedReference<Compatible_>&& other) {
             _wrapped = std::move(other._wrapped);
-            return self;
+            return *this;
         }
 
         template < typename Compatible_ >
         SharedReference& operator=(SharedPtr<Compatible_>&& other) {
             _wrapped = std::move(check_ptr(other)._wrapped);
-            return self;
+            return *this;
         }
 
         template < typename Compatible_, typename Deleter_ >
         SharedReference& operator=(UniqueReference<Compatible_, Deleter_>&& other) {
             _wrapped = std::move(other._wrapped);
-            return self;
+            return *this;
         }
 
         template < typename Compatible_, typename Deleter_ >
         SharedReference& operator=(UniquePtr<Compatible_, Deleter_>&& other) {
             _wrapped = std::move(check_ptr(other)._wrapped);
-            return self;
+            return *this;
         }
 
         template < typename Compatible_ >

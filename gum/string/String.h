@@ -81,17 +81,17 @@ namespace gum {
 
         Self& operator=(Impl_ const& impl) {
             _impl = impl;
-            return self;
+            return *this;
         }
 
         Self& operator=(Impl_&& impl) {
             _impl = std::move(impl);
-            return self;
+            return *this;
         }
 
         Self& operator=(const_pointer cstring) {
             _impl = cstring;
-            return self;
+            return *this;
         }
 
         reference at(size_t index){
@@ -216,22 +216,22 @@ namespace gum {
 
         Self& operator<<(Self const& string) {
             _impl += string._impl;
-            return self;
+            return *this;
         }
 
         Self& operator<<(Self&& string) {
             _impl += std::move(string._impl);
-            return self;
+            return *this;
         }
 
         Self& operator<<(const_pointer cstring) {
             _impl += cstring;
-            return self;
+            return *this;
         }
 
         Self& operator<<(value_type ch) {
             _impl += ch;
-            return self;
+            return *this;
         }
 
         bool operator<(BasicString const& other) const {

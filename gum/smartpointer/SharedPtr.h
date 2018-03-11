@@ -83,30 +83,30 @@ namespace gum {
 
         WeakPtr& operator=(WeakPtr const& other) {
             _wrapped = other._wrapped;
-            return self;
+            return *this;
         }
 
         template < typename Compatible_ >
         WeakPtr& operator=(WeakPtr<Compatible_> const& other) {
             _wrapped = other._wrapped;
-            return self;
+            return *this;
         }
 
         template < typename Compatible_ >
         WeakPtr& operator=(SharedPtr<Compatible_> const& other) {
             _wrapped = other._wrapped;
-            return self;
+            return *this;
         }
 
         WeakPtr& operator=(WeakPtr&& other) {
             _wrapped = std::move(other._wrapped);
-            return self;
+            return *this;
         }
 
         template < typename Compatible_ >
         WeakPtr& operator=(WeakPtr<Compatible_>&& other) {
             _wrapped = std::move(other._wrapped);
-            return self;
+            return *this;
         }
 
         void reset() {
@@ -254,48 +254,48 @@ namespace gum {
 
         SharedPtr& operator=(const SharedPtr& other) {
             _wrapped = other._wrapped;
-            return self;
+            return *this;
         }
 
         template < typename Compatible_ >
         SharedPtr& operator=(SharedPtr<Compatible_> const& other) {
             _wrapped = other._wrapped;
-            return self;
+            return *this;
         }
 
         template < typename Compatible_ >
         SharedPtr& operator=(SharedReference<Compatible_> const& other) {
             _wrapped = other._wrapped;
-            return self;
+            return *this;
         }
 
         SharedPtr& operator=(SharedPtr&& other) {
             _wrapped = std::move(other._wrapped);
-            return self;
+            return *this;
         }
 
         template < typename Compatible_ >
         SharedPtr& operator=(SharedPtr<Compatible_>&& other) {
             _wrapped = std::move(other._wrapped);
-            return self;
+            return *this;
         }
 
         template < typename Compatible_ >
         SharedPtr& operator=(SharedReference<Compatible_>&& other) {
             _wrapped = std::move(other._wrapped);
-            return self;
+            return *this;
         }
 
         template < typename Compatible_, typename Deleter_ >
         SharedPtr& operator=(UniquePtr<Compatible_, Deleter_>&& other) {
             _wrapped = std::move(other._wrapped);
-            return self;
+            return *this;
         }
 
         template < typename Compatible_, typename Deleter_ >
         SharedPtr& operator=(UniqueReference<Compatible_, Deleter_>&& other) {
             _wrapped = std::move(other._wrapped);
-            return self;
+            return *this;
         }
 
         void reset() {

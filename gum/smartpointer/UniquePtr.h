@@ -85,24 +85,24 @@ namespace gum {
 
         UniquePtr& operator=(UniquePtr&& other) {
             _wrapped = std::move(other._wrapped);
-            return self;
+            return *this;
         }
 
         template < typename Compatible_, class Deleter__ >
         UniquePtr& operator=(UniquePtr<Compatible_, Deleter__>&& other) {
             _wrapped = std::move(other._wrapped);
-            return self;
+            return *this;
         }
 
         template < typename Compatible_, class Deleter__ >
         UniquePtr& operator=(UniqueReference<Compatible_, Deleter__>&& other) {
             _wrapped = std::move(other._wrapped);
-            return self;
+            return *this;
         }
 
         UniquePtr& operator=(std::nullptr_t) {
             _wrapped.reset();
-            return self;
+            return *this;
         }
 
         pointer release() {

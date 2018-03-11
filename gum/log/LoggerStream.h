@@ -48,7 +48,7 @@ namespace gum {
         template < typename Value_ >
         Self& operator<<(Value_&& value) {
             _message << to_string(std::forward<Value_>(value));
-            return self;
+            return *this;
         }
     };
 

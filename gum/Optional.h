@@ -117,29 +117,29 @@ namespace gum {
         }
 
         void swap(Optional& other) {
-            if (self) {
+            if ((*this)) {
                 if (other) {
-                    std::swap(*self, *other);
+                    std::swap(*(*this), *other);
                     return;
                 }
-                other._consume(self);
+                other._consume((*this));
                 return;
             }
             if (other) {
-                self._consume(other);
+                _consume(other);
             }
         }
 
     private:
         void _destroy() {
-            if (self) {
+            if ((*this)) {
                 m_storage.dtor();
             }
         }
 
         void _initialize(Optional const& other) {
             m_valid = (bool)other;
-            if (self) {
+            if ((*this)) {
                 m_storage.ctor(other.m_storage.ref());
             }
         }
@@ -151,7 +151,7 @@ namespace gum {
 
         void _initialize(Optional&& other) {
             m_valid = (bool)other;
-            if (self) {
+            if ((*this)) {
                 m_storage.ctor(std::move(other.m_storage.ref()));
             }
         }
@@ -165,7 +165,7 @@ namespace gum {
         Optional& _assign(Other_&& other) {
             _destroy();
             _initialize(std::forward<Other_>(other));
-            return self;
+            return (*this);
         }
 
         void _consume(Optional& other) {

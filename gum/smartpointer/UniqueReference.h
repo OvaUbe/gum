@@ -85,19 +85,19 @@ namespace gum {
 
         UniqueReference& operator=(UniqueReference&& other) {
             _wrapped = std::move(other._wrapped);
-            return self;
+            return *this;
         }
 
         template < typename Compatible_, class Deleter__ >
         UniqueReference& operator=(UniqueReference<Compatible_, Deleter__>&& other) {
             _wrapped = std::move(other._wrapped);
-            return self;
+            return *this;
         }
 
         template < typename Compatible_, class Deleter__ >
         UniqueReference& operator=(UniquePtr<Compatible_, Deleter__>&& other) {
             _wrapped = std::move(check_ptr(other)._wrapped);
-            return self;
+            return *this;
         }
 
         pointer release() {

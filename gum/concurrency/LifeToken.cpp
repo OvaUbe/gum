@@ -192,7 +192,7 @@ namespace gum {
 
     LifeToken& LifeToken::operator=(LifeToken&& other) {
         _impl = std::move(other._impl);
-        return self;
+        return *this;
     }
 
 
