@@ -23,7 +23,6 @@
 #include <gum/async/TaskQueue.h>
 
 #include <gum/functional/Invoker.h>
-#include <gum/Maybe.h>
 #include <gum/Try.h>
 
 namespace gum {
