@@ -59,7 +59,6 @@ namespace gum {
         void thread_func(ICancellationHandle& handle);
 
         Optional<Task> pop(ICancellationHandle& handle);
-        Optional<Task> pop();
         Task do_pop();
     };
 

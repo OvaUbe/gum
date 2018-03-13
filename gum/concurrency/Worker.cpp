@@ -41,26 +41,17 @@ namespace gum {
 
     void Worker::thread_func(ICancellationHandle& handle) {
         while (maybe(pop(handle)).and_(Invoker()));
-
-        while (maybe(pop()).and_(Invoker()));
     }
 
 
     Optional<Worker::Task> Worker::pop(ICancellationHandle& handle) {
         MutexLock l(_mutex);
 
+        if (!_queue.empty())
+            return do_pop();
+
         _condition_variable.wait(_mutex, [this]{ return !_queue.empty(); }, handle);
         if (!handle)
-            return nullptr;
-
-        return do_pop();
-    }
-
-
-    Optional<Worker::Task> Worker::pop() {
-        MutexLock l(_mutex);
-
-        if (_queue.empty())
             return nullptr;
 
         return do_pop();

@@ -23,6 +23,7 @@
 #pragma once
 
 #include <gum/async/ITaskQueue.h>
+#include <gum/concurrency/Mutex.h>
 #include <gum/log/Logger.h>
 #include <gum/Optional.h>
 
@@ -37,14 +38,12 @@ namespace gum {
         static Logger       _logger;
 
         Queue               _queue;
+        Mutex               _mutex;
 
     public:
         void push(Task&& task) override;
 
         void run();
-
-    private:
-        Optional<Task> pop();
     };
     GUM_DECLARE_PTR(TaskQueue);
     GUM_DECLARE_REF(TaskQueue);

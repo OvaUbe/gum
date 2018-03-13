@@ -32,22 +32,23 @@ namespace gum {
 
 
     void TaskQueue::push(Task&& task) {
+        MutexLock l(_mutex);
         _queue.push_back([task = std::move(task)]{ GUM_TRY_LEVEL("Uncaught exception in queued task", LogLevel::Error, task()); });
     }
 
 
     void TaskQueue::run() {
-        while (maybe(pop()).and_(Invoker()));
-    }
+        Queue queue;
+        {
+            MutexLock l(_mutex);
+            _queue.swap(queue);
+        }
 
-
-    Optional<TaskQueue::Task> TaskQueue::pop() {
-        if (_queue.empty())
-            return nullptr;
-
-        Task task = std::move(_queue.front());
-        _queue.pop_front();
-        return task;
+        while (!queue.empty()) {
+            Task task = std::move(queue.front());
+            queue.pop_front();
+            task();
+        }
     }
 
 }
