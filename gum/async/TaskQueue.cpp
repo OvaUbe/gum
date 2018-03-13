@@ -41,6 +41,9 @@ namespace gum {
         Queue queue;
         {
             MutexLock l(_mutex);
+
+            if (_queue.empty())
+                return;
             _queue.swap(queue);
         }
 
