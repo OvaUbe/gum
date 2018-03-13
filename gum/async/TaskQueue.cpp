@@ -25,6 +25,8 @@
 #include <gum/functional/Invoker.h>
 #include <gum/Try.h>
 
+#include <algorithm>
+
 namespace gum {
 
     GUM_DEFINE_LOGGER(TaskQueue);
@@ -46,11 +48,7 @@ namespace gum {
             _queue.swap(queue);
         }
 
-        while (!queue.empty()) {
-            Task task = std::move(queue.front());
-            queue.pop_front();
-            task();
-        }
+        std::for_each(queue.begin(), queue.end(), Invoker());
     }
 
 }
