@@ -38,10 +38,6 @@ namespace gum {
         return str;
     }
 
-    inline String to_string(char const* str) {
-        return String(str);
-    }
-
     template < typename Value_ >
     std::enable_if_t<HasMethod_to_string<std::decay_t<Value_>>::value, String> to_string(Value_&& value) {
         return std::forward<Value_>(value).to_string();
