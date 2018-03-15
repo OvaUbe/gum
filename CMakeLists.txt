@@ -143,6 +143,7 @@ set(GUM_PUBLIC_HEADERS
     log/LoggerStream.h
     log/Logger.h
     metaprogramming/MethodDetector.h
+    metaprogramming/PassingType.h
     smartpointer/DynamicCaster.h
     smartpointer/SharedPtr.h
     smartpointer/SharedReference.h
