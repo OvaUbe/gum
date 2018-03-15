@@ -29,10 +29,11 @@
 #include <gum/concurrency/DummyMutex.h>
 #include <gum/concurrency/LifeToken.h>
 #include <gum/concurrency/Mutex.h>
-#include <gum/container/FlatSet.h>
 #include <gum/token/FunctionToken.h>
 #include <gum/token/IGuardedTokenPool.h>
 #include <gum/Try.h>
+
+#include <boost/container/flat_set.hpp>
 
 namespace gum {
 
@@ -148,7 +149,7 @@ namespace gum {
                 { }
             };
 
-            using Slots = FlatSet<SlotTypeWeakPtr, OwnerLess>;
+            using Slots = boost::container::flat_set<SlotTypeWeakPtr, OwnerLess>;
 
         private:
             SelfWeakPtr         _self_weak;

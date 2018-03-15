@@ -25,9 +25,10 @@
 #include <gum/compare/OwnerLess.h>
 #include <gum/concurrency/Mutex.h>
 #include <gum/concurrency/RwMutex.h>
-#include <gum/container/FlatSet.h>
 #include <gum/token/FunctionToken.h>
 #include <gum/Optional.h>
+
+#include <boost/container/flat_set.hpp>
 
 #include <iostream>
 #include <unordered_map>
@@ -35,7 +36,7 @@
 namespace gum {
 
     class LoggerManager::Impl {
-        using Sinks = FlatSet<ILoggerSinkRef, OwnerLess>;
+        using Sinks = boost::container::flat_set<ILoggerSinkRef, OwnerLess>;
         using LogLevels = std::unordered_map<LoggerId, LogLevel>;
 
     private:

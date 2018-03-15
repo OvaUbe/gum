@@ -50,6 +50,10 @@ endif()
 find_package(Threads REQUIRED)
 set(GUM_EXTERNAL_LIBS ${GUM_EXTERNAL_LIBS} ${CMAKE_THREAD_LIBS_INIT})
 
+find_package(Boost REQUIRED)
+include_directories(${Boost_INCLUDE_DIRS})
+list(APPEND IGD_EXTERNAL_LIBS ${Boost_LIBRARIES})
+
 set(GUM_CXX_COMPILER_DIAGNOSTICS_SWITCH "-Wall -Wextra -Wpedantic")
 
 if(${GUM_OPTIMIZE_FOR_SIZE})
@@ -118,8 +122,6 @@ set(GUM_PUBLIC_HEADERS
     concurrency/Thread.h
     concurrency/TimedMutexWrapper.h
     concurrency/Worker.h
-    container/FlatMap.h
-    container/FlatSet.h
     container/Iterator.h
     container/Lru.h
     container/TwoQ.h
