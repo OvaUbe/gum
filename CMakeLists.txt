@@ -169,7 +169,9 @@ set(GUM_PUBLIC_HEADERS
     DynamicCaster.h
     Enum.h
     IBoolean.h
+    IObservableValue.h
     Maybe.h
+    ObservableValue.h
     Optional.h
     Range.h
     Raw.h
