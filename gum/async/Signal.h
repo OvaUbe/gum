@@ -326,7 +326,7 @@ namespace gum {
     template < typename Signature_ >
     using UnsynchronizedSignal = BasicSignal<Signature_, signal::ThreadSafety::Unsynchronized>;
 
-
-    using SignalLock = GenericMutexLock<signal::SynchronizedMutexType>;
+    using SignalMutex = signal::SynchronizedMutexType;
+    using SignalLock = GenericMutexLock<SignalMutex>;
 
 }
