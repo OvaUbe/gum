@@ -73,10 +73,9 @@ namespace gum {
     void AnsiTerminalLoggerSink::log(LogMessage const& message) {
         MutexLock l(_mutex);
 
-        static StringLiteral const WhenColorStart = BlueColorStart;
-        static StringLiteral const ThreadNameColorStart = MagentaColorStart;
-        static StringLiteral const AuthorColorStart = GreenColorStart;
-
+        StringLiteral const WhenColorStart = BlueColorStart;
+        StringLiteral const ThreadNameColorStart = MagentaColorStart;
+        StringLiteral const AuthorColorStart = GreenColorStart;
         StringLiteral const LogLevelColorStart = LogLevelColorMapper()(message.level);
 
         printf("%s[%s]%s %s{%s}%s %s[%s]%s %s[%s]%s %s%s%s\n",
