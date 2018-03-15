@@ -122,6 +122,9 @@ set(GUM_PUBLIC_HEADERS
     concurrency/Thread.h
     concurrency/TimedMutexWrapper.h
     concurrency/Worker.h
+    container/IContainer.h
+    container/IMap.h
+    container/IObservableMap.h
     container/Iterator.h
     container/Lru.h
     container/TwoQ.h
