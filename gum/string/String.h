@@ -224,6 +224,16 @@ namespace gum {
             return *this;
         }
 
+        Self& operator<<(const_pointer cstring) {
+            _impl += cstring;
+            return *this;
+        }
+
+        Self& operator<<(value_type ch) {
+            _impl += ch;
+            return *this;
+        }
+
         bool operator<(BasicString const& other) const {
             return std::lexicographical_compare(begin(), end(), other.begin(), other.end());
         }
