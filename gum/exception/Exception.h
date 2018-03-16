@@ -109,4 +109,12 @@ namespace gum {
         { }
     };
 
+
+    struct ArgumentException : public Exception {
+        template < typename Arg_ >
+        ArgumentException(String const& name, Arg_ const& arg)
+            :   Exception(String() << "Unwanted argument '" << name << "':" << arg)
+        { }
+    };
+
 }
