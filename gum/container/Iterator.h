@@ -46,7 +46,7 @@ namespace gum {
 
     public:
         bool operator==(Derived_ const& other) const {
-            return static_cast<Derived_&>(*this).equals(other);
+            return static_cast<Derived_ const&>(*this).equals(other);
         }
 
         bool operator!=(Derived_ const& other) const {
