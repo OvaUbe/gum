@@ -31,4 +31,12 @@ namespace gum {
         }
     };
 
+
+    struct OwnerEquals {
+        template < typename Smartpointer_ >
+        bool operator()(Smartpointer_ const& lhs, Smartpointer_ const& rhs) const {
+            return lhs.get() == rhs.get();
+        }
+    };
+
 }
