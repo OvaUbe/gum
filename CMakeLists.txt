@@ -122,11 +122,17 @@ set(GUM_PUBLIC_HEADERS
     concurrency/Thread.h
     concurrency/TimedMutexWrapper.h
     concurrency/Worker.h
+    container/HashMap.h
     container/IContainer.h
     container/IMap.h
     container/IObservableMap.h
     container/Iterator.h
     container/Lru.h
+    container/ObservableHashMap.h
+    container/ObservableSortedMap.h
+    container/ObservableStlMap.h
+    container/SortedMap.h
+    container/StlMap.h
     container/TwoQ.h
     diagnostics/Backtrace.h
     diagnostics/Demangle.h
