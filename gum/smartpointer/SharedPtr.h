@@ -22,6 +22,7 @@
 
 #pragma once
 
+#include <gum/maybe/MaybeTraits.h>
 #include <gum/smartpointer/UniquePtr.h>
 #include <gum/smartpointer/UniqueReference.h>
 
@@ -374,6 +375,10 @@ namespace gum {
         using Type_##ConstPtr = gum::SharedPtr<const Type_>; \
         using Type_##WeakPtr = gum::WeakPtr<Type_>; \
         using Type_##ConstWeakPtr = gum::WeakPtr<const Type_>
+
+
+    template < typename Value_ >
+    struct AbsenceTrait<SharedPtr<Value_>> : std::true_type { };
 
 }
 

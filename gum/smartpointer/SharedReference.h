@@ -22,6 +22,7 @@
 
 #pragma once
 
+#include <gum/maybe/MaybeTraits.h>
 #include <gum/smartpointer/UniquePtr.h>
 #include <gum/smartpointer/UniqueReference.h>
 
@@ -239,6 +240,10 @@ namespace gum {
 #   define GUM_DECLARE_REF(Type_) \
         using Type_##Ref = gum::SharedReference<Type_>; \
         using Type_##ConstRef = gum::SharedReference<const Type_>
+
+
+    template < typename Value_ >
+    struct AbsenceTrait<SharedReference<Value_>> : std::true_type { };
 
 }
 

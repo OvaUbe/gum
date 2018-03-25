@@ -23,6 +23,7 @@
 #pragma once
 
 #include <gum/exception/Exception.h>
+#include <gum/maybe/MaybeTraits.h>
 #include <gum/Raw.h>
 
 namespace gum {
@@ -264,5 +265,8 @@ namespace gum {
     Optional<Value_> make_optional(Args_&&... args) {
         return OptionalBuilder<Value_>()(std::forward<Args_>(args)...);
     }
+
+    template < typename Value_ >
+    struct AbsenceTrait<Optional<Value_>> : std::true_type { };
 
 }

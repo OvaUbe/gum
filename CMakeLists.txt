@@ -152,6 +152,7 @@ set(GUM_PUBLIC_HEADERS
     log/LoggerStream.h
     log/Logger.h
     maybe/Maybe.h
+    maybe/MaybeTraits.h
     metaprogramming/MethodDetector.h
     metaprogramming/PassingType.h
     smartpointer/DynamicCaster.h

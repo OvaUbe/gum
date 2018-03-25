@@ -23,6 +23,7 @@
 #pragma once
 
 #include <gum/exception/Exception.h>
+#include <gum/maybe/MaybeTraits.h>
 
 #include <memory>
 
@@ -163,6 +164,10 @@ namespace gum {
 #   define GUM_DECLARE_UNIQUE_PTR(Type_) \
         using Type_##UniquePtr = gum::UniquePtr<Type_>; \
         using Type_##ConstUniquePtr = gum::UniquePtr<const Type_>
+
+
+    template < typename Value_ >
+    struct AbsenceTrait<UniquePtr<Value_>> : std::true_type { };
 
 }
 
