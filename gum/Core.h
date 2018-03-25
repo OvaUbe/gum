@@ -62,4 +62,7 @@ namespace gum {
 #   define GUM_WHERE \
     gum::detail::Where(__FILE__, __LINE__, GUM_FUNCTION)
 
+
+static constexpr auto null = nullptr;
+
 }
