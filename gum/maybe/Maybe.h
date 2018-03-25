@@ -22,7 +22,7 @@
 
 #pragma once
 
-#include <gum/exception/Exception.h>
+#include <gum/Optional.h>
 
 #include <utility>
 
@@ -30,9 +30,6 @@ namespace gum {
 
     GUM_DECLARE_EXCEPTION(EmptyMaybeException, "Empty maybe");
 
-
-    template < typename >
-    class Maybe;
 
     namespace detail {
 
@@ -69,7 +66,10 @@ namespace gum {
             using Naked = std::decay_t<Value_>;
 
         public:
-            using Type = std::conditional_t<IsMaybe<Naked>::Value, Naked, Maybe<Naked>>;
+            using Type = std::conditional_t<std::is_null_pointer<Naked>::value, Maybe<char*>,
+                std::conditional_t<IsMaybe<Naked>::Value, Naked,
+                    Maybe<Naked>>
+            >;
         };
 
         template < typename Value_ >
@@ -94,7 +94,9 @@ namespace gum {
         auto and_(Callable_&& callable) {
             using Chaining = detail::CallChaining;
             using Result = std::result_of_t<Chaining(Wrapped&&, Callable_&&, Value&)>;
-            using MaybeType = detail::ToMaybe<Result>;
+
+            using WrappedType = std::conditional_t<AbsenceTrait<Result>::value, Result, Optional<Result>>;
+            using MaybeType = detail::ToMaybe<WrappedType>;
 
             return m_wrapped ? MaybeType(Chaining()(m_wrapped, callable, *m_wrapped)) : MaybeType();
         }
