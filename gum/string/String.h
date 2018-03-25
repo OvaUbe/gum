@@ -24,12 +24,14 @@
 
 #include <gum/exception/ExceptionDetails.h>
 
+#include <boost/operators.hpp>
+
 #include <sstream>
 
 namespace gum {
 
     template < typename Char_ >
-    class BasicString {
+    class BasicString : public boost::operators<BasicString<Char_>> {
         using Self = BasicString<Char_>;
 
         using Impl_ = std::basic_string<Char_>;
@@ -236,6 +238,10 @@ namespace gum {
 
         bool operator<(BasicString const& other) const {
             return _impl < other._impl;
+        }
+
+        bool operator==(BasicString const& other) const {
+            return _impl == other._impl;
         }
 
     private:
