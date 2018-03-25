@@ -84,7 +84,7 @@ namespace gum {
         using Value = detail::DereferenceResult<Wrapped>;
 
     public:
-        Maybe() { }
+        Maybe() : m_wrapped() { }
 
         template < typename ValueType_ >
         Maybe(ValueType_&& value) :
