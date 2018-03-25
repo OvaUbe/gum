@@ -151,6 +151,7 @@ set(GUM_PUBLIC_HEADERS
     log/LoggerSingleton.h
     log/LoggerStream.h
     log/Logger.h
+    maybe/Maybe.h
     metaprogramming/MethodDetector.h
     metaprogramming/PassingType.h
     smartpointer/DynamicCaster.h
@@ -179,7 +180,6 @@ set(GUM_PUBLIC_HEADERS
     Enum.h
     IBoolean.h
     IObservableValue.h
-    Maybe.h
     ObservableValue.h
     Optional.h
     Range.h

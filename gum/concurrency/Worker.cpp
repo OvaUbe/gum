@@ -23,7 +23,7 @@
 #include <gum/concurrency/Worker.h>
 
 #include <gum/functional/Invoker.h>
-#include <gum/Maybe.h>
+#include <gum/maybe/Maybe.h>
 #include <gum/Try.h>
 
 namespace gum {
