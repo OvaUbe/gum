@@ -235,7 +235,7 @@ namespace gum {
         }
 
         bool operator<(BasicString const& other) const {
-            return std::lexicographical_compare(begin(), end(), other.begin(), other.end());
+            return _impl < other._impl;
         }
 
     private:
