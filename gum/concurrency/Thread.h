@@ -57,6 +57,7 @@ namespace gum {
 
         ~Thread();
 
+        static void set_own_name(gum::String const& name);
         static ThreadInfoRef get_own_info();
 
         static void sleep(Duration const& duration);

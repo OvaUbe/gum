@@ -41,6 +41,11 @@ namespace gum {
     }
 
 
+    void Thread::set_own_name(gum::String const& name) {
+        t_thread_info = make_shared_ref<ThreadInfo>(t_thread_info->get_id(), make_shared_ref<String>(name));
+    }
+
+
     ThreadInfoRef Thread::get_own_info() {
         return t_thread_info;
     }
