@@ -22,6 +22,7 @@
 
 #pragma once
 
+#include <gum/container/ContainerTraits.h>
 #include <gum/metaprogramming/MethodDetector.h>
 #include <gum/smartpointer/SmartpointerTraits.h>
 #include <gum/string/String.h>
@@ -111,6 +112,23 @@ namespace gum {
     template < typename Value_ >
     std::enable_if_t<IsReferenceSmartpointer<Value_>::value, String> to_string(Value_ const& value) {
         return to_string(*value);
+    }
+
+    template < typename Value_ >
+    std::enable_if_t<IsStlIterable<Value_>::value, String> to_string(Value_ const& value) {
+        String result;
+        result << "[";
+
+        for (auto iter = value.begin(); iter != value.end();) {
+            result << *iter;
+
+            ++iter;
+            if (iter != value.end())
+                result << ", ";
+        }
+
+        result << "]";
+        return result;
     }
 
     template < typename Value_ >
