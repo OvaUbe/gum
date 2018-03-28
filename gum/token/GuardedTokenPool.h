@@ -49,9 +49,9 @@ namespace gum {
             return _life_token.get_handle();
         }
 
-        void release() {
+        void reset() {
             _life_token.release();
-            _tokens.release();
+            _tokens.reset();
             _life_token = LifeToken();
         }
     };

@@ -48,7 +48,7 @@ namespace gum {
             _tokens.push_back(std::move(token));
         }
 
-        void release() {
+        void reset() {
             Tokens tokens;
 
             MutexLockType l(_mutex);
