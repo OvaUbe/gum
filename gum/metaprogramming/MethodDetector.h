@@ -22,19 +22,33 @@
 
 #pragma once
 
+#include <type_traits>
+
 namespace gum {
 
 #   define GUM_DECLARE_METHOD_DETECTOR(Method_) \
         template < typename T > \
         class HasMethod_##Method_ { \
-            using Yes = char; \
-            using No = long; \
-        \
-            template < typename C > static Yes infer(decltype(&C::Method_)) ; \
-            template < typename C > static No infer(...); \
-        \
+            template < typename Type_ > \
+            class Impl { \
+                typedef char (&YesType)[1]; \
+                typedef char (&NoType)[2]; \
+                \
+                struct BaseMixin { void Method_() { } }; \
+                struct Base : public Type_, public BaseMixin { Base(); }; \
+                \
+                template < typename V, V t > class Helper { }; \
+                \
+                template < typename U > \
+                static NoType deduce(U*, Helper<void (BaseMixin::*)(), &U::Method_>* = 0); \
+                static YesType deduce(...); \
+                \
+            public: \
+                static constexpr bool value = sizeof(YesType) == sizeof(deduce((Base*)0)); \
+            }; \
+            \
         public: \
-            static constexpr bool value = sizeof(infer<T>(0)) == sizeof(Yes); \
+            static constexpr bool value = std::conditional_t<std::is_class<T>::value, Impl<T>, std::false_type>::value; \
         }
 
 }
