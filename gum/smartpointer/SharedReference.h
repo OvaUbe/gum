@@ -241,10 +241,6 @@ namespace gum {
         using Type_##Ref = gum::SharedReference<Type_>; \
         using Type_##ConstRef = gum::SharedReference<const Type_>
 
-
-    template < typename Value_ >
-    struct AbsenceTrait<SharedReference<Value_>> : std::true_type { };
-
 }
 
 namespace std {

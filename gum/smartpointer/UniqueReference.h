@@ -152,10 +152,6 @@ namespace gum {
         using Type_##UniqueRef = gum::UniqueReference<Type_>; \
         using Type_##ConstUniqueRef = gum::UniqueReference<const Type_>
 
-
-    template < typename Value_ >
-    struct AbsenceTrait<UniqueReference<Value_>> : std::true_type { };
-
 }
 
 namespace std {
