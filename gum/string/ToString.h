@@ -26,6 +26,7 @@
 #include <gum/smartpointer/SmartpointerTraits.h>
 #include <gum/string/String.h>
 #include <gum/time/Types.h>
+#include <gum/Optional.h>
 
 #include <type_traits>
 
@@ -99,6 +100,11 @@ namespace gum {
 
     template < typename Value_ >
     std::enable_if_t<IsPtrSmartpointer<Value_>::value, String> to_string(Value_ const& value) {
+        return value ? to_string(*value) : to_string(nullptr);
+    }
+
+    template < typename Value_ >
+    String to_string(Optional<Value_> const& value) {
         return value ? to_string(*value) : to_string(nullptr);
     }
 
