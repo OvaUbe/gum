@@ -52,6 +52,7 @@ namespace gum {
         void release() {
             _life_token.release();
             _tokens.release();
+            _life_token = LifeToken();
         }
     };
 
