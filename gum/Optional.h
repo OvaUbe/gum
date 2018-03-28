@@ -83,6 +83,11 @@ namespace gum {
             return _assign(std::move(move));
         }
 
+        Optional& operator=(std::nullptr_t) {
+            _destroy();
+            return *this;
+        }
+
         void reset() {
             _destroy();
             m_valid = false;
