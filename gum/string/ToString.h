@@ -35,105 +35,161 @@ namespace gum {
 
     GUM_DECLARE_METHOD_DETECTOR(to_string);
 
+    template < typename Value_, typename Enabler_ = void >
+    struct StringRepresentableTrait : std::false_type { };
 
-    inline String to_string(String str) {
-        return str;
+    template < typename Value_ >
+    std::enable_if_t<StringRepresentableTrait<Value_>::value, String> to_string(const Value_& value) {
+        return StringRepresentableTrait<Value_>::to_string(value);
     }
 
     template < typename Value_ >
-    std::enable_if_t<HasMethod_to_string<std::decay_t<Value_>>::value, String> to_string(Value_&& value) {
-        return std::forward<Value_>(value).to_string();
+    std::enable_if_t<StringRepresentableTrait<Value_>::value, String&> operator<<(String& string, const Value_& object) {
+        return string << to_string(object);
     }
+
+    template < >
+    struct StringRepresentableTrait<String> : std::true_type {
+        static String to_string(String str) {
+            return str;
+        }
+    };
+
+    template < size_t Size_ >
+    struct StringRepresentableTrait<char[Size_]> : std::true_type {
+        static String to_string(const char* str) {
+            return str;
+        }
+    };
 
     template < typename Value_ >
-    std::enable_if_t<std::is_fundamental<Value_>::value, String> to_string(Value_ value) {
-        std::stringstream ss;
-        ss << value;
-        return ss.str();
-    }
+    struct StringRepresentableTrait<Value_, std::enable_if_t<HasMethod_to_string<Value_>::value>> : std::true_type {
+        static String to_string(const Value_& value) {
+            return value.to_string();
+        }
+    };
 
     template < typename Value_ >
-    std::enable_if_t<std::is_pointer<Value_>::value, String> to_string(Value_ value) {
-        std::stringstream ss;
-        ss << std::hex << value;
-        return ss.str();
-    }
+    struct StringRepresentableTrait<Value_, std::enable_if_t<std::is_fundamental<Value_>::value>> : std::true_type {
+        static String to_string(Value_ value) {
+            std::stringstream ss;
+            ss << value;
+            return ss.str();
+        }
+    };
 
-    inline String to_string(bool b) {
-        return b ? "true" : "false";
-    }
+    template < typename Value_ >
+    struct StringRepresentableTrait<Value_, std::enable_if_t<std::is_pointer<Value_>::value>> : std::true_type {
+        static String to_string(Value_ value) {
+            std::stringstream ss;
+            ss << std::hex << value;
+            return ss.str();
+        }
+    };
 
-    inline String to_string(std::exception const& ex) {
-        return ex.what();
-    }
+    template < >
+    struct StringRepresentableTrait<bool> : std::true_type {
+        static String to_string(bool b) {
+            return b ? "true" : "false";
+        }
+    };
+
+    template < >
+    struct StringRepresentableTrait<std::exception> : std::true_type {
+        static String to_string(std::exception const& ex) {
+            return ex.what();
+        }
+    };
 
     template < typename First_, typename Second_ >
-    String to_string(std::pair<First_, Second_> const& pair) {
-        return String() << "{ " << pair.first << ", " << pair.second << " }";
-    }
+    struct StringRepresentableTrait<std::pair<First_, Second_>> : std::true_type {
+        static String to_string(std::pair<First_, Second_> const& pair) {
+            return String() << "{ " << pair.first << ", " << pair.second << " }";
+        }
+    };
 
-    inline String to_string(std::nullptr_t) {
-        return "null";
-    }
+    template < >
+    struct StringRepresentableTrait<std::nullptr_t> : std::true_type {
+        static String to_string(std::nullptr_t) {
+            return "null";
+        }
+    };
 
-    String to_string(TimePoint const& point);
+    template < >
+    struct StringRepresentableTrait<TimePoint> : std::true_type {
+        static String to_string(TimePoint const& point);
+    };
 
     template < typename Representation_, typename Period_ >
-    String to_string(BasicDuration<Representation_, Period_> const& duration) {
-        Milliseconds const ms = duration_caster(duration);
-        Seconds const sec = duration_caster(duration);
-        Minutes const min = duration_caster(duration);
+    struct StringRepresentableTrait<BasicDuration<Representation_, Period_>> : std::true_type {
+        static String to_string(BasicDuration<Representation_, Period_> const& duration) {
+            Milliseconds const ms = duration_caster(duration);
+            Seconds const sec = duration_caster(duration);
+            Minutes const min = duration_caster(duration);
 
-        return String() << "[" <<  to_string(min.count()) << ":" <<  to_string(sec.count()) << ":" <<  to_string(ms.count()) << "]";
-    }
-
-    inline String to_string(Seconds const& duration) {
-        return String() << to_string(duration.count()) << " seconds";
-    }
-
-    inline String to_string(Minutes const& duration) {
-        return String() << to_string(duration.count()) << " minutes";
-    }
-
-    inline String to_string(Hours const& duration) {
-        return String() << to_string(duration.count()) << " hours";
-    }
-
-    template < typename Value_ >
-    std::enable_if_t<IsPtrSmartpointer<Value_>::value, String> to_string(Value_ const& value) {
-        return value ? to_string(*value) : to_string(nullptr);
-    }
-
-    template < typename Value_ >
-    String to_string(Optional<Value_> const& value) {
-        return value ? to_string(*value) : to_string(nullptr);
-    }
-
-    template < typename Value_ >
-    std::enable_if_t<IsReferenceSmartpointer<Value_>::value, String> to_string(Value_ const& value) {
-        return to_string(*value);
-    }
-
-    template < typename Value_ >
-    std::enable_if_t<IsStlIterable<Value_>::value, String> to_string(Value_ const& value) {
-        String result;
-        result << "[";
-
-        for (auto iter = value.begin(); iter != value.end();) {
-            result << *iter;
-
-            ++iter;
-            if (iter != value.end())
-                result << ", ";
+            return String() << "[" <<  min.count() << ":" <<  sec.count() << ":" <<  ms.count() << "]";
         }
+    };
 
-        result << "]";
-        return result;
-    }
+    template < >
+    struct StringRepresentableTrait<Seconds> : std::true_type {
+        static String to_string(Seconds const& duration) {
+            return String() << duration.count() << " seconds";
+        }
+    };
+
+    template < >
+    struct StringRepresentableTrait<Minutes> : std::true_type {
+        static String to_string(Minutes const& duration) {
+            return String() << duration.count() << " minutes";
+        }
+    };
+
+    template < >
+    struct StringRepresentableTrait<Hours> : std::true_type {
+        static String to_string(Hours const& duration) {
+            return String() << duration.count() << " hours";
+        }
+    };
 
     template < typename Value_ >
-    String& operator<<(String& string, Value_&& object) {
-        return string << to_string(std::forward<Value_>(object));
-    }
+    struct StringRepresentableTrait<Value_, std::enable_if_t<IsPtrSmartpointer<Value_>::value>> : std::true_type {
+        static String to_string(Value_ const& value) {
+            return value ? gum::to_string(*value) : gum::to_string(nullptr);
+        }
+    };
+
+    template < typename Value_ >
+    struct StringRepresentableTrait<Optional<Value_>> : std::true_type {
+        static String to_string(Optional<Value_> const& value) {
+            return value ? gum::to_string(*value) : gum::to_string(nullptr);
+        }
+    };
+
+    template < typename Value_ >
+    struct StringRepresentableTrait<Value_, std::enable_if_t<IsReferenceSmartpointer<Value_>::value>> : std::true_type {
+        static String to_string(Value_ const& value) {
+            return gum::to_string(*value);
+        }
+    };
+
+    template < typename Value_ >
+    struct StringRepresentableTrait<Value_, std::enable_if_t<IsStlIterable<Value_>::value && !HasMethod_to_string<Value_>::value>> : std::true_type {
+        static String to_string(Value_ const& value) {
+            String result;
+            result << "[";
+
+            for (auto iter = value.begin(); iter != value.end();) {
+                result << *iter;
+
+                ++iter;
+                if (iter != value.end())
+                    result << ", ";
+            }
+
+            result << "]";
+            return result;
+        }
+    };
 
 }

@@ -46,8 +46,8 @@ namespace gum {
         ~LoggerStream();
 
         template < typename Value_ >
-        Self& operator<<(Value_&& value) {
-            _message << to_string(std::forward<Value_>(value));
+        std::enable_if_t<StringRepresentableTrait<Value_>::value, Self&> operator<<(const Value_& value) {
+            _message << to_string(value);
             return *this;
         }
     };
