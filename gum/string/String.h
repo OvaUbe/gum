@@ -244,6 +244,22 @@ namespace gum {
             return _impl == other._impl;
         }
 
+        friend bool operator<(const Self& self, const_pointer other) {
+            return self._impl < other;
+        }
+
+        friend bool operator<(const_pointer other, const Self& self) {
+            return self._impl > other;
+        }
+
+        friend bool operator==(const Self& self, const_pointer other) {
+            return self._impl == other;
+        }
+
+        friend bool operator==(const_pointer other, const Self& self) {
+            return self._impl == other;
+        }
+
     private:
         void check_index(size_t index, size_t size) {
             if (GUM_UNLIKELY(index >= size)) {
