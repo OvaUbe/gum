@@ -204,6 +204,10 @@ namespace gum {
             return _impl.crend();
         }
 
+        void reserve(size_t size) {
+            _impl.reserve(size);
+        }
+
         void push_back(Char_ ch) {
             _impl.push_back(ch);
         }
