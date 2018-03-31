@@ -220,13 +220,38 @@ namespace gum {
             return std::move(_impl);
         }
 
-        Self& operator<<(Self const& string) {
-            _impl += string._impl;
+        Self& operator<<(const Self& other) & {
+            _impl += other._impl;
             return *this;
         }
 
-        Self& operator<<(Self&& string) {
-            _impl += std::move(string._impl);
+        Self& operator<<(Self&& other) & {
+            _impl += std::move(other._impl);
+            return *this;
+        }
+
+        Self&& operator<<(const Self& other) && {
+            _impl += other._impl;
+            return std::move(*this);
+        }
+
+        Self&& operator<<(Self&& other) && {
+            _impl += std::move(other._impl);
+            return std::move(*this);
+        }
+
+        Self& operator<<(const Impl_& impl) {
+            _impl += impl;
+            return *this;
+        }
+
+        Self& operator<<(Impl_&& impl) {
+            _impl += std::move(impl);
+            return *this;
+        }
+
+        Self& operator<<(value_type ch) {
+            _impl += ch;
             return *this;
         }
 
@@ -235,8 +260,9 @@ namespace gum {
             return *this;
         }
 
-        Self& operator<<(value_type ch) {
-            _impl += ch;
+        template < size_t Size_ >
+        Self& operator<<(value_type(&cstring)[Size_]) {
+            _impl.append(cstring, cstring + Size_);
             return *this;
         }
 
@@ -281,5 +307,24 @@ namespace gum {
 
 
     using String = BasicString<char>;
+
+
+    template < typename Value_ >
+    struct StringRepresentableIntrinsicTrait : std::false_type { };
+
+    template < >
+    struct StringRepresentableIntrinsicTrait<String> : std::true_type { };
+
+    template < >
+    struct StringRepresentableIntrinsicTrait<std::string> : std::true_type { };
+
+    template < >
+    struct StringRepresentableIntrinsicTrait<char> : std::true_type { };
+
+    template < >
+    struct StringRepresentableIntrinsicTrait<char*> : std::true_type { };
+
+    template < size_t Size_ >
+    struct StringRepresentableIntrinsicTrait<char[Size_]> : std::true_type { };
 
 }

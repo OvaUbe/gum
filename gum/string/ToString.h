@@ -44,21 +44,19 @@ namespace gum {
     }
 
     template < typename Value_ >
-    std::enable_if_t<StringRepresentableTrait<Value_>::value, String&> operator<<(String& string, const Value_& object) {
+    std::enable_if_t<StringRepresentableTrait<Value_>::value && !StringRepresentableIntrinsicTrait<Value_>::value, String&> operator<<(String& string, const Value_& object) {
         return string << to_string(object);
     }
 
-    template < >
-    struct StringRepresentableTrait<String> : std::true_type {
-        static String to_string(String str) {
-            return str;
-        }
-    };
+    template < typename Value_ >
+    std::enable_if_t<StringRepresentableTrait<Value_>::value && !StringRepresentableIntrinsicTrait<Value_>::value, String&&> operator<<(String&& string, const Value_& object) {
+        return std::move(string).operator<<(to_string(object));
+    }
 
-    template < size_t Size_ >
-    struct StringRepresentableTrait<char[Size_]> : std::true_type {
-        static String to_string(const char* str) {
-            return str;
+    template < typename Value_ >
+    struct StringRepresentableTrait<Value_, std::enable_if_t<StringRepresentableIntrinsicTrait<Value_>::value>> : std::true_type {
+        static String to_string(const Value_& value) {
+            return String() << value;
         }
     };
 
@@ -174,7 +172,11 @@ namespace gum {
     };
 
     template < typename Value_ >
-    struct StringRepresentableTrait<Value_, std::enable_if_t<IsStlIterable<Value_>::value && !HasMethod_to_string<Value_>::value>> : std::true_type {
+    struct StringRepresentableTrait<Value_,
+            std::enable_if_t<IsStlIterable<Value_>::value &&
+            !HasMethod_to_string<Value_>::value &&
+            !StringRepresentableIntrinsicTrait<Value_>::value
+        >> : std::true_type {
         static String to_string(Value_ const& value) {
             String result;
             result << "[";
