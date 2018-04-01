@@ -53,17 +53,17 @@ namespace gum {
 
 #   define GUM_ENUM(Name_, ...) \
         class Name_ { \
-            using UnderlyingIntType = s32; \
+            using UnderlyingIntType = gum::s32; \
         \
         public: \
-            enum Enum : detail::EnumToStringMapping::UnderlyingIntType { \
+            enum Enum : gum::detail::EnumToStringMapping::UnderlyingIntType { \
                 __VA_ARGS__ \
             }; \
         \
         private: \
-            struct StringMapping : public detail::EnumToStringMapping, public Singleton<StringMapping> { \
+            struct StringMapping : public gum::detail::EnumToStringMapping, public gum::Singleton<StringMapping> { \
                 StringMapping() \
-                    :   detail::EnumToStringMapping(#__VA_ARGS__) \
+                    :   gum::detail::EnumToStringMapping(#__VA_ARGS__) \
                 { } \
             }; \
             \
@@ -81,7 +81,7 @@ namespace gum {
                 return _e; \
             } \
             \
-            String const& to_string() const { \
+            gum::String const& to_string() const { \
                 return StringMapping::get().map(_e); \
             } \
             \
