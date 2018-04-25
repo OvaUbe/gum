@@ -28,7 +28,6 @@
 
 namespace gum {
 
-template < typename Key_, typename Value_, typename Hash_ = std::hash<Key_>, typename KeyEqual_ = std::equal_to<Key_>>
+template <typename Key_, typename Value_, typename Hash_ = std::hash<Key_>, typename KeyEqual_ = std::equal_to<Key_>>
 using HashMap = StlMap<Key_, Value_, std::unordered_map<Key_, Value_, Hash_, KeyEqual_>>;
-
 }

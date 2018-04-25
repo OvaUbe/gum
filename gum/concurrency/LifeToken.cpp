@@ -31,193 +31,169 @@
 
 namespace gum {
 
-    namespace {
+namespace {
 
-        GUM_LOGGER_SINGLETON(LifeTokenLogger);
+GUM_LOGGER_SINGLETON(LifeTokenLogger);
 
+struct ILifeHandleImpl : public virtual ILifeHandle {
+    virtual void release() = 0;
+};
+GUM_DECLARE_REF(ILifeHandleImpl);
 
-        struct ILifeHandleImpl : public virtual ILifeHandle {
-            virtual void release() = 0;
-        };
-        GUM_DECLARE_REF(ILifeHandleImpl);
+class SynchronizedLifeHandle : public virtual ILifeHandleImpl {
+    mutable std::atomic<bool> _alive;
+    mutable ThreadInfoPtr _owner;
 
+    Mutex _mutex;
+    ConditionVariable _condition_varaible;
 
-        class SynchronizedLifeHandle : public virtual ILifeHandleImpl {
-            mutable std::atomic<bool>   _alive;
-            mutable ThreadInfoPtr       _owner;
+  public:
+    SynchronizedLifeHandle()
+        : _alive(true) {}
 
-            Mutex                       _mutex;
-            ConditionVariable           _condition_varaible;
+    bool lock() const override {
+        if (!_alive)
+            return false;
 
-        public:
-            SynchronizedLifeHandle()
-                :   _alive(true)
-            { }
+        MutexLock l(_mutex);
 
-            bool lock() const override {
-                if (!_alive)
-                    return false;
+        if (!_alive)
+            return false;
 
-                MutexLock l(_mutex);
+        wait();
 
-                if (!_alive)
-                    return false;
+        _owner = Thread::get_own_info();
 
-                wait();
-
-                _owner = Thread::get_own_info();
-
-                return true;
-            }
-
-            void unlock() const override {
-                if (!_alive)
-                    return;
-
-                MutexLock l(_mutex);
-
-                if (!_alive)
-                    return;
-
-                _owner = nullptr;
-                _condition_varaible.broadcast();
-            }
-
-            void release() override {
-                if (!_alive)
-                    return;
-
-                MutexLock l(_mutex);
-
-                if (!_alive)
-                    return;
-
-                wait();
-
-                _alive = false;
-            }
-
-        private:
-            void wait() const {
-                const Seconds Threshold = Seconds(3);
-                const ElapsedTime elapsed;
-
-                while (_owner) {
-                    if (_condition_varaible.wait_for(_mutex, Threshold, *DummyCancellationHandle()) == ConditionVariable::WaitResult::Woken)
-                        continue;
-
-                    LifeTokenLogger::get().warning()
-                        << "Could not acquire life token owned by: " << _owner << " for " << elapsed.elapsed_to<Seconds>() << "."
-                        << " There is probably a deadlock.\nBacktrace: " << Backtrace();
-                }
-            }
-        };
-        GUM_DECLARE_REF(SynchronizedLifeHandle);
-
-
-        class UnsynchronizedLifeHandle : public virtual ILifeHandleImpl {
-            bool _alive;
-
-        public:
-            UnsynchronizedLifeHandle()
-                :   _alive(true)
-            { }
-
-            bool lock() const override {
-                return _alive;
-            }
-
-            void unlock() const override { }
-
-            void release() override {
-                _alive = false;
-            }
-        };
-        GUM_DECLARE_REF(UnsynchronizedLifeHandle);
-
-
-        struct ReleasedLifeHandle : public virtual ILifeHandleImpl {
-            bool lock() const override {
-                return false;
-            }
-
-            void unlock() const override { }
-
-            void release() override { }
-        };
-        GUM_DECLARE_REF(ReleasedLifeHandle);
-
+        return true;
     }
 
+    void unlock() const override {
+        if (!_alive)
+            return;
 
-    class LifeToken::Impl {
-        ILifeHandleImplRef _handle;
+        MutexLock l(_mutex);
 
-    public:
-        Impl(ILifeHandleImplRef&& handle)
-            :   _handle(std::move(handle))
-        { }
+        if (!_alive)
+            return;
 
-        ~Impl() {
-            _handle->release();
+        _owner = nullptr;
+        _condition_varaible.broadcast();
+    }
+
+    void release() override {
+        if (!_alive)
+            return;
+
+        MutexLock l(_mutex);
+
+        if (!_alive)
+            return;
+
+        wait();
+
+        _alive = false;
+    }
+
+  private:
+    void wait() const {
+        const Seconds Threshold = Seconds(3);
+        const ElapsedTime elapsed;
+
+        while (_owner) {
+            if (_condition_varaible.wait_for(_mutex, Threshold, *DummyCancellationHandle()) == ConditionVariable::WaitResult::Woken)
+                continue;
+
+            LifeTokenLogger::get().warning() << "Could not acquire life token owned by: " << _owner << " for " << elapsed.elapsed_to<Seconds>() << "."
+                                             << " There is probably a deadlock.\nBacktrace: " << Backtrace();
         }
+    }
+};
+GUM_DECLARE_REF(SynchronizedLifeHandle);
 
-        ILifeHandleRef get_handle() const {
-            return _handle;
-        }
+class UnsynchronizedLifeHandle : public virtual ILifeHandleImpl {
+    bool _alive;
 
-        void release() {
-            _handle->release();
-        }
-    };
+  public:
+    UnsynchronizedLifeHandle()
+        : _alive(true) {}
 
-
-    LifeToken::LifeToken(ImplUniqueRef&& impl)
-        :   _impl(std::move(impl))
-    { }
-
-
-    LifeToken::LifeToken()
-        :   _impl(make_unique_ref<Impl>(make_shared_ref<SynchronizedLifeHandle>()))
-    { }
-
-
-    LifeToken::~LifeToken() { }
-
-
-    LifeToken::LifeToken(LifeToken&& other)
-        :   _impl(std::move(other._impl))
-    { }
-
-
-    LifeToken& LifeToken::operator=(LifeToken&& other) {
-        _impl = std::move(other._impl);
-        return *this;
+    bool lock() const override {
+        return _alive;
     }
 
+    void unlock() const override {}
 
-    LifeToken LifeToken::make_synchronized() {
-        return LifeToken(make_unique_ref<Impl>(make_shared_ref<SynchronizedLifeHandle>()));
+    void release() override {
+        _alive = false;
+    }
+};
+GUM_DECLARE_REF(UnsynchronizedLifeHandle);
+
+struct ReleasedLifeHandle : public virtual ILifeHandleImpl {
+    bool lock() const override {
+        return false;
     }
 
+    void unlock() const override {}
 
-    LifeToken LifeToken::make_unsynchronized() {
-        return LifeToken(make_unique_ref<Impl>(make_shared_ref<UnsynchronizedLifeHandle>()));
+    void release() override {}
+};
+GUM_DECLARE_REF(ReleasedLifeHandle);
+}
+
+class LifeToken::Impl {
+    ILifeHandleImplRef _handle;
+
+  public:
+    Impl(ILifeHandleImplRef&& handle)
+        : _handle(std::move(handle)) {}
+
+    ~Impl() {
+        _handle->release();
     }
 
-
-    LifeToken LifeToken::make_released() {
-        return LifeToken(make_unique_ref<Impl>(make_shared_ref<ReleasedLifeHandle>()));
+    ILifeHandleRef get_handle() const {
+        return _handle;
     }
 
-
-    LifeHandle LifeToken::get_handle() const {
-        return _impl->get_handle();
+    void release() {
+        _handle->release();
     }
+};
 
+LifeToken::LifeToken(ImplUniqueRef&& impl)
+    : _impl(std::move(impl)) {}
 
-    void LifeToken::release() {
-        _impl->release();
-    }
+LifeToken::LifeToken()
+    : _impl(make_unique_ref<Impl>(make_shared_ref<SynchronizedLifeHandle>())) {}
 
+LifeToken::~LifeToken() {}
+
+LifeToken::LifeToken(LifeToken&& other)
+    : _impl(std::move(other._impl)) {}
+
+LifeToken& LifeToken::operator=(LifeToken&& other) {
+    _impl = std::move(other._impl);
+    return *this;
+}
+
+LifeToken LifeToken::make_synchronized() {
+    return LifeToken(make_unique_ref<Impl>(make_shared_ref<SynchronizedLifeHandle>()));
+}
+
+LifeToken LifeToken::make_unsynchronized() {
+    return LifeToken(make_unique_ref<Impl>(make_shared_ref<UnsynchronizedLifeHandle>()));
+}
+
+LifeToken LifeToken::make_released() {
+    return LifeToken(make_unique_ref<Impl>(make_shared_ref<ReleasedLifeHandle>()));
+}
+
+LifeHandle LifeToken::get_handle() const {
+    return _impl->get_handle();
+}
+
+void LifeToken::release() {
+    _impl->release();
+}
 }

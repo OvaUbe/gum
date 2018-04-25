@@ -20,78 +20,65 @@
  * THE SOFTWARE.
  */
 
+#include <gum/Try.h>
 #include <gum/concurrency/Thread.h>
 #include <gum/string/ToString.h>
-#include <gum/Try.h>
 
 namespace gum {
 
-    namespace {
+namespace {
 
-        thread_local ThreadInfoRef t_thread_info = make_shared_ref<ThreadInfo>(ThreadId(), make_shared_ref<String>("__UndefinedThread"));
+thread_local ThreadInfoRef t_thread_info = make_shared_ref<ThreadInfo>(ThreadId(), make_shared_ref<String>("__UndefinedThread"));
+}
 
-    }
+GUM_DEFINE_LOGGER(Thread);
 
+Thread::~Thread() {
+    GUM_TRY_LEVEL("Join failed", LogLevel::Error, dtor());
+}
 
-    GUM_DEFINE_LOGGER(Thread);
+void Thread::set_own_name(gum::String const& name) {
+    t_thread_info = make_shared_ref<ThreadInfo>(t_thread_info->get_id(), make_shared_ref<String>(name));
+}
 
+ThreadInfoRef Thread::get_own_info() {
+    return t_thread_info;
+}
 
-    Thread::~Thread() {
-        GUM_TRY_LEVEL("Join failed", LogLevel::Error, dtor());
-    }
+void Thread::sleep(Duration const& duration) {
+    std::this_thread::sleep_for(duration);
+}
 
+void Thread::sleep(Duration const& duration, ICancellationHandle& handle) {
+    handle.sleep(duration);
+}
 
-    void Thread::set_own_name(gum::String const& name) {
-        t_thread_info = make_shared_ref<ThreadInfo>(t_thread_info->get_id(), make_shared_ref<String>(name));
-    }
+ThreadInfo Thread::get_info() const {
+    return ThreadInfo(_impl.get_id(), _name);
+}
 
+String Thread::to_string() const {
+    return String() << "Thread: " << get_info();
+}
 
-    ThreadInfoRef Thread::get_own_info() {
-        return t_thread_info;
-    }
+void Thread::thread_func() {
+    GUM_TRY_LEVEL("Uncaught exception from internal thread function", LogLevel::Error, _thread_func());
+}
 
+void Thread::_thread_func() {
+    t_thread_info = make_shared_ref<ThreadInfo>(std::this_thread::get_id(), _name);
 
-    void Thread::sleep(Duration const& duration) {
-        std::this_thread::sleep_for(duration);
-    }
+    _logger.info() << get_own_info() << " spawned.";
 
+    GUM_TRY_LEVEL("Uncaught exception from client thread function", LogLevel::Error, _task(_cancellation_token));
+}
 
-    void Thread::sleep(Duration const& duration, ICancellationHandle& handle) {
-        handle.sleep(duration);
-    }
+void Thread::dtor() {
+    ThreadInfo const info = get_info();
 
+    _cancellation_token.cancel();
+    _impl.join();
 
-    ThreadInfo Thread::get_info() const {
-        return ThreadInfo(_impl.get_id(), _name);
-    }
-
-
-    String Thread::to_string() const {
-        return String() << "Thread: " << get_info();
-    }
-
-
-    void Thread::thread_func() {
-        GUM_TRY_LEVEL("Uncaught exception from internal thread function", LogLevel::Error, _thread_func());
-    }
-
-
-    void Thread::_thread_func() {
-        t_thread_info = make_shared_ref<ThreadInfo>(std::this_thread::get_id(), _name);
-
-        _logger.info() << get_own_info() << " spawned.";
-
-        GUM_TRY_LEVEL("Uncaught exception from client thread function", LogLevel::Error, _task(_cancellation_token));
-    }
-
-
-    void Thread::dtor() {
-        ThreadInfo const info = get_info();
-
-        _cancellation_token.cancel();
-        _impl.join();
-
-        _logger.info() << info << " joined.";
-    }
-
+    _logger.info() << info << " joined.";
+}
 }

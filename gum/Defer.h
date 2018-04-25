@@ -28,29 +28,27 @@
 
 namespace gum {
 
-    class Defer {
-        using Deferrable = std::function<void()>;
+class Defer {
+    using Deferrable = std::function<void()>;
 
-    private:
-        Deferrable _deferrable;
+  private:
+    Deferrable _deferrable;
 
-    public:
-        template < typename Deferrable_ >
-        Defer(Deferrable_&& deferrable)
-            :   _deferrable(std::forward<Deferrable_>(deferrable))
-        { }
+  public:
+    template <typename Deferrable_>
+    Defer(Deferrable_&& deferrable)
+        : _deferrable(std::forward<Deferrable_>(deferrable)) {}
 
-        Defer(Defer const&) = default;
-        Defer(Defer&&) = default;
+    Defer(Defer const&) = default;
+    Defer(Defer&&) = default;
 
-        ~Defer() {
-            _deferrable();
-        }
+    ~Defer() {
+        _deferrable();
+    }
 
-        Defer& operator=(Defer const&) = default;
-        Defer& operator=(Defer&&) = default;
-    };
+    Defer& operator=(Defer const&) = default;
+    Defer& operator=(Defer&&) = default;
+};
 
-#   define defer gum::Defer __defer__##__LINE__ = [&]()
-
+#define defer gum::Defer __defer__##__LINE__ = [&]()
 }

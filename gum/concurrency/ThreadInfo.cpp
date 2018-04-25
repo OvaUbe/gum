@@ -20,94 +20,83 @@
  * THE SOFTWARE.
  */
 
-#include <gum/concurrency/ThreadInfo.h>
 #include <gum/concurrency/Thread.h>
+#include <gum/concurrency/ThreadInfo.h>
 
 #include <atomic>
 #include <mutex>
 
 namespace gum {
 
-    namespace {
+namespace {
 
-        class LightweightOwnerInfo {
-            std::atomic<ThreadId> _owner_id;
+class LightweightOwnerInfo {
+    std::atomic<ThreadId> _owner_id;
 
-        public:
-            LightweightOwnerInfo()
-                :   _owner_id(ThreadId())
-            { }
+  public:
+    LightweightOwnerInfo()
+        : _owner_id(ThreadId()) {}
 
-            void acquire() {
-                _owner_id.store(Thread::get_own_info()->get_id(), std::memory_order_release);
-            }
-
-            String to_string() const {
-                return String() << "{ id: " << _owner_id.load(std::memory_order_acquire) << " }";
-            }
-        };
-
-
-        class ExtendedOwnerInfo {
-            ThreadInfoPtr       _owner_info;
-
-            mutable std::mutex  _mutex;
-
-        public:
-            void acquire() {
-                ThreadInfoRef const info = Thread::get_own_info();
-
-                std::lock_guard<std::mutex> l(_mutex);
-                _owner_info = info;
-            }
-
-            String to_string() const {
-                ThreadInfoPtr info;
-                {
-                    std::lock_guard<std::mutex> l(_mutex);
-                    info = _owner_info;
-                }
-                return info->to_string();
-            }
-        };
-
+    void acquire() {
+        _owner_id.store(Thread::get_own_info()->get_id(), std::memory_order_release);
     }
 
+    String to_string() const {
+        return String() << "{ id: " << _owner_id.load(std::memory_order_acquire) << " }";
+    }
+};
 
-    class OwnerInfo::Impl : public
-#   ifdef GUM_CONCURRENCY_USES_LIGHTWEIGHT_OWNER_INFO
-        LightweightOwnerInfo
-#   else
-        ExtendedOwnerInfo
-#   endif
-    { };
+class ExtendedOwnerInfo {
+    ThreadInfoPtr _owner_info;
 
+    mutable std::mutex _mutex;
 
-    OwnerInfo::OwnerInfo()
-        :   _impl(make_unique_ref<Impl>()) { }
+  public:
+    void acquire() {
+        ThreadInfoRef const info = Thread::get_own_info();
 
-
-    OwnerInfo::~OwnerInfo() { }
-
-
-    void OwnerInfo::acquire() {
-        _impl->acquire();
+        std::lock_guard<std::mutex> l(_mutex);
+        _owner_info = info;
     }
 
-
-    String OwnerInfo::to_string() const {
-        return _impl->to_string();
+    String to_string() const {
+        ThreadInfoPtr info;
+        {
+            std::lock_guard<std::mutex> l(_mutex);
+            info = _owner_info;
+        }
+        return info->to_string();
     }
+};
+}
 
+class OwnerInfo::Impl : public
+#ifdef GUM_CONCURRENCY_USES_LIGHTWEIGHT_OWNER_INFO
+                        LightweightOwnerInfo
+#else
+                        ExtendedOwnerInfo
+#endif
+{
+};
 
-    ThreadInfo::ThreadInfo(ThreadId const& id, StringConstRef const& name)
-        :   _id(id),
-            _name(name)
-    { }
+OwnerInfo::OwnerInfo()
+    : _impl(make_unique_ref<Impl>()) {}
 
+OwnerInfo::~OwnerInfo() {}
 
-    String ThreadInfo::to_string() const {
-        return String() << "{ id: " << _id << ", name: " << _name << " }";
-    }
+void OwnerInfo::acquire() {
+    _impl->acquire();
+}
 
+String OwnerInfo::to_string() const {
+    return _impl->to_string();
+}
+
+ThreadInfo::ThreadInfo(ThreadId const& id, StringConstRef const& name)
+    : _id(id)
+    , _name(name) {}
+
+String ThreadInfo::to_string() const {
+    return String() << "{ id: " << _id << ", name: " << _name << " }";
+}
 }

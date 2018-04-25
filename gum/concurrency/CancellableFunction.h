@@ -26,20 +26,19 @@
 
 namespace gum {
 
-    template < typename Callable_ >
-    auto make_cancellable(Callable_&& callable, LifeHandle const& life_handle) {
-        return [callable=std::forward<Callable_>(callable), life_handle](auto&& ...args) {
-            LifeHandleLock l(life_handle);
+template <typename Callable_>
+auto make_cancellable(Callable_&& callable, LifeHandle const& life_handle) {
+    return [callable = std::forward<Callable_>(callable), life_handle](auto&&... args) {
+        LifeHandleLock l(life_handle);
 
-            if (l) {
-                callable(std::forward<decltype(args)>(args)...);
-            }
-        };
-    }
+        if (l) {
+            callable(std::forward<decltype(args)>(args)...);
+        }
+    };
+}
 
-    template < typename Callable_ >
-    auto make_cancellable(Callable_&& callable, LifeToken const& life_token) {
-        return make_cancellable(std::forward<Callable_>(callable), life_token.get_handle());
-    }
-
+template <typename Callable_>
+auto make_cancellable(Callable_&& callable, LifeToken const& life_token) {
+    return make_cancellable(std::forward<Callable_>(callable), life_token.get_handle());
+}
 }

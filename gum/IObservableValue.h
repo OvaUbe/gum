@@ -27,31 +27,29 @@
 
 namespace gum {
 
-    template < typename Value_ >
-    struct IReadonlyObservableValue {
-        using PassingValue = PassingType<Value_>;
-        using ChangedSignature = void(PassingValue);
+template <typename Value_>
+struct IReadonlyObservableValue {
+    using PassingValue = PassingType<Value_>;
+    using ChangedSignature = void(PassingValue);
 
-    public:
-        virtual ~IReadonlyObservableValue() { }
+  public:
+    virtual ~IReadonlyObservableValue() {}
 
-        virtual Value_ get() const = 0;
+    virtual Value_ get() const = 0;
 
-        virtual const SignalMutex& get_mutex() const = 0;
+    virtual const SignalMutex& get_mutex() const = 0;
 
-        virtual SignalHandle<ChangedSignature> changed() const = 0;
-    };
+    virtual SignalHandle<ChangedSignature> changed() const = 0;
+};
 
+template <typename Value_>
+struct IObservableValue : public virtual IReadonlyObservableValue<Value_> {
+    using Base = IReadonlyObservableValue<Value_>;
 
-    template < typename Value_ >
-    struct IObservableValue : public virtual IReadonlyObservableValue<Value_> {
-        using Base = IReadonlyObservableValue<Value_>;
+    using PassingValue = typename Base::PassingValue;
+    using ChangedSignature = typename Base::ChangedSignature;
 
-        using PassingValue = typename Base::PassingValue;
-        using ChangedSignature = typename Base::ChangedSignature;
-
-    public:
-        virtual void set(PassingValue value) = 0;
-    };
-
+  public:
+    virtual void set(PassingValue value) = 0;
+};
 }

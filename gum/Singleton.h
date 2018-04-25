@@ -24,22 +24,20 @@
 
 namespace gum {
 
-#   define GUM_SINGLETON(Type_) \
-            Type_(Type_ const&) = delete; \
-            Type_(Type_&&) = delete; \
-            \
-            Type_& operator=(Type_ const&) = delete; \
-            Type_& operator=(Type_&&) = delete; \
-            \
-        private:
+#define GUM_SINGLETON(Type_)                                                                                                                                   \
+    Type_(Type_ const&) = delete;                                                                                                                              \
+    Type_(Type_&&) = delete;                                                                                                                                   \
+                                                                                                                                                               \
+    Type_& operator=(Type_ const&) = delete;                                                                                                                   \
+    Type_& operator=(Type_&&) = delete;                                                                                                                        \
+                                                                                                                                                               \
+  private:
 
-
-    template < typename Derived_ >
-    struct Singleton {
-        static Derived_& get() {
-            static Derived_ instance;
-            return instance;
-        }
-    };
-
+template <typename Derived_>
+struct Singleton {
+    static Derived_& get() {
+        static Derived_ instance;
+        return instance;
+    }
+};
 }

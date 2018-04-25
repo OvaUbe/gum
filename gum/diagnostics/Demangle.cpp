@@ -23,26 +23,23 @@
 #include <gum/diagnostics/Backtrace.h>
 
 #if defined(GUM_USES_GNU_BACKEND)
-#   include <gum/backend/gnu/diagnostics/Demangle.h>
+#include <gum/backend/gnu/diagnostics/Demangle.h>
 #else
-#   include <gum/backend/dummy/diagnostics/Demangle.h>
+#include <gum/backend/dummy/diagnostics/Demangle.h>
 #endif
 
 namespace gum {
 
-    namespace {
+namespace {
 
-#   if defined(GUM_USES_GNU_BACKEND)
-        using Demangler = gnu::Demangler;
-#   else
-        using Demangler = dummy::Demangler;
-#   endif
+#if defined(GUM_USES_GNU_BACKEND)
+using Demangler = gnu::Demangler;
+#else
+using Demangler = dummy::Demangler;
+#endif
+}
 
-    }
-
-
-    std::string demangle(std::string const& str) {
-        return Demangler()(str);
-    }
-
+std::string demangle(std::string const& str) {
+    return Demangler()(str);
+}
 }

@@ -26,12 +26,11 @@
 
 namespace gum {
 
-    GUM_DECLARE_METHOD_DETECTOR(begin);
-    GUM_DECLARE_METHOD_DETECTOR(end);
+GUM_DECLARE_METHOD_DETECTOR(begin);
+GUM_DECLARE_METHOD_DETECTOR(end);
 
-    template < typename Value_ >
-    struct IsStlIterable {
-        static constexpr bool value = HasMethod_begin<Value_>::value && HasMethod_end<Value_>::value;
-    };
-
+template <typename Value_>
+struct IsStlIterable {
+    static constexpr bool value = HasMethod_begin<Value_>::value && HasMethod_end<Value_>::value;
+};
 }

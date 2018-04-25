@@ -24,19 +24,17 @@
 
 namespace gum {
 
-    struct OwnerLess {
-        template < typename Smartpointer_ >
-        bool operator()(Smartpointer_ const& lhs, Smartpointer_ const& rhs) const {
-            return lhs.owner_before(rhs);
-        }
-    };
+struct OwnerLess {
+    template <typename Smartpointer_>
+    bool operator()(Smartpointer_ const& lhs, Smartpointer_ const& rhs) const {
+        return lhs.owner_before(rhs);
+    }
+};
 
-
-    struct OwnerEquals {
-        template < typename Smartpointer_ >
-        bool operator()(Smartpointer_ const& lhs, Smartpointer_ const& rhs) const {
-            return lhs.get() == rhs.get();
-        }
-    };
-
+struct OwnerEquals {
+    template <typename Smartpointer_>
+    bool operator()(Smartpointer_ const& lhs, Smartpointer_ const& rhs) const {
+        return lhs.get() == rhs.get();
+    }
+};
 }

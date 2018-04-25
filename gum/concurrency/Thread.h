@@ -29,51 +29,49 @@
 
 namespace gum {
 
-    class Thread {
-        using Self = Thread;
+class Thread {
+    using Self = Thread;
 
-        using Impl = std::thread;
+    using Impl = std::thread;
 
-    public:
-        using TaskSignature = void(ICancellationHandle&);
-        using TaskType = std::function<TaskSignature>;
+  public:
+    using TaskSignature = void(ICancellationHandle&);
+    using TaskType = std::function<TaskSignature>;
 
-    private:
-        static Logger       _logger;
+  private:
+    static Logger _logger;
 
-        StringConstRef      _name;
-        TaskType            _task;
+    StringConstRef _name;
+    TaskType _task;
 
-        CancellationToken   _cancellation_token;
-        Impl                _impl;
+    CancellationToken _cancellation_token;
+    Impl _impl;
 
-    public:
-        template < typename String_, typename Callable_ >
-        Thread(String_&& name, Callable_&& callable)
-            :   _name(make_shared_ref<String>(std::forward<String_>(name))),
-                _task(std::forward<Callable_>(callable)),
-                _impl(&Self::thread_func, this)
-        { }
+  public:
+    template <typename String_, typename Callable_>
+    Thread(String_&& name, Callable_&& callable)
+        : _name(make_shared_ref<String>(std::forward<String_>(name)))
+        , _task(std::forward<Callable_>(callable))
+        , _impl(&Self::thread_func, this) {}
 
-        ~Thread();
+    ~Thread();
 
-        static void set_own_name(gum::String const& name);
-        static ThreadInfoRef get_own_info();
+    static void set_own_name(gum::String const& name);
+    static ThreadInfoRef get_own_info();
 
-        static void sleep(Duration const& duration);
-        static void sleep(Duration const& duration, ICancellationHandle& handle);
+    static void sleep(Duration const& duration);
+    static void sleep(Duration const& duration, ICancellationHandle& handle);
 
-        ThreadInfo get_info() const;
+    ThreadInfo get_info() const;
 
-        String to_string() const;
+    String to_string() const;
 
-    private:
-        void thread_func();
-        void _thread_func();
+  private:
+    void thread_func();
+    void _thread_func();
 
-        void dtor();
-    };
-    GUM_DECLARE_UNIQUE_REF(Thread);
-    GUM_DECLARE_UNIQUE_PTR(Thread);
-
+    void dtor();
+};
+GUM_DECLARE_UNIQUE_REF(Thread);
+GUM_DECLARE_UNIQUE_PTR(Thread);
 }

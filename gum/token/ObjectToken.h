@@ -26,21 +26,18 @@
 
 namespace gum {
 
-    template < typename Object_ >
-    class ObjectToken : public IToken {
-        Object_ _object;
+template <typename Object_>
+class ObjectToken : public IToken {
+    Object_ _object;
 
-    public:
-        template < typename ...Args_ >
-        ObjectToken(Args_&&... args)
-            :   _object(std::forward<Args_>(args)...)
-        { }
-    };
+  public:
+    template <typename... Args_>
+    ObjectToken(Args_&&... args)
+        : _object(std::forward<Args_>(args)...) {}
+};
 
-
-    template < typename Object_ >
-    auto make_object_token(Object_&& object) {
-        return make_token<ObjectToken<std::decay_t<Object_>>>(std::forward<Object_>(object));
-    }
-
+template <typename Object_>
+auto make_object_token(Object_&& object) {
+    return make_token<ObjectToken<std::decay_t<Object_>>>(std::forward<Object_>(object));
+}
 }

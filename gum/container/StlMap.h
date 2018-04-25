@@ -26,50 +26,49 @@
 
 namespace gum {
 
-    template < typename Key_, typename Value_, typename Impl_ >
-    class StlMap : public virtual IMap<Key_,Value_> {
-        Impl_ _impl;
+template <typename Key_, typename Value_, typename Impl_>
+class StlMap : public virtual IMap<Key_, Value_> {
+    Impl_ _impl;
 
-    public:
-        template < typename ...Args_ >
-        StlMap(Args_&& ...args)
-            :   _impl(std::forward<Args_>(args)...) { }
+  public:
+    template <typename... Args_>
+    StlMap(Args_&&... args)
+        : _impl(std::forward<Args_>(args)...) {}
 
-        void set(const Key_& key, const Value_& value) override {
-            _impl[key] = value;
-        }
+    void set(const Key_& key, const Value_& value) override {
+        _impl[key] = value;
+    }
 
-        bool remove(const Key_& key) override {
-            const auto iter = _impl.find(key);
-            if (iter == _impl.end())
-                return false;
+    bool remove(const Key_& key) override {
+        const auto iter = _impl.find(key);
+        if (iter == _impl.end())
+            return false;
 
-            _impl.erase(iter);
-            return true;
-        }
+        _impl.erase(iter);
+        return true;
+    }
 
-        void clear() override {
-            _impl.clear();
-        }
+    void clear() override {
+        _impl.clear();
+    }
 
-        gum::Optional<Value_> get(const Key_& key) const override {
-            const auto iter = _impl.find(key);
-            if (iter == _impl.end())
-                return nullptr;
-            return iter->second;
-        }
+    gum::Optional<Value_> get(const Key_& key) const override {
+        const auto iter = _impl.find(key);
+        if (iter == _impl.end())
+            return nullptr;
+        return iter->second;
+    }
 
-        bool contains(const Key_& key) const override {
-            return _impl.count(key);
-        }
+    bool contains(const Key_& key) const override {
+        return _impl.count(key);
+    }
 
-        bool is_empty() const override {
-            return _impl.empty();
-        }
+    bool is_empty() const override {
+        return _impl.empty();
+    }
 
-        size_t get_count() const override {
-            return _impl.size();
-        }
-    };
-
+    size_t get_count() const override {
+        return _impl.size();
+    }
+};
 }

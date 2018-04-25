@@ -22,29 +22,27 @@
 
 #pragma once
 
+#include <gum/IBoolean.h>
 #include <gum/time/Types.h>
 #include <gum/token/Token.h>
-#include <gum/IBoolean.h>
 
 #include <functional>
 
 namespace gum {
 
-    struct ICancellationHandle : public virtual IBoolean {
-        using CancellationHandler = std::function<void()>;
+struct ICancellationHandle : public virtual IBoolean {
+    using CancellationHandler = std::function<void()>;
 
-    public:
-        virtual void sleep(Duration const& duration) const = 0;
+  public:
+    virtual void sleep(Duration const& duration) const = 0;
 
-        virtual Token on_cancelled(CancellationHandler const& cancellationHandler) = 0;
-    };
+    virtual Token on_cancelled(CancellationHandler const& cancellationHandler) = 0;
+};
 
+struct ICancellationToken : public virtual ICancellationHandle {
+    virtual void cancel() = 0;
+    virtual void reset() = 0;
 
-    struct ICancellationToken : public virtual ICancellationHandle {
-        virtual void cancel() = 0;
-        virtual void reset() = 0;
-
-        virtual Token get_cancellator() const = 0;
-    };
-
+    virtual Token get_cancellator() const = 0;
+};
 }

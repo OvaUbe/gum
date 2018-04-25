@@ -27,29 +27,28 @@
 
 namespace gum {
 
-    class CancellationToken : public virtual ICancellationToken {
-        class Impl;
-        GUM_DECLARE_REF(Impl);
+class CancellationToken : public virtual ICancellationToken {
+    class Impl;
+    GUM_DECLARE_REF(Impl);
 
-    private:
-        ImplRef _impl;
+  private:
+    ImplRef _impl;
 
-    public:
-        CancellationToken();
+  public:
+    CancellationToken();
 
-        CancellationToken(CancellationToken const&) = delete;
-        CancellationToken& operator=(CancellationToken const&) = delete;
+    CancellationToken(CancellationToken const&) = delete;
+    CancellationToken& operator=(CancellationToken const&) = delete;
 
-        explicit operator bool() const override;
+    explicit operator bool() const override;
 
-        void sleep(Duration const& duration) const override;
+    void sleep(Duration const& duration) const override;
 
-        Token on_cancelled(CancellationHandler const& cancellation_handler) override;
+    Token on_cancelled(CancellationHandler const& cancellation_handler) override;
 
-        void cancel() override;
-        void reset() override;
+    void cancel() override;
+    void reset() override;
 
-        Token get_cancellator() const override;
-    };
-
+    Token get_cancellator() const override;
+};
 }

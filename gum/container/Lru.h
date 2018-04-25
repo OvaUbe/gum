@@ -22,10 +22,10 @@
 
 #pragma once
 
-#include <unordered_map>
+#include <cassert>
 #include <chrono>
 #include <functional>
-#include <cassert>
+#include <unordered_map>
 
 namespace gum {
 
@@ -39,11 +39,11 @@ namespace gum {
 template <typename K, typename V>
 class LRU {
     /* Inner types */
-public:
+  public:
     using Timestamp = std::chrono::time_point<std::chrono::steady_clock>;
 
     /* Methods */
-public:
+  public:
     /**
      * @brief LRU - ctor.
      * @param capacity - cache maximim capacity (including).
@@ -150,34 +150,31 @@ public:
      */
     bool touch(const K& key);
 
-private:
+  private:
     void _remove_expired();
     size_t _remove_least_recent();
     Timestamp _least_recent_timestamp() const;
 
     /* Fields */
-private:
+  private:
     std::function<size_t(const V&)> m_size_mapper;
     std::unordered_map<K, std::pair<V, Timestamp>> m_pool;
 
     const size_t m_cap;
-
 };
 
 template <typename K, typename V>
 LRU<K, V>::LRU(const size_t capacity)
-    :
-      m_size_mapper([](const V&) -> size_t { return 1; })
+    : m_size_mapper([](const V&) -> size_t { return 1; })
     , m_pool()
-    , m_cap(capacity) { }
+    , m_cap(capacity) {}
 
 template <typename K, typename V>
 template <typename F>
 LRU<K, V>::LRU(const size_t capacity, F&& size_mapper)
-    :
-      m_size_mapper(std::forward<F>(size_mapper))
+    : m_size_mapper(std::forward<F>(size_mapper))
     , m_pool()
-    , m_cap(capacity) { }
+    , m_cap(capacity) {}
 
 template <typename K, typename V>
 size_t LRU<K, V>::size() const {
@@ -204,8 +201,7 @@ std::experimental::optional<V> LRU<K, V>::insert(Key&& key, Value&& value) {
     }
 
     auto now = std::chrono::steady_clock::now();
-    m_pool.emplace(std::forward<Key>(key),
-                   std::pair<V, Timestamp>{ std::forward<Value>(value), std::move(now) });
+    m_pool.emplace(std::forward<Key>(key), std::pair<V, Timestamp>{std::forward<Value>(value), std::move(now)});
 
     _remove_expired();
     return ret;
@@ -308,5 +304,4 @@ typename LRU<K, V>::Timestamp LRU<K, V>::_least_recent_timestamp() const {
 
     return *p_min_ts;
 }
-
 }

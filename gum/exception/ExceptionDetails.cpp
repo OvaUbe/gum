@@ -5,12 +5,10 @@
 
 namespace gum {
 
-    namespace detail {
+namespace detail {
 
-        std::string get_diagnostics_message(char const* message, std::type_info const& client_type_info, Where const& where, Backtrace const& backtrace) {
-            return std::string(String() << demangle(client_type_info.name()) << ": " << message << "\nAt: " << where << "\nBacktrace: " << backtrace);
-        }
-
-    }
-
+std::string get_diagnostics_message(char const* message, std::type_info const& client_type_info, Where const& where, Backtrace const& backtrace) {
+    return std::string(String() << demangle(client_type_info.name()) << ": " << message << "\nAt: " << where << "\nBacktrace: " << backtrace);
+}
+}
 }

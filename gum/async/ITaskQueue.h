@@ -29,15 +29,14 @@
 
 namespace gum {
 
-    struct ITaskQueue {
-        using Task = std::function<void()>;
+struct ITaskQueue {
+    using Task = std::function<void()>;
 
-    public:
-        virtual ~ITaskQueue() { }
+  public:
+    virtual ~ITaskQueue() {}
 
-        virtual void push(Task&& task) = 0;
-    };
-    GUM_DECLARE_PTR(ITaskQueue);
-    GUM_DECLARE_REF(ITaskQueue);
-
+    virtual void push(Task&& task) = 0;
+};
+GUM_DECLARE_PTR(ITaskQueue);
+GUM_DECLARE_REF(ITaskQueue);
 }

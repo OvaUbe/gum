@@ -22,23 +22,21 @@
 
 #pragma once
 
-#include <gum/container/IContainer.h>
 #include <gum/Optional.h>
+#include <gum/container/IContainer.h>
 
 namespace gum {
 
-    template < typename Key_, typename Value_ >
-    struct IReadonlyMap : public virtual IContainer {
-        virtual Optional<Value_> get(Key_ const& key) const = 0;
-        virtual bool contains(Key_ const& key) const = 0;
-    };
+template <typename Key_, typename Value_>
+struct IReadonlyMap : public virtual IContainer {
+    virtual Optional<Value_> get(Key_ const& key) const = 0;
+    virtual bool contains(Key_ const& key) const = 0;
+};
 
-
-    template < typename Key_, typename Value_ >
-    struct IMap : public virtual IReadonlyMap<Key_, Value_> {
-        virtual void set(Key_ const& key, Value_ const& value) = 0;
-        virtual bool remove(Key_ const& key) = 0;
-        virtual void clear() = 0;
-    };
-
+template <typename Key_, typename Value_>
+struct IMap : public virtual IReadonlyMap<Key_, Value_> {
+    virtual void set(Key_ const& key, Value_ const& value) = 0;
+    virtual bool remove(Key_ const& key) = 0;
+    virtual void clear() = 0;
+};
 }

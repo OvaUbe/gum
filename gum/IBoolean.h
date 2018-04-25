@@ -24,10 +24,9 @@
 
 namespace gum {
 
-    struct IBoolean {
-        virtual ~IBoolean() { }
+struct IBoolean {
+    virtual ~IBoolean() {}
 
-        virtual explicit operator bool() const = 0;
-    };
-
+    virtual explicit operator bool() const = 0;
+};
 }

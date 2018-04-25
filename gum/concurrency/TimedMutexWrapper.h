@@ -29,42 +29,37 @@
 
 namespace gum {
 
-    GUM_LOGGER_SINGLETON(MutexLogger);
+GUM_LOGGER_SINGLETON(MutexLogger);
 
+template <typename TimedMutex_>
+class TimedMutexWrapper {
+    TimedMutex_ _impl;
 
-    template < typename TimedMutex_ >
-    class TimedMutexWrapper {
-        TimedMutex_         _impl;
+    OwnerInfo _owner;
 
-        OwnerInfo           _owner;
+  public:
+    TimedMutexWrapper() = default;
 
-    public:
-        TimedMutexWrapper() = default;
+    TimedMutexWrapper(TimedMutexWrapper&& other)
+        : _impl(std::move(other._impl)) {}
 
-        TimedMutexWrapper(TimedMutexWrapper&& other)
-            :   _impl(std::move(other._impl))
-        { }
+    TimedMutexWrapper(TimedMutex_&& impl)
+        : _impl(std::move(impl)) {}
 
-        TimedMutexWrapper(TimedMutex_&& impl)
-            :   _impl(std::move(impl))
-        { }
+    void lock() {
+        const Seconds Threshold = Seconds(3);
+        const ElapsedTime elapsed;
 
-        void lock() {
-            const Seconds Threshold = Seconds(3);
-            const ElapsedTime elapsed;
-
-            while (!_impl.try_lock_for(Threshold)) {
-                MutexLogger::get().warning()
-                    << "Could not lock mutex " << &_impl << " owned by: " << _owner << " for " << elapsed.elapsed_to<Seconds>() << "."
-                    << " There is probably a deadlock.\nBacktrace: " << Backtrace();
-            }
-
-            _owner.acquire();
+        while (!_impl.try_lock_for(Threshold)) {
+            MutexLogger::get().warning() << "Could not lock mutex " << &_impl << " owned by: " << _owner << " for " << elapsed.elapsed_to<Seconds>() << "."
+                                         << " There is probably a deadlock.\nBacktrace: " << Backtrace();
         }
 
-        void unlock() {
-            _impl.unlock();
-        }
-    };
+        _owner.acquire();
+    }
 
+    void unlock() {
+        _impl.unlock();
+    }
+};
 }

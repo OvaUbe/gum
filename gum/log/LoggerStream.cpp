@@ -29,30 +29,27 @@
 
 namespace gum {
 
-    LoggerStream::LoggerStream(LoggerId logger_id, StringLiteral const& logger_name, LogLevel level)
-        :   _logger_id(logger_id),
-            _logger_name(logger_name),
-            _level(level)
-    { }
+LoggerStream::LoggerStream(LoggerId logger_id, StringLiteral const& logger_name, LogLevel level)
+    : _logger_id(logger_id)
+    , _logger_name(logger_name)
+    , _level(level) {}
 
-
-    LoggerStream::~LoggerStream() {
+LoggerStream::~LoggerStream() {
+    try {
+        LogMessage message(_logger_id, SystemClock::now(), _level, Thread::get_own_info()->get_name(), _logger_name, std::move(_message));
         try {
-            LogMessage message(_logger_id, SystemClock::now(), _level, Thread::get_own_info()->get_name(), _logger_name, std::move(_message));
-            try {
-                LoggerManager::get().log(message);
-            } catch (std::exception const& ex) {
-                message.message = String() << "Uncaught exception in LoggerStream::~LoggerStream(), next failure will be dumped to stderr:\n" << ex;
-                LoggerManager::get().log(message);
-            } catch (...) {
-                message.message = String() << "Uncaught exception in LoggerStream::~LoggerStream(), next failure will be dumped to stderr:\n<unknown exception>";
-                LoggerManager::get().log(message);
-            }
+            LoggerManager::get().log(message);
         } catch (std::exception const& ex) {
-            std::cerr << "Uncaught exception in LoggerStream::~LoggerStream():\n" << ex.what() << std::endl;
+            message.message = String() << "Uncaught exception in LoggerStream::~LoggerStream(), next failure will be dumped to stderr:\n" << ex;
+            LoggerManager::get().log(message);
         } catch (...) {
-            std::cerr << "Uncaught exception in LoggerStream::~LoggerStream():\n<unknown exception>" << std::endl;
+            message.message = String() << "Uncaught exception in LoggerStream::~LoggerStream(), next failure will be dumped to stderr:\n<unknown exception>";
+            LoggerManager::get().log(message);
         }
+    } catch (std::exception const& ex) {
+        std::cerr << "Uncaught exception in LoggerStream::~LoggerStream():\n" << ex.what() << std::endl;
+    } catch (...) {
+        std::cerr << "Uncaught exception in LoggerStream::~LoggerStream():\n<unknown exception>" << std::endl;
     }
-
+}
 }

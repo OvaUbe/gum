@@ -26,6 +26,5 @@
 
 namespace gum {
 
-    using namespace std::placeholders;
-
+using namespace std::placeholders;
 }

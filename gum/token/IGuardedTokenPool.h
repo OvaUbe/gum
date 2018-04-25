@@ -27,8 +27,7 @@
 
 namespace gum {
 
-    struct IGuardedTokenPool : public virtual ITokenPool {
-        virtual LifeHandle get_handle() const = 0;
-    };
-
+struct IGuardedTokenPool : public virtual ITokenPool {
+    virtual LifeHandle get_handle() const = 0;
+};
 }

@@ -24,77 +24,61 @@
 
 namespace gum {
 
-    namespace {
+namespace {
 
-        StringLiteral const BlackColorStart("\033[30m");
-        StringLiteral const RedColorStart("\033[31m");
-        StringLiteral const GreenColorStart("\033[32m");
-        StringLiteral const YellowColorStart("\033[33m");
-        StringLiteral const BlueColorStart("\033[34m");
-        StringLiteral const MagentaColorStart("\033[35m");
-        StringLiteral const CyanColorStart("\033[36m");
-        StringLiteral const WhiteColorStart("\033[37m");
+StringLiteral const BlackColorStart("\033[30m");
+StringLiteral const RedColorStart("\033[31m");
+StringLiteral const GreenColorStart("\033[32m");
+StringLiteral const YellowColorStart("\033[33m");
+StringLiteral const BlueColorStart("\033[34m");
+StringLiteral const MagentaColorStart("\033[35m");
+StringLiteral const CyanColorStart("\033[36m");
+StringLiteral const WhiteColorStart("\033[37m");
 
-        StringLiteral const GreyColorStart("\033[30;1m");
-        StringLiteral const BrightRedColorStart("\033[31;1m");
-        StringLiteral const BrightGreenColorStart("\033[32;1m");
-        StringLiteral const BrightYellowColorStart("\033[33;1m");
-        StringLiteral const BrightBlueColorStart("\033[34;1m");
-        StringLiteral const BrightMagentaColorStart("\033[35;1m");
-        StringLiteral const BrightCyanColorStart("\033[36;1m");
-        StringLiteral const BrightWhiteColorStart("\033[37;1m");
+StringLiteral const GreyColorStart("\033[30;1m");
+StringLiteral const BrightRedColorStart("\033[31;1m");
+StringLiteral const BrightGreenColorStart("\033[32;1m");
+StringLiteral const BrightYellowColorStart("\033[33;1m");
+StringLiteral const BrightBlueColorStart("\033[34;1m");
+StringLiteral const BrightMagentaColorStart("\033[35;1m");
+StringLiteral const BrightCyanColorStart("\033[36;1m");
+StringLiteral const BrightWhiteColorStart("\033[37;1m");
 
-        StringLiteral const AttributeReset("\033[0m");
+StringLiteral const AttributeReset("\033[0m");
 
-
-        struct LogLevelColorMapper {
-            StringLiteral operator()(LogLevel level) const {
-                switch (level) {
-                case LogLevel::Trace:
-                    return GreyColorStart;
-                case LogLevel::Debug:
-                    return GreyColorStart;
-                case LogLevel::Info:
-                    return WhiteColorStart;
-                case LogLevel::Warning:
-                    return YellowColorStart;
-                case LogLevel::Error:
-                    return RedColorStart;
-                case LogLevel::Highlight:
-                    return BrightCyanColorStart;
-                default:
-                    GUM_THROW(NotImplementedException());
-                }
-            }
-        };
-
+struct LogLevelColorMapper {
+    StringLiteral operator()(LogLevel level) const {
+        switch (level) {
+        case LogLevel::Trace:
+            return GreyColorStart;
+        case LogLevel::Debug:
+            return GreyColorStart;
+        case LogLevel::Info:
+            return WhiteColorStart;
+        case LogLevel::Warning:
+            return YellowColorStart;
+        case LogLevel::Error:
+            return RedColorStart;
+        case LogLevel::Highlight:
+            return BrightCyanColorStart;
+        default:
+            GUM_THROW(NotImplementedException());
+        }
     }
+};
+}
 
-    void AnsiTerminalLoggerSink::log(LogMessage const& message) {
-        MutexLock l(_mutex);
+void AnsiTerminalLoggerSink::log(LogMessage const& message) {
+    MutexLock l(_mutex);
 
-        StringLiteral const WhenColorStart = BlueColorStart;
-        StringLiteral const ThreadNameColorStart = MagentaColorStart;
-        StringLiteral const AuthorColorStart = GreenColorStart;
-        StringLiteral const LogLevelColorStart = LogLevelColorMapper()(message.level);
+    StringLiteral const WhenColorStart = BlueColorStart;
+    StringLiteral const ThreadNameColorStart = MagentaColorStart;
+    StringLiteral const AuthorColorStart = GreenColorStart;
+    StringLiteral const LogLevelColorStart = LogLevelColorMapper()(message.level);
 
-        printf("%s[%s]%s %s{%s}%s %s[%s]%s %s[%s]%s %s%s%s\n",
-            WhenColorStart.c_str(),
-                to_string(message.when).c_str(),
-            AttributeReset.c_str(),
-            ThreadNameColorStart.c_str(),
-                message.thread->c_str(),
-            AttributeReset.c_str(),
-            AuthorColorStart.c_str(),
-                message.author.c_str(),
-            AttributeReset.c_str(),
-            LogLevelColorStart.c_str(),
-                message.level.to_string().c_str(),
-            AttributeReset.c_str(),
-            LogLevelColorStart.c_str(),
-                message.message.c_str(),
-            AttributeReset.c_str()
-        );
-    }
-
+    printf("%s[%s]%s %s{%s}%s %s[%s]%s %s[%s]%s %s%s%s\n", WhenColorStart.c_str(), to_string(message.when).c_str(), AttributeReset.c_str(),
+           ThreadNameColorStart.c_str(), message.thread->c_str(), AttributeReset.c_str(), AuthorColorStart.c_str(), message.author.c_str(),
+           AttributeReset.c_str(), LogLevelColorStart.c_str(), message.level.to_string().c_str(), AttributeReset.c_str(), LogLevelColorStart.c_str(),
+           message.message.c_str(), AttributeReset.c_str());
+}
 }

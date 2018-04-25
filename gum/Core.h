@@ -28,41 +28,34 @@
 namespace gum {
 
 #if __GNUC__ >= 3 || defined(__clang__)
-#	define GUM_FUNCTION __PRETTY_FUNCTION__
+#define GUM_FUNCTION __PRETTY_FUNCTION__
 #else
-#	define GUM_FUNCTION __func__
+#define GUM_FUNCTION __func__
 #endif
-
 
 #if defined(__GNUC__) || defined(__clang__)
-#	define GUM_LIKELY(x) __builtin_expect((x), 1)
-#	define GUM_UNLIKELY(x) __builtin_expect((x), 0)
+#define GUM_LIKELY(x) __builtin_expect((x), 1)
+#define GUM_UNLIKELY(x) __builtin_expect((x), 0)
 #else
-#	define GUM_LIKELY(x) (x)
-#	define GUM_UNLIKELY(x) (x)
+#define GUM_LIKELY(x) (x)
+#define GUM_UNLIKELY(x) (x)
 #endif
 
+namespace detail {
 
-    namespace detail {
+class Where {
+    char const* _file;
+    size_t _line;
+    char const* _function;
 
-        class Where {
-            char const*   _file;
-            size_t        _line;
-            char const*   _function;
+  public:
+    Where(char const* file, size_t line, char const* function);
 
-        public:
-            Where(char const* file, size_t line, char const* function);
+    std::string to_string() const;
+};
+}
 
-            std::string to_string() const;
-        };
-
-    }
-
-
-#   define GUM_WHERE \
-    gum::detail::Where(__FILE__, __LINE__, GUM_FUNCTION)
-
+#define GUM_WHERE gum::detail::Where(__FILE__, __LINE__, GUM_FUNCTION)
 
 static constexpr auto null = nullptr;
-
 }

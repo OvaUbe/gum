@@ -25,96 +25,78 @@
 #include <gum/diagnostics/Demangle.h>
 #include <gum/exception/ExceptionDetails.h>
 
-#include <gum/string/String.h>
 #include <gum/Types.h>
+#include <gum/string/String.h>
 
 namespace gum {
 
-    struct Exception : public detail::Exception {
-        Exception(String const& message)
-            : detail::Exception(std::string(message))
-        { }
+struct Exception : public detail::Exception {
+    Exception(String const& message)
+        : detail::Exception(std::string(message)) {}
 
-        Exception(char const* message)
-            : detail::Exception(message)
-        { }
-    };
+    Exception(char const* message)
+        : detail::Exception(message) {}
+};
 
+namespace detail {
 
-    namespace detail {
+inline auto make_exception(std::exception const& ex, Where const& where, Backtrace const& backtrace) {
+    return do_make_exception(ex, where, backtrace);
+}
 
-        inline auto make_exception(std::exception const& ex, Where const& where, Backtrace const& backtrace) {
-            return do_make_exception(ex, where, backtrace);
-        }
+inline auto make_exception(String const& message, Where const& where, Backtrace const& backtrace) {
+    return do_make_exception(gum::Exception(message), where, backtrace);
+}
 
-        inline auto make_exception(String const& message, Where const& where, Backtrace const& backtrace) {
-            return do_make_exception(gum::Exception(message), where, backtrace);
-        }
+inline auto make_exception(String&& message, Where const& where, Backtrace const& backtrace) {
+    return do_make_exception(gum::Exception(message), where, backtrace);
+}
 
-        inline auto make_exception(String&& message, Where const& where, Backtrace const& backtrace) {
-            return do_make_exception(gum::Exception(message), where, backtrace);
-        }
+inline auto make_exception(char const* message, Where const& where, Backtrace const& backtrace) {
+    return do_make_exception(gum::Exception(message), where, backtrace);
+}
+}
 
-        inline auto make_exception(char const* message, Where const& where, Backtrace const& backtrace) {
-            return do_make_exception(gum::Exception(message), where, backtrace);
-        }
+#define GUM_THROW(Ex_) throw gum::detail::make_exception(Ex_, GUM_WHERE, gum::Backtrace())
 
+#define GUM_CHECK(Condition_, Otherwise_)                                                                                                                      \
+    if (GUM_UNLIKELY(!(Condition_)))                                                                                                                           \
+    GUM_THROW(Otherwise_)
+
+#define GUM_DECLARE_EXCEPTION(Type_, DefaultMessage_)                                                                                                          \
+    struct Type_ : public gum::Exception {                                                                                                                     \
+        Type_()                                                                                                                                                \
+            : gum::Exception(DefaultMessage_) {}                                                                                                               \
+                                                                                                                                                               \
+        Type_(const String& message)                                                                                                                           \
+            : gum::Exception(String() << DefaultMessage_ << ": " << message) {}                                                                                \
     }
 
+GUM_DECLARE_EXCEPTION(NullPointerException, "Accessing null pointer");
+GUM_DECLARE_EXCEPTION(InternalError, "Internal error");
+GUM_DECLARE_EXCEPTION(LogicError, "Logic error");
+GUM_DECLARE_EXCEPTION(NotImplementedException, "Not implemented");
 
-#   define GUM_THROW(Ex_) \
-        throw gum::detail::make_exception(Ex_, GUM_WHERE, gum::Backtrace())
+struct IndexOutOfRangeException : public Exception {
+    IndexOutOfRangeException(u64 index, u64 begin, u64 end);
+    IndexOutOfRangeException(s64 index, s64 begin, s64 end);
+    IndexOutOfRangeException(u64 index, u64 size);
+    IndexOutOfRangeException(s64 index, s64 size);
+};
 
-#   define GUM_CHECK(Condition_, Otherwise_) \
-        if (GUM_UNLIKELY(!(Condition_))) GUM_THROW(Otherwise_)
+#define GUM_CHECK_RANGE(Index_, Begin_, End_) GUM_CHECK((Index_ >= Begin_) && (Index_ < End_), gum::IndexOutOfRangeException(Index_, Begin_, End_))
 
+#define GUM_CHECK_INDEX(Index_, Size_) GUM_CHECK((Index_ < Size_), gum::IndexOutOfRangeException(Index_, Size_))
 
-#   define GUM_DECLARE_EXCEPTION(Type_, DefaultMessage_) \
-        struct Type_ : public gum::Exception { \
-            Type_() \
-                :   gum::Exception(DefaultMessage_) \
-            { } \
-            \
-            Type_(const String& message) \
-                :   gum::Exception(String() << DefaultMessage_ << ": " << message) \
-            { } \
-        }
+template <typename From_, typename To_>
+struct InvalidCastException : public Exception {
+    InvalidCastException(From_ const& from)
+        : Exception(String() << "Invalid cast from '" << demangle(typeid(from).name()) << "' to '" << demangle(typeid(To_).name()) << "'") {}
+};
 
-
-    GUM_DECLARE_EXCEPTION(NullPointerException, "Accessing null pointer");
-    GUM_DECLARE_EXCEPTION(InternalError, "Internal error");
-    GUM_DECLARE_EXCEPTION(LogicError, "Logic error");
-    GUM_DECLARE_EXCEPTION(NotImplementedException, "Not implemented");
-
-
-    struct IndexOutOfRangeException : public Exception {
-        IndexOutOfRangeException(u64 index, u64 begin, u64 end);
-        IndexOutOfRangeException(s64 index, s64 begin, s64 end);
-        IndexOutOfRangeException(u64 index, u64 size);
-        IndexOutOfRangeException(s64 index, s64 size);
-    };
-
-
-#   define GUM_CHECK_RANGE(Index_, Begin_, End_) \
-        GUM_CHECK((Index_ >= Begin_) && (Index_ < End_), gum::IndexOutOfRangeException(Index_, Begin_, End_))
-
-#   define GUM_CHECK_INDEX(Index_, Size_) \
-        GUM_CHECK((Index_ < Size_), gum::IndexOutOfRangeException(Index_, Size_))
-
-
-    template < typename From_, typename To_ >
-    struct InvalidCastException : public Exception {
-        InvalidCastException(From_ const& from)
-            :   Exception(String() << "Invalid cast from '" << demangle(typeid(from).name()) << "' to '" << demangle(typeid(To_).name()) << "'")
-        { }
-    };
-
-
-    struct ArgumentException : public Exception {
-        template < typename Arg_ >
-        ArgumentException(String const& name, Arg_ const& arg)
-            :   Exception(String() << "Unwanted argument '" << name << "':" << arg)
-        { }
-    };
-
+struct ArgumentException : public Exception {
+    template <typename Arg_>
+    ArgumentException(String const& name, Arg_ const& arg)
+        : Exception(String() << "Unwanted argument '" << name << "':" << arg) {}
+};
 }

@@ -30,61 +30,60 @@
 namespace gum {
 namespace gnu {
 
-    namespace {
+namespace {
 
-        using BacktraceArray = std::array<uintptr_t, 64>;
+using BacktraceArray = std::array<uintptr_t, 64>;
 
-        struct BacktraceHolder {
-            using Self = BacktraceHolder;
+struct BacktraceHolder {
+    using Self = BacktraceHolder;
 
-        private:
-            BacktraceArray  _array;
-            size_t          _size;
-            _Unwind_Word    _cfa;
+  private:
+    BacktraceArray _array;
+    size_t _size;
+    _Unwind_Word _cfa;
 
-        public:
-            BacktraceHolder()
-                :   _size(),
-                    _cfa()
-            { _Unwind_Backtrace(&Self::UnwindCallback, this); }
-
-            BacktraceArray const& get_array() const {
-                return _array;
-            }
-
-            size_t get_size() const {
-                return _size;
-            }
-
-        private:
-            static _Unwind_Reason_Code UnwindCallback(struct _Unwind_Context* ctx, void* self)
-            { return static_cast<BacktraceHolder*>(self)->UnwindFrame(ctx); }
-
-            _Unwind_Reason_Code UnwindFrame(struct _Unwind_Context* ctx)
-            {
-                _Unwind_Ptr ip = _Unwind_GetIP(ctx);
-                _Unwind_Word cfa = _Unwind_GetCFA(ctx);
-                if (_size != 0 && _array[_size - 1] == ip && cfa == _cfa)
-                    return _URC_END_OF_STACK;
-
-                _cfa = cfa;
-                _array[_size++] = ip;
-
-                return (_size >= _array.size()) ? _URC_END_OF_STACK : _URC_NO_REASON;
-            }
-        };
-
+  public:
+    BacktraceHolder()
+        : _size()
+        , _cfa() {
+        _Unwind_Backtrace(&Self::UnwindCallback, this);
     }
 
-
-    std::string BacktraceGetter::operator()() const {
-        BacktraceHolder backtrace;
-
-        std::stringstream ss;
-        for (size_t i = 0; i < backtrace.get_size(); ++i)
-            ss << std::hex << "0x" << backtrace.get_array()[i] << " ";
-
-        return ss.str();
+    BacktraceArray const& get_array() const {
+        return _array;
     }
 
-}}
+    size_t get_size() const {
+        return _size;
+    }
+
+  private:
+    static _Unwind_Reason_Code UnwindCallback(struct _Unwind_Context* ctx, void* self) {
+        return static_cast<BacktraceHolder*>(self)->UnwindFrame(ctx);
+    }
+
+    _Unwind_Reason_Code UnwindFrame(struct _Unwind_Context* ctx) {
+        _Unwind_Ptr ip = _Unwind_GetIP(ctx);
+        _Unwind_Word cfa = _Unwind_GetCFA(ctx);
+        if (_size != 0 && _array[_size - 1] == ip && cfa == _cfa)
+            return _URC_END_OF_STACK;
+
+        _cfa = cfa;
+        _array[_size++] = ip;
+
+        return (_size >= _array.size()) ? _URC_END_OF_STACK : _URC_NO_REASON;
+    }
+};
+}
+
+std::string BacktraceGetter::operator()() const {
+    BacktraceHolder backtrace;
+
+    std::stringstream ss;
+    for (size_t i = 0; i < backtrace.get_size(); ++i)
+        ss << std::hex << "0x" << backtrace.get_array()[i] << " ";
+
+    return ss.str();
+}
+}
+}

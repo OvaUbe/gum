@@ -26,18 +26,19 @@
 
 namespace gum {
 
-    struct DummyCancellationHandle : public virtual ICancellationHandle {
-        explicit operator bool() const override { return true; }
+struct DummyCancellationHandle : public virtual ICancellationHandle {
+    explicit operator bool() const override {
+        return true;
+    }
 
-        void sleep(Duration const& duration) const override;
+    void sleep(Duration const& duration) const override;
 
-        Token on_cancelled(CancellationHandler const&) override {
-            return Token();
-        }
+    Token on_cancelled(CancellationHandler const&) override {
+        return Token();
+    }
 
-        DummyCancellationHandle& operator*() {
-            return *this;
-        }
-    };
-
+    DummyCancellationHandle& operator*() {
+        return *this;
+    }
+};
 }

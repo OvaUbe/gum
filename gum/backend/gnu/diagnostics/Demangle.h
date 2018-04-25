@@ -27,8 +27,8 @@
 namespace gum {
 namespace gnu {
 
-    struct Demangler {
-        std::string operator()(std::string const& str) const;
-    };
-
-}}
+struct Demangler {
+    std::string operator()(std::string const& str) const;
+};
+}
+}

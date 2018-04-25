@@ -24,25 +24,25 @@
 
 namespace gum {
 
-    template < typename Mutex_ >
-    class GenericMutexLock {
-        Mutex_ const& _mutex;
+template <typename Mutex_>
+class GenericMutexLock {
+    Mutex_ const& _mutex;
 
-    public:
-        GenericMutexLock() = delete;
-        GenericMutexLock(GenericMutexLock const&) = delete;
-        GenericMutexLock(GenericMutexLock&&) = delete;
+  public:
+    GenericMutexLock() = delete;
+    GenericMutexLock(GenericMutexLock const&) = delete;
+    GenericMutexLock(GenericMutexLock&&) = delete;
 
-        GenericMutexLock(Mutex_ const& mutex)
-            :   _mutex(mutex)
-        { _mutex.lock(); }
+    GenericMutexLock(Mutex_ const& mutex)
+        : _mutex(mutex) {
+        _mutex.lock();
+    }
 
-        ~GenericMutexLock() {
-            _mutex.unlock();
-        }
+    ~GenericMutexLock() {
+        _mutex.unlock();
+    }
 
-        GenericMutexLock& operator=(GenericMutexLock const&) = delete;
-        GenericMutexLock& operator=(GenericMutexLock&&) = delete;
-    };
-
+    GenericMutexLock& operator=(GenericMutexLock const&) = delete;
+    GenericMutexLock& operator=(GenericMutexLock&&) = delete;
+};
 }

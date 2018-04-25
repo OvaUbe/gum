@@ -22,34 +22,33 @@
 
 #pragma once
 
+#include <gum/Singleton.h>
 #include <gum/log/ILoggerSink.h>
 #include <gum/token/Token.h>
-#include <gum/Singleton.h>
 
 namespace gum {
 
-    class LoggerManager {
-        GUM_SINGLETON(LoggerManager)
+class LoggerManager {
+    GUM_SINGLETON(LoggerManager)
 
-        using Self = LoggerManager;
+    using Self = LoggerManager;
 
-        class Impl;
-        GUM_DECLARE_REF(Impl);
+    class Impl;
+    GUM_DECLARE_REF(Impl);
 
-    private:
-        ImplRef _impl;
+  private:
+    ImplRef _impl;
 
-    public:
-        LoggerManager();
+  public:
+    LoggerManager();
 
-        static Self& get();
+    static Self& get();
 
-        Token register_logger_sink(ILoggerSinkRef const& logger_sink);
-        Token register_logger(LoggerId logger_id, LogLevel default_log_level);
+    Token register_logger_sink(ILoggerSinkRef const& logger_sink);
+    Token register_logger(LoggerId logger_id, LogLevel default_log_level);
 
-        void set_logger_level(LoggerId logger_id, LogLevel level);
+    void set_logger_level(LoggerId logger_id, LogLevel level);
 
-        void log(LogMessage const& message);
-    };
-
+    void log(LogMessage const& message);
+};
 }

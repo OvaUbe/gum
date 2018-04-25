@@ -27,11 +27,10 @@
 
 namespace gum {
 
-    String StringRepresentableTrait<TimePoint>::to_string(TimePoint const& point) {
-        std::time_t const now_c = SystemClock::to_time_t(point);
-        std::stringstream ss;
-        ss << std::put_time(std::localtime(&now_c), "%F %T");
-        return ss.str();
-    }
-
+String StringRepresentableTrait<TimePoint>::to_string(TimePoint const& point) {
+    std::time_t const now_c = SystemClock::to_time_t(point);
+    std::stringstream ss;
+    ss << std::put_time(std::localtime(&now_c), "%F %T");
+    return ss.str();
+}
 }

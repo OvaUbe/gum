@@ -27,11 +27,10 @@
 
 namespace gum {
 
-    class StandardLoggerSink : public virtual ILoggerSink {
-        Mutex _mutex;
+class StandardLoggerSink : public virtual ILoggerSink {
+    Mutex _mutex;
 
-    public:
-        void log(LogMessage const& message) override;
-    };
-
+  public:
+    void log(LogMessage const& message) override;
+};
 }

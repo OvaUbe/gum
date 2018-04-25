@@ -26,23 +26,21 @@
 
 namespace gum {
 
-template < typename Value_ >
-struct AbsenceTrait : std::false_type { };
+template <typename Value_>
+struct AbsenceTrait : std::false_type {};
 
-template < >
-struct AbsenceTrait<std::nullptr_t> : std::true_type { };
+template <>
+struct AbsenceTrait<std::nullptr_t> : std::true_type {};
 
-template < typename Value_ >
-struct AbsenceTrait<Value_*> : std::true_type { };
+template <typename Value_>
+struct AbsenceTrait<Value_*> : std::true_type {};
 
-
-template < typename >
+template <typename>
 class Maybe;
 
-template < typename Value_ >
-struct IsMaybe : std::false_type { };
+template <typename Value_>
+struct IsMaybe : std::false_type {};
 
-template < typename Value_ >
-struct IsMaybe<Maybe<Value_>> : std::true_type { };
-
+template <typename Value_>
+struct IsMaybe<Maybe<Value_>> : std::true_type {};
 }

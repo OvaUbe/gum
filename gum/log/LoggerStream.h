@@ -31,25 +31,24 @@
 
 namespace gum {
 
-    class LoggerStream {
-        using Self = LoggerStream;
+class LoggerStream {
+    using Self = LoggerStream;
 
-    private:
-        LoggerId        _logger_id;
-        StringLiteral   _logger_name;
-        LogLevel        _level;
+  private:
+    LoggerId _logger_id;
+    StringLiteral _logger_name;
+    LogLevel _level;
 
-        String          _message;
+    String _message;
 
-    public:
-        LoggerStream(LoggerId logger_id, StringLiteral const& logger_name, LogLevel level);
-        ~LoggerStream();
+  public:
+    LoggerStream(LoggerId logger_id, StringLiteral const& logger_name, LogLevel level);
+    ~LoggerStream();
 
-        template < typename Value_ >
-        Self& operator<<(const Value_& value) {
-            _message << value;
-            return *this;
-        }
-    };
-
+    template <typename Value_>
+    Self& operator<<(const Value_& value) {
+        _message << value;
+        return *this;
+    }
+};
 }

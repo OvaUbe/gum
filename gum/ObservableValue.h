@@ -26,61 +26,60 @@
 
 namespace gum {
 
-    template < typename Value_, typename Equals_ = std::equal_to<> >
-    class ObservableValue : public virtual IObservableValue<Value_> {
-        using Self = ObservableValue;
-        using Base = IObservableValue<Value_>;
+template <typename Value_, typename Equals_ = std::equal_to<>>
+class ObservableValue : public virtual IObservableValue<Value_> {
+    using Self = ObservableValue;
+    using Base = IObservableValue<Value_>;
 
-        using PassingValue = typename Base::PassingValue;
-        using ChangedSignature = typename Base::ChangedSignature;
+    using PassingValue = typename Base::PassingValue;
+    using ChangedSignature = typename Base::ChangedSignature;
 
-    private:
-        Equals_                     _equals;
+  private:
+    Equals_ _equals;
 
-        Value_                      _value;
-        Signal<ChangedSignature>    _changed;
+    Value_ _value;
+    Signal<ChangedSignature> _changed;
 
-    public:
-        ObservableValue(Value_ const& value)
-            :   _value(value),
-                _changed([this](auto const& slot) { slot(_value); }) { }
+  public:
+    ObservableValue(Value_ const& value)
+        : _value(value)
+        , _changed([this](auto const& slot) { slot(_value); }) {}
 
-        ObservableValue(Value_&& value = Value_())
-            :   _value(std::move(value)),
-                _changed([this](auto const& slot) { slot(_value); }) { }
+    ObservableValue(Value_&& value = Value_())
+        : _value(std::move(value))
+        , _changed([this](auto const& slot) { slot(_value); }) {}
 
-        void set(PassingValue value) override {
-            SignalLock l(get_mutex());
+    void set(PassingValue value) override {
+        SignalLock l(get_mutex());
 
-            if (_equals(_value, value))
-                return;
+        if (_equals(_value, value))
+            return;
 
-            _value = value;
-            _changed(_value);
-        }
+        _value = value;
+        _changed(_value);
+    }
 
-        Value_ get() const override {
-            SignalLock l(get_mutex());
+    Value_ get() const override {
+        SignalLock l(get_mutex());
 
-            return _value;
-        }
+        return _value;
+    }
 
-        const SignalMutex& get_mutex() const override {
-            return _changed.get_mutex();
-        }
+    const SignalMutex& get_mutex() const override {
+        return _changed.get_mutex();
+    }
 
-        SignalHandle<ChangedSignature> changed() const override {
-            return _changed.get_handle();
-        }
+    SignalHandle<ChangedSignature> changed() const override {
+        return _changed.get_handle();
+    }
 
-        Self& operator=(PassingValue value) {
-            set(value);
-            return *this;
-        }
+    Self& operator=(PassingValue value) {
+        set(value);
+        return *this;
+    }
 
-        operator Value_() const {
-            return get();
-        }
-    };
-
+    operator Value_() const {
+        return get();
+    }
+};
 }

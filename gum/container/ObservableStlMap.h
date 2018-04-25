@@ -26,95 +26,94 @@
 
 namespace gum {
 
-    template < typename Key_, typename Value_, typename Impl_ >
-    class ObservableStlMap : public virtual IObservableMap<Key_, Value_> {
-        using Base = IObservableMap<Key_, Value_>;
-        using ChangedSignature = typename Base::ChangedSignature;
+template <typename Key_, typename Value_, typename Impl_>
+class ObservableStlMap : public virtual IObservableMap<Key_, Value_> {
+    using Base = IObservableMap<Key_, Value_>;
+    using ChangedSignature = typename Base::ChangedSignature;
 
-    private:
-        Impl_                       _impl;
-        Signal<ChangedSignature>    _changed;
+  private:
+    Impl_ _impl;
+    Signal<ChangedSignature> _changed;
 
-    public:
-        template < typename ...Args_ >
-        ObservableStlMap(Args_&& ...args)
-            :   _impl(std::forward<Args_>(args)...),
-                _changed([this](auto const& slot){ changedPopulator(slot); }) { }
+  public:
+    template <typename... Args_>
+    ObservableStlMap(Args_&&... args)
+        : _impl(std::forward<Args_>(args)...)
+        , _changed([this](auto const& slot) { changedPopulator(slot); }) {}
 
-        void set(const Key_& key, const Value_& value) override {
-            gum::SignalLock l(get_mutex());
+    void set(const Key_& key, const Value_& value) override {
+        gum::SignalLock l(get_mutex());
 
-            MapOp op = MapOp::Added;
-            const auto insertionResult = _impl.emplace(key, value);
-            if (insertionResult.second) {
-                insertionResult.first->second = value;
-                op = MapOp::Updated;
-            }
-
-            _changed(op, key, value);
+        MapOp op = MapOp::Added;
+        const auto insertionResult = _impl.emplace(key, value);
+        if (insertionResult.second) {
+            insertionResult.first->second = value;
+            op = MapOp::Updated;
         }
 
-        bool remove(const Key_& key) override {
-            gum::SignalLock l(get_mutex());
+        _changed(op, key, value);
+    }
 
-            const auto iter = _impl.find(key);
-            if (iter == _impl.end())
-                return false;
+    bool remove(const Key_& key) override {
+        gum::SignalLock l(get_mutex());
 
-            const Value_ value = iter->second;
-            _impl.erase(iter);
-            _changed(MapOp::Removed, key, value);
+        const auto iter = _impl.find(key);
+        if (iter == _impl.end())
+            return false;
 
-            return true;
-        }
+        const Value_ value = iter->second;
+        _impl.erase(iter);
+        _changed(MapOp::Removed, key, value);
 
-        void clear() override {
-            gum::SignalLock l(get_mutex());
+        return true;
+    }
 
-            Impl_ swapped;
-            _impl.swap(swapped);
+    void clear() override {
+        gum::SignalLock l(get_mutex());
 
-            for (const auto& kv : swapped)
-                _changed(MapOp::Removed, kv.first, kv.second);
-        }
+        Impl_ swapped;
+        _impl.swap(swapped);
 
-        gum::Optional<Value_> get(const Key_& key) const override {
-            gum::SignalLock l(get_mutex());
+        for (const auto& kv : swapped)
+            _changed(MapOp::Removed, kv.first, kv.second);
+    }
 
-            const auto iter = _impl.find(key);
-            if (iter == _impl.end())
-                return nullptr;
-            return iter->second;
-        }
+    gum::Optional<Value_> get(const Key_& key) const override {
+        gum::SignalLock l(get_mutex());
 
-        bool contains(const Key_& key) const override {
-            gum::SignalLock l(get_mutex());
-            return _impl.count(key);
-        }
+        const auto iter = _impl.find(key);
+        if (iter == _impl.end())
+            return nullptr;
+        return iter->second;
+    }
 
-        bool is_empty() const override {
-            gum::SignalLock l(get_mutex());
-            return _impl.empty();
-        }
+    bool contains(const Key_& key) const override {
+        gum::SignalLock l(get_mutex());
+        return _impl.count(key);
+    }
 
-        size_t get_count() const override {
-            gum::SignalLock l(get_mutex());
-            return _impl.size();
-        }
+    bool is_empty() const override {
+        gum::SignalLock l(get_mutex());
+        return _impl.empty();
+    }
 
-        const SignalMutex& get_mutex() const override {
-            return _changed.get_mutex();
-        }
+    size_t get_count() const override {
+        gum::SignalLock l(get_mutex());
+        return _impl.size();
+    }
 
-        SignalHandle<ChangedSignature> changed() const override {
-            return _changed.get_handle();
-        }
+    const SignalMutex& get_mutex() const override {
+        return _changed.get_mutex();
+    }
 
-    private:
-        void changedPopulator(const std::function<ChangedSignature>& slot) {
-            for (const auto& kv : _impl)
-                slot(MapOp::Added, kv.first, kv.second);
-        }
-    };
+    SignalHandle<ChangedSignature> changed() const override {
+        return _changed.get_handle();
+    }
 
+  private:
+    void changedPopulator(const std::function<ChangedSignature>& slot) {
+        for (const auto& kv : _impl)
+            slot(MapOp::Added, kv.first, kv.second);
+    }
+};
 }

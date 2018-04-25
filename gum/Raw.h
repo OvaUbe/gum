@@ -22,15 +22,15 @@
 
 #pragma once
 
-#include <stdint.h>
 #include <cassert>
-#include <utility>
+#include <stdint.h>
 #include <type_traits>
+#include <utility>
 
 #ifdef __GNUC__
-    #include <endian.h>
+#include <endian.h>
 #else
-    #error "Please define your byte order macros"
+#error "Please define your byte order macros"
 #endif
 
 namespace gum {
@@ -50,49 +50,54 @@ constexpr ByteOrder byte_order() {
 #elif (BYTE_ORDER == PDP_ENDIAN)
     return ByteOrder::PDP;
 #else
-    #error "Byte order is unknown"
+#error "Byte order is unknown"
 #endif
 }
 
 template <typename T>
 union Split {
-public:
+  public:
     using ValueType = T;
-    using ByteType  = uint8_t;
+    using ByteType = uint8_t;
 
-public:
-    template <typename ...Args>
-    Split(Args&&... args) : m_value(std::forward<Args>(args)...) { }
+  public:
+    template <typename... Args>
+    Split(Args&&... args)
+        : m_value(std::forward<Args>(args)...) {}
 
-    operator ValueType&() { return m_value; }
+    operator ValueType&() {
+        return m_value;
+    }
 
     constexpr ByteType& operator[](uint8_t index) {
         constexpr uint8_t final = sizeof(ValueType) - 1;
         switch (byte_order()) {
-            case ByteOrder::Little : return m_split[final - index];
-            case ByteOrder::Big    : return m_split[index];
-            case ByteOrder::PDP    : return m_split[final - ((index & 1) ? (index - 1) : (index + 1))];
-            default                : assert(false);
+        case ByteOrder::Little:
+            return m_split[final - index];
+        case ByteOrder::Big:
+            return m_split[index];
+        case ByteOrder::PDP:
+            return m_split[final - ((index & 1) ? (index - 1) : (index + 1))];
+        default:
+            assert(false);
         }
     }
 
-private:
+  private:
     ValueType m_value;
-    ByteType  m_split[sizeof(ValueType)];
-
+    ByteType m_split[sizeof(ValueType)];
 };
 
 template <typename T>
 using RawMemory = typename std::aligned_storage<sizeof(T), alignof(T)>::type;
 
 template <typename T>
-class StorageFor
-{
+class StorageFor {
     /* Methods */
-public:
-    template <typename ...Args_>
+  public:
+    template <typename... Args_>
     void ctor(Args_&&... args) {
-        new(ptr()) T(std::forward<Args_>(args)...);
+        new (ptr()) T(std::forward<Args_>(args)...);
     }
 
     void dtor() {
@@ -120,9 +125,7 @@ public:
     }
 
     /* Fields */
-private:
+  private:
     RawMemory<T> m_storage;
-
 };
-
 }

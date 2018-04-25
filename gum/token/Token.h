@@ -26,35 +26,31 @@
 
 namespace gum {
 
-    struct IToken {
-        virtual ~IToken() { }
-    };
-    GUM_DECLARE_UNIQUE_PTR(IToken);
+struct IToken {
+    virtual ~IToken() {}
+};
+GUM_DECLARE_UNIQUE_PTR(IToken);
 
+class Token {
+    ITokenUniquePtr _impl;
 
-    class Token {
-        ITokenUniquePtr _impl;
+  public:
+    Token() = default;
 
-    public:
-        Token() = default;
+    Token(ITokenUniquePtr&& impl)
+        : _impl(std::move(impl)) {}
 
-        Token(ITokenUniquePtr&& impl)
-            :   _impl(std::move(impl))
-        { }
-
-        explicit operator bool () const {
-            return (bool)_impl;
-        }
-
-        void release() {
-            _impl.reset();
-        }
-    };
-
-
-    template < typename Token_, typename ...Args_ >
-    auto make_token(Args_&&... args) {
-        return Token(make_unique<Token_>(std::forward<Args_>(args)...));
+    explicit operator bool() const {
+        return (bool)_impl;
     }
 
+    void release() {
+        _impl.reset();
+    }
+};
+
+template <typename Token_, typename... Args_>
+auto make_token(Args_&&... args) {
+    return Token(make_unique<Token_>(std::forward<Args_>(args)...));
+}
 }

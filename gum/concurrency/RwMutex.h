@@ -22,78 +22,69 @@
 
 #pragma once
 
-#include <gum/concurrency/ImmutableMutexWrapper.h>
 #include <gum/concurrency/GenericMutexLock.h>
+#include <gum/concurrency/ImmutableMutexWrapper.h>
 #include <gum/concurrency/TimedMutexWrapper.h>
 
 #include <shared_mutex>
 
 namespace gum {
 
-    namespace detail {
+namespace detail {
 
-        using RwMutexImpl = std::shared_timed_mutex;
+using RwMutexImpl = std::shared_timed_mutex;
 
+class ExclusiveTimedMutex {
+    detail::RwMutexImpl& _impl;
 
-        class ExclusiveTimedMutex {
-            detail::RwMutexImpl& _impl;
+  public:
+    ExclusiveTimedMutex(detail::RwMutexImpl& impl)
+        : _impl(impl) {}
 
-        public:
-            ExclusiveTimedMutex(detail::RwMutexImpl& impl)
-                :   _impl(impl)
-            { }
-
-            bool try_lock_for(Duration const& duration) {
-                return _impl.try_lock_for(duration);
-            }
-
-            void unlock() {
-                _impl.unlock();
-            }
-        };
-        using ExclusiveMutex = TimedMutexWrapper<detail::ExclusiveTimedMutex>;
-
-
-        class SharedTimedMutex {
-            detail::RwMutexImpl& _impl;
-
-        public:
-            SharedTimedMutex(detail::RwMutexImpl& impl)
-                :   _impl(impl)
-            { }
-
-            bool try_lock_for(Duration const& duration) {
-                return _impl.try_lock_shared_for(duration);
-            }
-
-            void unlock() {
-                _impl.unlock_shared();
-            }
-        };
-        using SharedMutex = TimedMutexWrapper<detail::SharedTimedMutex>;
-
+    bool try_lock_for(Duration const& duration) {
+        return _impl.try_lock_for(duration);
     }
 
+    void unlock() {
+        _impl.unlock();
+    }
+};
+using ExclusiveMutex = TimedMutexWrapper<detail::ExclusiveTimedMutex>;
 
-    using ExclusiveMutex = ImmutableMutexWrapper<detail::ExclusiveMutex>;
-    using SharedMutex = ImmutableMutexWrapper<detail::SharedMutex>;
+class SharedTimedMutex {
+    detail::RwMutexImpl& _impl;
 
+  public:
+    SharedTimedMutex(detail::RwMutexImpl& impl)
+        : _impl(impl) {}
 
-    class RwMutex {
-        mutable detail::RwMutexImpl _impl;
+    bool try_lock_for(Duration const& duration) {
+        return _impl.try_lock_shared_for(duration);
+    }
 
-    public:
-        ExclusiveMutex get_exclusive() const {
-            return detail::ExclusiveMutex(_impl);
-        }
+    void unlock() {
+        _impl.unlock_shared();
+    }
+};
+using SharedMutex = TimedMutexWrapper<detail::SharedTimedMutex>;
+}
 
-        SharedMutex get_shared() const {
-            return detail::SharedMutex(_impl);
-        }
-    };
+using ExclusiveMutex = ImmutableMutexWrapper<detail::ExclusiveMutex>;
+using SharedMutex = ImmutableMutexWrapper<detail::SharedMutex>;
 
+class RwMutex {
+    mutable detail::RwMutexImpl _impl;
 
-    using ExclusiveMutexLock = GenericMutexLock<ExclusiveMutex>;
-    using SharedMutexLock = GenericMutexLock<SharedMutex>;
+  public:
+    ExclusiveMutex get_exclusive() const {
+        return detail::ExclusiveMutex(_impl);
+    }
 
+    SharedMutex get_shared() const {
+        return detail::SharedMutex(_impl);
+    }
+};
+
+using ExclusiveMutexLock = GenericMutexLock<ExclusiveMutex>;
+using SharedMutexLock = GenericMutexLock<SharedMutex>;
 }

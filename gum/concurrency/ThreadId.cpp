@@ -26,15 +26,12 @@
 
 namespace gum {
 
-    ThreadId::ThreadId(Impl const& impl)
-        :   _impl(impl)
-    { }
+ThreadId::ThreadId(Impl const& impl)
+    : _impl(impl) {}
 
-
-    String ThreadId::to_string() const {
-        std::stringstream ss;
-        ss << _impl;
-        return ss.str();
-    }
-
+String ThreadId::to_string() const {
+    std::stringstream ss;
+    ss << _impl;
+    return ss.str();
+}
 }

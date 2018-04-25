@@ -26,29 +26,24 @@
 
 namespace gum {
 
-#   define GUM_TRY_LOGGER(Message_, LogLevel_, Logger_, ...) \
-        try {\
-            __VA_ARGS__; \
-        } \
-        catch (std::exception const& ex) { \
-            Logger_.log(LogLevel_) << Message_ << ":\n" << ex; \
-        } \
-        catch (...) { \
-            Logger_.log(LogLevel_) << Message_ << ":\n<unknown exception>"; \
-        }
-
-#   define GUM_TRY_LEVEL(Message_, LogLevel_, ...) \
-        GUM_TRY_LOGGER(Message_, LogLevel_, _logger, __VA_ARGS__)
-
-#   define GUM_TRY(Message_, ...) \
-        GUM_TRY_LEVEL(Message_, LogLevel::Warning, __VA_ARGS__)
-
-
-    template < typename Wrapped_ >
-    auto try_(Wrapped_&& wrapped, LogLevel log_level = LogLevel::Warning, StringLiteral const& message = "Uncaught exception", Logger& logger = GlobalLogger::get()) {
-        return [wrapped=std::forward<Wrapped_>(wrapped), log_level, message, &logger](auto&& ...args) {
-            GUM_TRY_LOGGER(message, log_level, logger, wrapped(std::forward<decltype(args)>(args)...));
-        };
+#define GUM_TRY_LOGGER(Message_, LogLevel_, Logger_, ...)                                                                                                      \
+    try {                                                                                                                                                      \
+        __VA_ARGS__;                                                                                                                                           \
+    } catch (std::exception const& ex) {                                                                                                                       \
+        Logger_.log(LogLevel_) << Message_ << ":\n" << ex;                                                                                                     \
+    } catch (...) {                                                                                                                                            \
+        Logger_.log(LogLevel_) << Message_ << ":\n<unknown exception>";                                                                                        \
     }
 
+#define GUM_TRY_LEVEL(Message_, LogLevel_, ...) GUM_TRY_LOGGER(Message_, LogLevel_, _logger, __VA_ARGS__)
+
+#define GUM_TRY(Message_, ...) GUM_TRY_LEVEL(Message_, LogLevel::Warning, __VA_ARGS__)
+
+template <typename Wrapped_>
+auto try_(Wrapped_&& wrapped, LogLevel log_level = LogLevel::Warning, StringLiteral const& message = "Uncaught exception",
+          Logger& logger = GlobalLogger::get()) {
+    return [wrapped = std::forward<Wrapped_>(wrapped), log_level, message, &logger](auto&&... args) {
+        GUM_TRY_LOGGER(message, log_level, logger, wrapped(std::forward<decltype(args)>(args)...));
+    };
+}
 }

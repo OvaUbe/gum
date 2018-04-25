@@ -22,19 +22,17 @@
 
 #pragma once
 
-#include <gum/log/Logger.h>
 #include <gum/Singleton.h>
+#include <gum/log/Logger.h>
 
 namespace gum {
 
-#   define GUM_LOGGER_SINGLETON(Name_) \
-        class Name_ : public Logger, public Singleton<Name_> { \
-            GUM_SINGLETON(Name_) \
-        \
-        public: \
-            Name_() \
-                :   Logger(#Name_) \
-            { } \
-        }
-
+#define GUM_LOGGER_SINGLETON(Name_)                                                                                                                            \
+    class Name_ : public Logger, public Singleton<Name_> {                                                                                                     \
+        GUM_SINGLETON(Name_)                                                                                                                                   \
+                                                                                                                                                               \
+      public:                                                                                                                                                  \
+        Name_()                                                                                                                                                \
+            : Logger(#Name_) {}                                                                                                                                \
+    }
 }

@@ -28,7 +28,6 @@
 
 namespace gum {
 
-template < typename Key_, typename Value_, typename Less_ = std::less<> >
-using SortedMap = StlMap<Key_, Value_, std::map<Key_, Value_, Less_> >;
-
+template <typename Key_, typename Value_, typename Less_ = std::less<>>
+using SortedMap = StlMap<Key_, Value_, std::map<Key_, Value_, Less_>>;
 }

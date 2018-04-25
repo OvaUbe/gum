@@ -38,7 +38,7 @@ namespace gum {
 template <typename K, typename V>
 class TwoQ {
     /* Methods */
-public:
+  public:
     /**
      * @brief TwoQ - ctor.
      * @param capacity - cache maximim capacity (including).
@@ -150,13 +150,13 @@ public:
      */
     bool touch(const K& key);
 
-private:
+  private:
     template <typename Key, typename Value>
     std::experimental::optional<V> _push(Key&& key, Value&& value);
     void _pipeline_items();
 
     /* Fields */
-private:
+  private:
     std::function<size_t(const V&)> m_size_mapper;
     std::deque<std::pair<K, V>> m_a_in;
     std::deque<std::pair<K, V>> m_a_out;
@@ -164,29 +164,26 @@ private:
 
     const size_t m_in_cap;
     const size_t m_out_cap;
-
 };
 
 template <typename K, typename V>
 TwoQ<K, V>::TwoQ(const size_t capacity)
-    :
-      m_size_mapper([](const V&) -> size_t { return 1; })
+    : m_size_mapper([](const V&) -> size_t { return 1; })
     , m_a_in()
     , m_a_out()
     , m_a_m(capacity - size_t(0.75f * float(capacity)), [](const V&) -> size_t { return 1; })
     , m_in_cap(size_t(0.25f * float(capacity)))
-    , m_out_cap(size_t(0.5f * float(capacity))) { }
+    , m_out_cap(size_t(0.5f * float(capacity))) {}
 
 template <typename K, typename V>
 template <typename F>
 TwoQ<K, V>::TwoQ(const size_t capacity, F&& size_mapper)
-    :
-      m_size_mapper(size_mapper)
+    : m_size_mapper(size_mapper)
     , m_a_in()
     , m_a_out()
     , m_a_m(capacity - size_t(0.75f * float(capacity)), std::forward<F>(size_mapper))
     , m_in_cap(size_t(0.25f * float(capacity)))
-    , m_out_cap(size_t(0.5f * float(capacity))) { }
+    , m_out_cap(size_t(0.5f * float(capacity))) {}
 
 template <typename K, typename V>
 size_t TwoQ<K, V>::size() const {
@@ -370,6 +367,4 @@ void TwoQ<K, V>::_pipeline_items() {
         m_a_out.pop_front();
     }
 }
-
-
 }

@@ -26,97 +26,90 @@
 
 namespace gum {
 
-    template < typename Iterable_ >
-    class Range {
-        class Counter  : public IteratorBase<Counter,
-                                              std::bidirectional_iterator_tag,
-                                              Iterable_
-                                             > {
-            using Base = IteratorBase<Counter,
-                                      std::bidirectional_iterator_tag,
-                                      Iterable_
-                                     >;
+template <typename Iterable_>
+class Range {
+    class Counter : public IteratorBase<Counter, std::bidirectional_iterator_tag, Iterable_> {
+        using Base = IteratorBase<Counter, std::bidirectional_iterator_tag, Iterable_>;
 
-        public:
-            using value_type = typename Base::value_type;
-            using difference_type = typename Base::difference_type;
-            using pointer = typename Base::value_type*;
-            using reference = typename Base::value_type&;
-            using iterator_category = typename Base::iterator_category;
+      public:
+        using value_type = typename Base::value_type;
+        using difference_type = typename Base::difference_type;
+        using pointer = typename Base::value_type*;
+        using reference = typename Base::value_type&;
+        using iterator_category = typename Base::iterator_category;
 
-        public:
-            explicit Counter(Iterable_ iterable, Iterable_ step) :
-                m_iterable(iterable),
-                m_step(step) { }
+      public:
+        explicit Counter(Iterable_ iterable, Iterable_ step)
+            : m_iterable(iterable)
+            , m_step(step) {}
 
-            bool equals(Counter const& other) const {
-                return m_iterable == other.m_iterable;
-            }
-
-            reference dereference() {
-                return m_iterable;
-            }
-
-            void increment() {
-                m_iterable += m_step;
-            }
-
-            void decrement() {
-                m_iterable -= m_step;
-            }
-
-        private:
-            Iterable_ m_iterable;
-            Iterable_ m_step;
-        };
-
-    public:
-        Range(Iterable_ first, Iterable_ last, Iterable_ step) :
-            m_begin(first, step),
-            m_end(last, step) { }
-
-        Counter begin() {
-            return m_begin;
+        bool equals(Counter const& other) const {
+            return m_iterable == other.m_iterable;
         }
 
-        Counter begin() const {
-            return m_begin;
+        reference dereference() {
+            return m_iterable;
         }
 
-        Counter cbegin() {
-            return m_begin;
+        void increment() {
+            m_iterable += m_step;
         }
 
-        Counter end() {
-            return m_end;
+        void decrement() {
+            m_iterable -= m_step;
         }
 
-        Counter end() const {
-            return m_end;
-        }
-
-        Counter cend() {
-            return m_end;
-        }
-
-    private:
-        Counter    m_begin;
-        Counter    m_end;
+      private:
+        Iterable_ m_iterable;
+        Iterable_ m_step;
     };
 
-    template < typename Iterable_ >
-    Range<Iterable_> range(Iterable_ end) {
-        return Range<Iterable_>(Iterable_(0), end, Iterable_(1));
+  public:
+    Range(Iterable_ first, Iterable_ last, Iterable_ step)
+        : m_begin(first, step)
+        , m_end(last, step) {}
+
+    Counter begin() {
+        return m_begin;
     }
 
-    template < typename Iterable_ >
-    Range<Iterable_> range(Iterable_ begin, Iterable_ end) {
-        return Range<Iterable_>(begin, end, Iterable_(1));
+    Counter begin() const {
+        return m_begin;
     }
 
-    template < typename Iterable_ >
-    Range<Iterable_> range(Iterable_ begin, Iterable_ end, Iterable_ step) {
-        return Range<Iterable_>(begin, end, step);
+    Counter cbegin() {
+        return m_begin;
     }
 
+    Counter end() {
+        return m_end;
+    }
+
+    Counter end() const {
+        return m_end;
+    }
+
+    Counter cend() {
+        return m_end;
+    }
+
+  private:
+    Counter m_begin;
+    Counter m_end;
+};
+
+template <typename Iterable_>
+Range<Iterable_> range(Iterable_ end) {
+    return Range<Iterable_>(Iterable_(0), end, Iterable_(1));
+}
+
+template <typename Iterable_>
+Range<Iterable_> range(Iterable_ begin, Iterable_ end) {
+    return Range<Iterable_>(begin, end, Iterable_(1));
+}
+
+template <typename Iterable_>
+Range<Iterable_> range(Iterable_ begin, Iterable_ end, Iterable_ step) {
+    return Range<Iterable_>(begin, end, step);
+}
 }

@@ -27,13 +27,12 @@
 
 namespace gum {
 
-    struct IContainer {
-        virtual ~IContainer() { }
+struct IContainer {
+    virtual ~IContainer() {}
 
-        virtual bool is_empty() const = 0;
-        virtual size_t get_count() const = 0;
-    };
-    GUM_DECLARE_PTR(IContainer);
-    GUM_DECLARE_REF(IContainer);
-
+    virtual bool is_empty() const = 0;
+    virtual size_t get_count() const = 0;
+};
+GUM_DECLARE_PTR(IContainer);
+GUM_DECLARE_REF(IContainer);
 }

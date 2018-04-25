@@ -22,33 +22,30 @@
 
 #include <gum/async/TaskQueue.h>
 
-#include <gum/functional/Invoker.h>
 #include <gum/Try.h>
+#include <gum/functional/Invoker.h>
 
 #include <algorithm>
 
 namespace gum {
 
-    GUM_DEFINE_LOGGER(TaskQueue);
+GUM_DEFINE_LOGGER(TaskQueue);
 
+void TaskQueue::push(Task&& task) {
+    MutexLock l(_mutex);
+    _queue.push_back([task = std::move(task)] { GUM_TRY_LEVEL("Uncaught exception in queued task", LogLevel::Error, task()); });
+}
 
-    void TaskQueue::push(Task&& task) {
+void TaskQueue::run() {
+    Queue queue;
+    {
         MutexLock l(_mutex);
-        _queue.push_back([task = std::move(task)]{ GUM_TRY_LEVEL("Uncaught exception in queued task", LogLevel::Error, task()); });
+
+        if (_queue.empty())
+            return;
+        _queue.swap(queue);
     }
 
-
-    void TaskQueue::run() {
-        Queue queue;
-        {
-            MutexLock l(_mutex);
-
-            if (_queue.empty())
-                return;
-            _queue.swap(queue);
-        }
-
-        std::for_each(queue.begin(), queue.end(), Invoker());
-    }
-
+    std::for_each(queue.begin(), queue.end(), Invoker());
+}
 }

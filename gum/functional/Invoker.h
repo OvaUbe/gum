@@ -26,11 +26,10 @@
 
 namespace gum {
 
-    struct Invoker {
-        template < typename Callable_, typename ...Args_ >
-        auto operator()(Callable_&& callable, Args_&&... args) const {
-            return callable(std::forward<Args_>(args)...);
-        }
-    };
-
+struct Invoker {
+    template <typename Callable_, typename... Args_>
+    auto operator()(Callable_&& callable, Args_&&... args) const {
+        return callable(std::forward<Args_>(args)...);
+    }
+};
 }

@@ -31,32 +31,31 @@
 
 namespace gum {
 
-    template < bool IsSynchronized_ >
-    class BasicTokenPool : public virtual ITokenPool {
-        using Tokens = std::vector<Token>;
+template <bool IsSynchronized_>
+class BasicTokenPool : public virtual ITokenPool {
+    using Tokens = std::vector<Token>;
 
-        using MutexType = std::conditional_t<IsSynchronized_, Mutex, DummyMutex>;
-        using MutexLockType = GenericMutexLock<MutexType>;
+    using MutexType = std::conditional_t<IsSynchronized_, Mutex, DummyMutex>;
+    using MutexLockType = GenericMutexLock<MutexType>;
 
-    private:
-        Tokens      _tokens;
-        MutexType   _mutex;
+  private:
+    Tokens _tokens;
+    MutexType _mutex;
 
-    public:
-        void operator += (Token&& token) override {
-            MutexLockType l(_mutex);
-            _tokens.push_back(std::move(token));
-        }
+  public:
+    void operator+=(Token&& token) override {
+        MutexLockType l(_mutex);
+        _tokens.push_back(std::move(token));
+    }
 
-        void reset() {
-            Tokens tokens;
+    void reset() {
+        Tokens tokens;
 
-            MutexLockType l(_mutex);
-            _tokens.swap(tokens);
-        }
-    };
+        MutexLockType l(_mutex);
+        _tokens.swap(tokens);
+    }
+};
 
-    using TokenPool = BasicTokenPool<false>;
-    using SynchronizedTokenPool = BasicTokenPool<true>;
-
+using TokenPool = BasicTokenPool<false>;
+using SynchronizedTokenPool = BasicTokenPool<true>;
 }

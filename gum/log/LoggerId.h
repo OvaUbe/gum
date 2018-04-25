@@ -26,6 +26,5 @@
 
 namespace gum {
 
-    using LoggerId = uintptr_t;
-
+using LoggerId = uintptr_t;
 }

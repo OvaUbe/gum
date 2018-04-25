@@ -28,41 +28,39 @@
 
 namespace gum {
 
-    class ThreadInfo {
-        ThreadId            _id;
-        StringConstRef      _name;
+class ThreadInfo {
+    ThreadId _id;
+    StringConstRef _name;
 
-    public:
-        ThreadInfo(ThreadId const& id, StringConstRef const& name);
+  public:
+    ThreadInfo(ThreadId const& id, StringConstRef const& name);
 
-        ThreadId get_id() const {
-            return _id;
-        }
+    ThreadId get_id() const {
+        return _id;
+    }
 
-        StringConstRef get_name() const {
-            return _name;
-        }
+    StringConstRef get_name() const {
+        return _name;
+    }
 
-        String to_string() const;
-    };
-    GUM_DECLARE_PTR(ThreadInfo);
-    GUM_DECLARE_REF(ThreadInfo);
+    String to_string() const;
+};
+GUM_DECLARE_PTR(ThreadInfo);
+GUM_DECLARE_REF(ThreadInfo);
 
+class OwnerInfo {
+    class Impl;
+    GUM_DECLARE_UNIQUE_REF(Impl);
 
-    class OwnerInfo {
-        class Impl;
-        GUM_DECLARE_UNIQUE_REF(Impl);
+  private:
+    ImplUniqueRef _impl;
 
-    private:
-        ImplUniqueRef _impl;
+  public:
+    OwnerInfo();
+    ~OwnerInfo();
 
-    public:
-        OwnerInfo();
-        ~OwnerInfo();
+    void acquire();
 
-        void acquire();
-
-        String to_string() const;
-    };
-
+    String to_string() const;
+};
 }

@@ -26,29 +26,27 @@
 
 namespace gum {
 
-    template < typename Clock_ >
-    class GenericElapsedTime {
-        using TimePointType = typename Clock_::time_point;
-        using DurationType = typename Clock_::duration;
+template <typename Clock_>
+class GenericElapsedTime {
+    using TimePointType = typename Clock_::time_point;
+    using DurationType = typename Clock_::duration;
 
-    private:
-        TimePointType _pivot;
+  private:
+    TimePointType _pivot;
 
-    public:
-        GenericElapsedTime()
-            :   _pivot(Clock_::now())
-        { }
+  public:
+    GenericElapsedTime()
+        : _pivot(Clock_::now()) {}
 
-        DurationType elapsed() const {
-            return Clock_::now() - _pivot;
-        }
+    DurationType elapsed() const {
+        return Clock_::now() - _pivot;
+    }
 
-        template < typename Duration_ >
-        Duration_ elapsed_to() const {
-            return duration_caster(Clock_::now() - _pivot);
-        }
-    };
+    template <typename Duration_>
+    Duration_ elapsed_to() const {
+        return duration_caster(Clock_::now() - _pivot);
+    }
+};
 
-    using ElapsedTime = GenericElapsedTime<SystemClock>;
-
+using ElapsedTime = GenericElapsedTime<SystemClock>;
 }

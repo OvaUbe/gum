@@ -28,121 +28,114 @@
 
 namespace gum {
 
-    GUM_DECLARE_EXCEPTION(EmptyMaybeException, "Empty maybe");
+GUM_DECLARE_EXCEPTION(EmptyMaybeException, "Empty maybe");
 
+namespace detail {
 
-    namespace detail {
-
-        struct CallChaining {
-            template < typename Default_, typename Callable_, typename ...Args_, typename Result_ = std::result_of_t<Callable_(Args_&&...)> >
-            std::enable_if_t<std::is_void<Result_>::value, Default_>
-            operator()(Default_&& default_, Callable_&& callable, Args_&& ...args) {
-                callable(std::forward<Args_>(args)...);
-                return std::forward<Default_>(default_);
-            }
-
-            template < typename Default_, typename Callable_, typename ...Args_, typename Result_ = std::result_of_t<Callable_(Args_&&...)> >
-            std::enable_if_t<!std::is_void<Result_>::value, Result_>
-            operator()(Default_&&, Callable_&& callable, Args_&& ...args) {
-                return callable(std::forward<Args_>(args)...);
-            }
-        };
-
-        template < typename Value_ >
-        using DereferenceResult = std::remove_reference_t<decltype(*std::declval<Value_>())>;
-
-        template < typename Value_ >
-        struct IsMaybe {
-            static constexpr bool Value = false;
-        };
-
-        template < typename Value_ >
-        struct IsMaybe<Maybe<Value_>> {
-            static constexpr bool Value = true;
-        };
-
-        template < typename Value_ >
-        class ToMaybeImpl {
-            using Naked = std::decay_t<Value_>;
-
-        public:
-            using Type = std::conditional_t<std::is_null_pointer<Naked>::value, Maybe<char*>,
-                std::conditional_t<IsMaybe<Naked>::Value, Naked,
-                    Maybe<Naked>>
-            >;
-        };
-
-        template < typename Value_ >
-        using ToMaybe = typename ToMaybeImpl<Value_>::Type;
-
+struct CallChaining {
+    template <typename Default_, typename Callable_, typename... Args_, typename Result_ = std::result_of_t<Callable_(Args_&&...)>>
+    std::enable_if_t<std::is_void<Result_>::value, Default_> operator()(Default_&& default_, Callable_&& callable, Args_&&... args) {
+        callable(std::forward<Args_>(args)...);
+        return std::forward<Default_>(default_);
     }
 
-    template < typename Wrapped_ >
-    class Maybe {
-    public:
-        using Wrapped = Wrapped_;
-        using Value = detail::DereferenceResult<Wrapped>;
+    template <typename Default_, typename Callable_, typename... Args_, typename Result_ = std::result_of_t<Callable_(Args_&&...)>>
+    std::enable_if_t<!std::is_void<Result_>::value, Result_> operator()(Default_&&, Callable_&& callable, Args_&&... args) {
+        return callable(std::forward<Args_>(args)...);
+    }
+};
 
-    public:
-        Maybe() : m_wrapped() { }
+template <typename Value_>
+using DereferenceResult = std::remove_reference_t<decltype(*std::declval<Value_>())>;
 
-        template < typename ValueType_ >
-        Maybe(ValueType_&& value) :
-            m_wrapped(std::forward<ValueType_>(value)) { }
+template <typename Value_>
+struct IsMaybe {
+    static constexpr bool Value = false;
+};
 
-        template < typename Callable_ >
-        auto and_(Callable_&& callable) {
-            using Chaining = detail::CallChaining;
-            using Result = std::result_of_t<Chaining(Wrapped&&, Callable_&&, Value&)>;
+template <typename Value_>
+struct IsMaybe<Maybe<Value_>> {
+    static constexpr bool Value = true;
+};
 
-            using WrappedType = std::conditional_t<AbsenceTrait<Result>::value, Result, Optional<Result>>;
-            using MaybeType = detail::ToMaybe<WrappedType>;
+template <typename Value_>
+class ToMaybeImpl {
+    using Naked = std::decay_t<Value_>;
 
-            return m_wrapped ? MaybeType(Chaining()(m_wrapped, callable, *m_wrapped)) : MaybeType();
-        }
+  public:
+    using Type = std::conditional_t<std::is_null_pointer<Naked>::value, Maybe<char*>, std::conditional_t<IsMaybe<Naked>::Value, Naked, Maybe<Naked>>>;
+};
 
-        template < typename Callable_ >
-        auto or_(Callable_&& callable) {
-            using Chaining = detail::CallChaining;
+template <typename Value_>
+using ToMaybe = typename ToMaybeImpl<Value_>::Type;
+}
 
-            return m_wrapped ? std::move(*this) : Maybe(Chaining()(Wrapped(), callable));
-        }
+template <typename Wrapped_>
+class Maybe {
+  public:
+    using Wrapped = Wrapped_;
+    using Value = detail::DereferenceResult<Wrapped>;
 
-        template < typename ValueType_ >
-        auto and_bind(ValueType_ other) {
-            return and_([&](auto){ return other; });
-        }
+  public:
+    Maybe()
+        : m_wrapped() {}
 
-        template < typename ValueType_ >
-        auto or_bind(ValueType_ other) {
-            return or_([&]{ return other; });
-        }
+    template <typename ValueType_>
+    Maybe(ValueType_&& value)
+        : m_wrapped(std::forward<ValueType_>(value)) {}
 
-        template < typename ValueType_, typename Maybe_ = detail::ToMaybe<ValueType_> >
-        Maybe_ chain(ValueType_&& other) {
-            return std::forward<ValueType_>(other);
-        }
+    template <typename Callable_>
+    auto and_(Callable_&& callable) {
+        using Chaining = detail::CallChaining;
+        using Result = std::result_of_t<Chaining(Wrapped&&, Callable_&&, Value&)>;
 
-        explicit operator bool () const {
-            return (bool)m_wrapped;
-        }
+        using WrappedType = std::conditional_t<AbsenceTrait<Result>::value, Result, Optional<Result>>;
+        using MaybeType = detail::ToMaybe<WrappedType>;
 
-        Value unwrap() {
-            GUM_CHECK(m_wrapped, EmptyMaybeException());
-            return std::move(*m_wrapped);
-        }
-
-        Wrapped take() {
-            return std::move(m_wrapped);
-        }
-
-    private:
-        Wrapped m_wrapped;
-    };
-
-    template < typename Wrapped_, typename Maybe_ = detail::ToMaybe<Wrapped_> >
-    Maybe_ maybe(Wrapped_&& value) {
-        return std::forward<Wrapped_>(value);
+        return m_wrapped ? MaybeType(Chaining()(m_wrapped, callable, *m_wrapped)) : MaybeType();
     }
 
+    template <typename Callable_>
+    auto or_(Callable_&& callable) {
+        using Chaining = detail::CallChaining;
+
+        return m_wrapped ? std::move(*this) : Maybe(Chaining()(Wrapped(), callable));
+    }
+
+    template <typename ValueType_>
+    auto and_bind(ValueType_ other) {
+        return and_([&](auto) { return other; });
+    }
+
+    template <typename ValueType_>
+    auto or_bind(ValueType_ other) {
+        return or_([&] { return other; });
+    }
+
+    template <typename ValueType_, typename Maybe_ = detail::ToMaybe<ValueType_>>
+    Maybe_ chain(ValueType_&& other) {
+        return std::forward<ValueType_>(other);
+    }
+
+    explicit operator bool() const {
+        return (bool)m_wrapped;
+    }
+
+    Value unwrap() {
+        GUM_CHECK(m_wrapped, EmptyMaybeException());
+        return std::move(*m_wrapped);
+    }
+
+    Wrapped take() {
+        return std::move(m_wrapped);
+    }
+
+  private:
+    Wrapped m_wrapped;
+};
+
+template <typename Wrapped_, typename Maybe_ = detail::ToMaybe<Wrapped_>>
+Maybe_ maybe(Wrapped_&& value) {
+    return std::forward<Wrapped_>(value);
+}
 }

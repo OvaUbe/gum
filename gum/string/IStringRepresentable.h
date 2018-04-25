@@ -4,10 +4,9 @@
 
 namespace gum {
 
-    struct IStringRepresentable {
-        virtual ~IStringRepresentable() { }
+struct IStringRepresentable {
+    virtual ~IStringRepresentable() {}
 
-        virtual String to_string() const = 0;
-    };
-
+    virtual String to_string() const = 0;
+};
 }

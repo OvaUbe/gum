@@ -26,11 +26,10 @@
 
 namespace gum {
 
-    struct DummyMutex {
-        void lock() const { }
-        void unlock() const { }
-    };
+struct DummyMutex {
+    void lock() const {}
+    void unlock() const {}
+};
 
-    using DummyMutexLock = GenericMutexLock<DummyMutex>;
-
+using DummyMutexLock = GenericMutexLock<DummyMutex>;
 }

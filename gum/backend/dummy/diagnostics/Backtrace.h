@@ -27,10 +27,10 @@
 namespace gum {
 namespace dummy {
 
-    struct BacktraceGetter {
-        std::string operator()() const {
-            return "<unavailable>";
-        }
-    };
-
-}}
+struct BacktraceGetter {
+    std::string operator()() const {
+        return "<unavailable>";
+    }
+};
+}
+}

@@ -22,74 +22,70 @@
 
 #pragma once
 
+#include <gum/Enum.h>
 #include <gum/concurrency/GenericMutexLock.h>
 #include <gum/concurrency/ICancellationToken.h>
 #include <gum/time/Types.h>
-#include <gum/Enum.h>
 
 #include <condition_variable>
 
 namespace gum {
 
-    class ConditionVariable {
-        using Impl = std::condition_variable_any;
+class ConditionVariable {
+    using Impl = std::condition_variable_any;
 
-    public:
-        GUM_ENUM(WaitResult,
-            TimedOut,
-            Woken
-        );
+  public:
+    GUM_ENUM(WaitResult, TimedOut, Woken);
 
-    private:
-        mutable Impl _impl;
+  private:
+    mutable Impl _impl;
 
-    public:
-        template < typename Mutex_ >
-        void wait(Mutex_ const& mutex, ICancellationHandle& handle) const {
-            Token t = handle.on_cancelled([this, &mutex]{ cancel(mutex); });
-            if (!handle)
-                return;
+  public:
+    template <typename Mutex_>
+    void wait(Mutex_ const& mutex, ICancellationHandle& handle) const {
+        Token t = handle.on_cancelled([this, &mutex] { cancel(mutex); });
+        if (!handle)
+            return;
 
-            _impl.wait(mutex);
-        }
+        _impl.wait(mutex);
+    }
 
-        template < typename Mutex_, typename Predicate_ >
-        void wait(Mutex_ const& mutex, Predicate_ const& predicate, ICancellationHandle& handle) const {
-            Token t = handle.on_cancelled([this, &mutex]{ cancel(mutex); });
-            if (!handle)
-                return;
+    template <typename Mutex_, typename Predicate_>
+    void wait(Mutex_ const& mutex, Predicate_ const& predicate, ICancellationHandle& handle) const {
+        Token t = handle.on_cancelled([this, &mutex] { cancel(mutex); });
+        if (!handle)
+            return;
 
-            _impl.wait(mutex, [&]{ return !handle || predicate(); });
-        }
+        _impl.wait(mutex, [&] { return !handle || predicate(); });
+    }
 
-        template < typename Mutex_ >
-        WaitResult wait_for(Mutex_ const& mutex, Duration const& duration, ICancellationHandle& handle) const {
-            Token t = handle.on_cancelled([this, &mutex]{ cancel(mutex); });
-            if (!handle)
-                return WaitResult::Woken;
+    template <typename Mutex_>
+    WaitResult wait_for(Mutex_ const& mutex, Duration const& duration, ICancellationHandle& handle) const {
+        Token t = handle.on_cancelled([this, &mutex] { cancel(mutex); });
+        if (!handle)
+            return WaitResult::Woken;
 
-            return _impl.wait_for(mutex, duration) == std::cv_status::timeout ? WaitResult::TimedOut : WaitResult::Woken;
-        }
+        return _impl.wait_for(mutex, duration) == std::cv_status::timeout ? WaitResult::TimedOut : WaitResult::Woken;
+    }
 
-        template < typename Mutex_, typename Predicate_ >
-        bool wait_for(Mutex_ const& mutex, Duration const& duration, Predicate_ const& predicate, ICancellationHandle& handle) const {
-            Token t = handle.on_cancelled([this, &mutex]{ cancel(mutex); });
-            if (!handle)
-                return predicate();
+    template <typename Mutex_, typename Predicate_>
+    bool wait_for(Mutex_ const& mutex, Duration const& duration, Predicate_ const& predicate, ICancellationHandle& handle) const {
+        Token t = handle.on_cancelled([this, &mutex] { cancel(mutex); });
+        if (!handle)
+            return predicate();
 
-            return _impl.wait_for(mutex, duration, [&]{ return !handle || predicate(); });
-        }
+        return _impl.wait_for(mutex, duration, [&] { return !handle || predicate(); });
+    }
 
-        void broadcast() const {
-            _impl.notify_all();
-        }
+    void broadcast() const {
+        _impl.notify_all();
+    }
 
-    private:
-        template < typename Mutex_ >
-        void cancel(Mutex_ const& mutex) const {
-            GenericMutexLock<Mutex_> l(mutex);
-            broadcast();
-        }
-    };
-
+  private:
+    template <typename Mutex_>
+    void cancel(Mutex_ const& mutex) const {
+        GenericMutexLock<Mutex_> l(mutex);
+        broadcast();
+    }
+};
 }

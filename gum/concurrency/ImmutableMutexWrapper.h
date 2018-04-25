@@ -26,28 +26,25 @@
 
 namespace gum {
 
-    template < typename Impl_ >
-    class ImmutableMutexWrapper {
-        mutable Impl_ _impl;
+template <typename Impl_>
+class ImmutableMutexWrapper {
+    mutable Impl_ _impl;
 
-    public:
-        ImmutableMutexWrapper() = default;
+  public:
+    ImmutableMutexWrapper() = default;
 
-        ImmutableMutexWrapper(ImmutableMutexWrapper&& other)
-            :   _impl(std::move(other._impl))
-        { }
+    ImmutableMutexWrapper(ImmutableMutexWrapper&& other)
+        : _impl(std::move(other._impl)) {}
 
-        ImmutableMutexWrapper(Impl_&& impl)
-            :   _impl(std::move(impl))
-        { }
+    ImmutableMutexWrapper(Impl_&& impl)
+        : _impl(std::move(impl)) {}
 
-        void lock() const {
-            _impl.lock();
-        }
+    void lock() const {
+        _impl.lock();
+    }
 
-        void unlock() const {
-            _impl.unlock();
-        }
-    };
-
+    void unlock() const {
+        _impl.unlock();
+    }
+};
 }

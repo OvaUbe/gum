@@ -27,30 +27,29 @@
 
 namespace gum {
 
-    class LifeToken {
-        class Impl;
-        GUM_DECLARE_UNIQUE_REF(Impl);
+class LifeToken {
+    class Impl;
+    GUM_DECLARE_UNIQUE_REF(Impl);
 
-    private:
-        ImplUniqueRef _impl;
+  private:
+    ImplUniqueRef _impl;
 
-    private:
-        LifeToken(ImplUniqueRef&& impl);
+  private:
+    LifeToken(ImplUniqueRef&& impl);
 
-    public:
-        LifeToken();
-        ~LifeToken();
+  public:
+    LifeToken();
+    ~LifeToken();
 
-        LifeToken(LifeToken&& other);
-        LifeToken& operator=(LifeToken&& other);
+    LifeToken(LifeToken&& other);
+    LifeToken& operator=(LifeToken&& other);
 
-        static LifeToken make_synchronized();
-        static LifeToken make_unsynchronized();
-        static LifeToken make_released();
+    static LifeToken make_synchronized();
+    static LifeToken make_unsynchronized();
+    static LifeToken make_released();
 
-        LifeHandle get_handle() const;
+    LifeHandle get_handle() const;
 
-        void release();
-    };
-
+    void release();
+};
 }

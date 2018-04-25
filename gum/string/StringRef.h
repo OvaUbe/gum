@@ -6,7 +6,6 @@
 
 namespace gum {
 
-    GUM_DECLARE_PTR(String);
-    GUM_DECLARE_REF(String);
-
+GUM_DECLARE_PTR(String);
+GUM_DECLARE_REF(String);
 }

@@ -27,8 +27,8 @@
 namespace gum {
 namespace gnu {
 
-    struct BacktraceGetter {
-        std::string operator()() const;
-    };
-
-}}
+struct BacktraceGetter {
+    std::string operator()() const;
+};
+}
+}

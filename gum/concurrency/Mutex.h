@@ -22,18 +22,17 @@
 
 #pragma once
 
-#include <gum/concurrency/ImmutableMutexWrapper.h>
 #include <gum/concurrency/GenericMutexLock.h>
+#include <gum/concurrency/ImmutableMutexWrapper.h>
 #include <gum/concurrency/TimedMutexWrapper.h>
 
 #include <mutex>
 
 namespace gum {
 
-    using Mutex = ImmutableMutexWrapper<TimedMutexWrapper<std::timed_mutex>>;
-    using RecursiveMutex = ImmutableMutexWrapper<TimedMutexWrapper<std::recursive_timed_mutex>>;
+using Mutex = ImmutableMutexWrapper<TimedMutexWrapper<std::timed_mutex>>;
+using RecursiveMutex = ImmutableMutexWrapper<TimedMutexWrapper<std::recursive_timed_mutex>>;
 
-    using MutexLock = GenericMutexLock<Mutex>;
-    using RecursiveMutexLock = GenericMutexLock<RecursiveMutex>;
-
+using MutexLock = GenericMutexLock<Mutex>;
+using RecursiveMutexLock = GenericMutexLock<RecursiveMutex>;
 }

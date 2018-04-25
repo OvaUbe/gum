@@ -22,46 +22,42 @@
 
 #include <gum/concurrency/Worker.h>
 
+#include <gum/Try.h>
 #include <gum/functional/Invoker.h>
 #include <gum/maybe/Maybe.h>
-#include <gum/Try.h>
 
 namespace gum {
 
-    GUM_DEFINE_LOGGER(Worker);
+GUM_DEFINE_LOGGER(Worker);
 
+void Worker::push(Task&& task) {
+    MutexLock l(_mutex);
 
-    void Worker::push(Task&& task) {
-        MutexLock l(_mutex);
+    _queue.push_back([task = std::move(task)] { GUM_TRY_LEVEL("Uncaught exception in worker task", LogLevel::Error, task()); });
+    _condition_variable.broadcast();
+}
 
-        _queue.push_back([task = std::move(task)]{ GUM_TRY_LEVEL("Uncaught exception in worker task", LogLevel::Error, task()); });
-        _condition_variable.broadcast();
-    }
+void Worker::thread_func(ICancellationHandle& handle) {
+    while (maybe(pop(handle)).and_(Invoker()))
+        ;
+}
 
+Optional<Worker::Task> Worker::pop(ICancellationHandle& handle) {
+    MutexLock l(_mutex);
 
-    void Worker::thread_func(ICancellationHandle& handle) {
-        while (maybe(pop(handle)).and_(Invoker()));
-    }
-
-
-    Optional<Worker::Task> Worker::pop(ICancellationHandle& handle) {
-        MutexLock l(_mutex);
-
-        if (!_queue.empty())
-            return do_pop();
-
-        _condition_variable.wait(_mutex, [this]{ return !_queue.empty(); }, handle);
-        if (!handle)
-            return nullptr;
-
+    if (!_queue.empty())
         return do_pop();
-    }
 
+    _condition_variable.wait(_mutex, [this] { return !_queue.empty(); }, handle);
+    if (!handle)
+        return nullptr;
 
-    Worker::Task Worker::do_pop() {
-        Task task = std::move(_queue.front());
-        _queue.pop_front();
-        return task;
-    }
+    return do_pop();
+}
 
+Worker::Task Worker::do_pop() {
+    Task task = std::move(_queue.front());
+    _queue.pop_front();
+    return task;
+}
 }

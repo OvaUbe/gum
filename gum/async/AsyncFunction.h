@@ -26,11 +26,10 @@
 
 namespace gum {
 
-    template < typename Callable_ >
-    auto make_async(Callable_&& callable, ITaskQueueRef const& task_queue) {
-        return [callable=std::forward<Callable_>(callable), task_queue](auto&& ...args) {
-            task_queue->push(std::bind(callable, std::forward<decltype(args)>(args)...));
-        };
-    }
-
+template <typename Callable_>
+auto make_async(Callable_&& callable, ITaskQueueRef const& task_queue) {
+    return [callable = std::forward<Callable_>(callable), task_queue](auto&&... args) {
+        task_queue->push(std::bind(callable, std::forward<decltype(args)>(args)...));
+    };
+}
 }

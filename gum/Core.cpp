@@ -26,21 +26,17 @@
 
 namespace gum {
 
-    namespace detail {
+namespace detail {
 
-        Where::Where(char const* file, size_t line, char const* function)
-            :   _file(file),
-                _line(line),
-                _function(function)
-        { }
+Where::Where(char const* file, size_t line, char const* function)
+    : _file(file)
+    , _line(line)
+    , _function(function) {}
 
-
-        std::string Where::to_string() const {
-            std::stringstream ss;
-            ss << _function << "(" << _file << ":" << _line << ")";
-            return ss.str();
-        }
-
-    }
-
+std::string Where::to_string() const {
+    std::stringstream ss;
+    ss << _function << "(" << _file << ":" << _line << ")";
+    return ss.str();
+}
+}
 }

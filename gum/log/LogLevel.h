@@ -26,14 +26,5 @@
 
 namespace gum {
 
-    GUM_ENUM(LogLevel,
-        Trace       = 0,
-        Debug       = 1,
-        Info        = 2,
-        Warning     = 3,
-        Error       = 4,
-        Highlight   = 5,
-        Muted       = 1000
-    );
-
+GUM_ENUM(LogLevel, Trace = 0, Debug = 1, Info = 2, Warning = 3, Error = 4, Highlight = 5, Muted = 1000);
 }

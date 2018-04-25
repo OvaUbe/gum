@@ -26,6 +26,5 @@
 
 namespace gum {
 
-    std::string demangle(std::string const& str);
-
+std::string demangle(std::string const& str);
 }

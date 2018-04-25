@@ -27,53 +27,50 @@
 
 namespace gum {
 
-    struct Logger {
-        StringLiteral   _name;
-        Token           _registration;
+struct Logger {
+    StringLiteral _name;
+    Token _registration;
 
-    public:
-        Logger(StringLiteral const& name, LogLevel default_log_level = LogLevel::Info);
+  public:
+    Logger(StringLiteral const& name, LogLevel default_log_level = LogLevel::Info);
 
-        LoggerStream trace() const {
-            return log(LogLevel::Trace);
-        }
+    LoggerStream trace() const {
+        return log(LogLevel::Trace);
+    }
 
-        LoggerStream debug() const {
-            return log(LogLevel::Debug);
-        }
+    LoggerStream debug() const {
+        return log(LogLevel::Debug);
+    }
 
-        LoggerStream info() const {
-            return log(LogLevel::Info);
-        }
+    LoggerStream info() const {
+        return log(LogLevel::Info);
+    }
 
-        LoggerStream warning() const {
-            return log(LogLevel::Warning);
-        }
+    LoggerStream warning() const {
+        return log(LogLevel::Warning);
+    }
 
-        LoggerStream error() const {
-            return log(LogLevel::Error);
-        }
+    LoggerStream error() const {
+        return log(LogLevel::Error);
+    }
 
-        LoggerStream highlight() const {
-            return log(LogLevel::Highlight);
-        }
+    LoggerStream highlight() const {
+        return log(LogLevel::Highlight);
+    }
 
-        LoggerStream log(LogLevel level) const {
-            return LoggerStream(get_id(), _name, level);
-        }
+    LoggerStream log(LogLevel level) const {
+        return LoggerStream(get_id(), _name, level);
+    }
 
-        void set_log_level(LogLevel level) const;
+    void set_log_level(LogLevel level) const;
 
-    private:
-        LoggerId get_id() const {
-            return LoggerId(this);
-        }
-    };
+  private:
+    LoggerId get_id() const {
+        return LoggerId(this);
+    }
+};
 
-#   define GUM_DEFINE_LOGGER(Type_) \
-        gum::Logger Type_::_logger(#Type_)
+#define GUM_DEFINE_LOGGER(Type_) gum::Logger Type_::_logger(#Type_)
 
-#   define GUM_DEFINE_NAMED_LOGGER(Type_, Name_) \
-        gum::Logger Type_::_logger(#Name_)
-
+#define GUM_DEFINE_NAMED_LOGGER(Type_, Name_) gum::Logger Type_::_logger(#Name_)
 }

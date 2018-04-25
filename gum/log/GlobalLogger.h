@@ -26,6 +26,5 @@
 
 namespace gum {
 
-    GUM_LOGGER_SINGLETON(GlobalLogger);
-
+GUM_LOGGER_SINGLETON(GlobalLogger);
 }

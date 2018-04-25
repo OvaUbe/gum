@@ -28,35 +28,33 @@
 
 namespace gum {
 
-    template < bool IsSynchronized_ >
-    class BasicGuardedTokenPool : public virtual IGuardedTokenPool {
-        using TokenPoolType = BasicTokenPool<IsSynchronized_>;
+template <bool IsSynchronized_>
+class BasicGuardedTokenPool : public virtual IGuardedTokenPool {
+    using TokenPoolType = BasicTokenPool<IsSynchronized_>;
 
-    private:
-        TokenPoolType       _tokens;
-        LifeToken           _life_token;
+  private:
+    TokenPoolType _tokens;
+    LifeToken _life_token;
 
-    public:
-        BasicGuardedTokenPool(LifeToken&& life_token = LifeToken())
-            :   _life_token(std::move(life_token))
-        { }
+  public:
+    BasicGuardedTokenPool(LifeToken&& life_token = LifeToken())
+        : _life_token(std::move(life_token)) {}
 
-        void operator += (Token&& token) override {
-            _tokens += std::move(token);
-        }
+    void operator+=(Token&& token) override {
+        _tokens += std::move(token);
+    }
 
-        LifeHandle get_handle() const override {
-            return _life_token.get_handle();
-        }
+    LifeHandle get_handle() const override {
+        return _life_token.get_handle();
+    }
 
-        void reset() {
-            _life_token.release();
-            _tokens.reset();
-            _life_token = LifeToken();
-        }
-    };
+    void reset() {
+        _life_token.release();
+        _tokens.reset();
+        _life_token = LifeToken();
+    }
+};
 
-    using GuardedTokenPool = BasicGuardedTokenPool<false>;
-    using SynchronizedGuardedTokenPool = BasicGuardedTokenPool<true>;
-
+using GuardedTokenPool = BasicGuardedTokenPool<false>;
+using SynchronizedGuardedTokenPool = BasicGuardedTokenPool<true>;
 }

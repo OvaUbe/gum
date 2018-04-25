@@ -22,44 +22,42 @@
 
 #pragma once
 
+#include <gum/Optional.h>
 #include <gum/async/ITaskQueue.h>
 #include <gum/concurrency/ConditionVariable.h>
 #include <gum/concurrency/Mutex.h>
 #include <gum/concurrency/Thread.h>
 #include <gum/functional/Types.h>
-#include <gum/Optional.h>
 
 #include <deque>
 
 namespace gum {
 
-    class Worker : public virtual ITaskQueue {
-        using Self = Worker;
+class Worker : public virtual ITaskQueue {
+    using Self = Worker;
 
-        using Queue = std::deque<Task>;
+    using Queue = std::deque<Task>;
 
-    private:
-        static Logger       _logger;
+  private:
+    static Logger _logger;
 
-        Queue               _queue;
-        Mutex               _mutex;
-        ConditionVariable   _condition_variable;
+    Queue _queue;
+    Mutex _mutex;
+    ConditionVariable _condition_variable;
 
-        Thread              _thread;
+    Thread _thread;
 
-    public:
-        template < typename String_ >
-        Worker(String_&& name)
-            :   _thread(std::forward<String_>(name), std::bind(&Self::thread_func, this, _1))
-        { }
+  public:
+    template <typename String_>
+    Worker(String_&& name)
+        : _thread(std::forward<String_>(name), std::bind(&Self::thread_func, this, _1)) {}
 
-        void push(Task&& task) override;
+    void push(Task&& task) override;
 
-    private:
-        void thread_func(ICancellationHandle& handle);
+  private:
+    void thread_func(ICancellationHandle& handle);
 
-        Optional<Task> pop(ICancellationHandle& handle);
-        Task do_pop();
-    };
-
+    Optional<Task> pop(ICancellationHandle& handle);
+    Task do_pop();
+};
 }

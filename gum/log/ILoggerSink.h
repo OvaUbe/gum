@@ -27,11 +27,10 @@
 
 namespace gum {
 
-    struct ILoggerSink {
-        virtual ~ILoggerSink() { }
+struct ILoggerSink {
+    virtual ~ILoggerSink() {}
 
-        virtual void log(LogMessage const& message) = 0;
-    };
-    GUM_DECLARE_REF(ILoggerSink);
-
+    virtual void log(LogMessage const& message) = 0;
+};
+GUM_DECLARE_REF(ILoggerSink);
 }

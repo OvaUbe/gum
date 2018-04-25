@@ -29,72 +29,68 @@
 
 namespace gum {
 
-    template < typename Type_ >
-    struct IsSharedPtr {
-        static constexpr bool value = false;
-    };
+template <typename Type_>
+struct IsSharedPtr {
+    static constexpr bool value = false;
+};
 
-    template < typename Type_ >
-    struct IsSharedPtr<SharedPtr<Type_>> {
-        static constexpr bool value = true;
-    };
+template <typename Type_>
+struct IsSharedPtr<SharedPtr<Type_>> {
+    static constexpr bool value = true;
+};
 
-    template < typename Type_ >
-    struct IsSharedReference {
-        static constexpr bool value = false;
-    };
+template <typename Type_>
+struct IsSharedReference {
+    static constexpr bool value = false;
+};
 
-    template < typename Type_ >
-    struct IsSharedReference<SharedReference<Type_>> {
-        static constexpr bool value = true;
-    };
+template <typename Type_>
+struct IsSharedReference<SharedReference<Type_>> {
+    static constexpr bool value = true;
+};
 
-    template < typename Type_ >
-    struct IsUniquePtr {
-        static constexpr bool value = false;
-    };
+template <typename Type_>
+struct IsUniquePtr {
+    static constexpr bool value = false;
+};
 
-    template < typename Type_ >
-    struct IsUniquePtr<UniquePtr<Type_>> {
-        static constexpr bool value = true;
-    };
+template <typename Type_>
+struct IsUniquePtr<UniquePtr<Type_>> {
+    static constexpr bool value = true;
+};
 
-    template < typename Type_ >
-    struct IsUniqueReference {
-        static constexpr bool value = false;
-    };
+template <typename Type_>
+struct IsUniqueReference {
+    static constexpr bool value = false;
+};
 
-    template < typename Type_ >
-    struct IsUniqueReference<UniqueReference<Type_>> {
-        static constexpr bool value = true;
-    };
+template <typename Type_>
+struct IsUniqueReference<UniqueReference<Type_>> {
+    static constexpr bool value = true;
+};
 
+template <typename Type_>
+struct IsSharedSmartpointer {
+    static constexpr bool value = IsSharedPtr<Type_>::value || IsSharedReference<Type_>::value;
+};
 
-    template < typename Type_ >
-    struct IsSharedSmartpointer {
-        static constexpr bool value = IsSharedPtr<Type_>::value || IsSharedReference<Type_>::value;
-    };
+template <typename Type_>
+struct IsUniqueSmartpointer {
+    static constexpr bool value = IsUniquePtr<Type_>::value || IsUniqueReference<Type_>::value;
+};
 
-    template < typename Type_ >
-    struct IsUniqueSmartpointer {
-        static constexpr bool value = IsUniquePtr<Type_>::value || IsUniqueReference<Type_>::value;
-    };
+template <typename Type_>
+struct IsPtrSmartpointer {
+    static constexpr bool value = IsSharedPtr<Type_>::value || IsUniquePtr<Type_>::value;
+};
 
+template <typename Type_>
+struct IsReferenceSmartpointer {
+    static constexpr bool value = IsSharedReference<Type_>::value || IsUniqueReference<Type_>::value;
+};
 
-    template < typename Type_ >
-    struct IsPtrSmartpointer {
-        static constexpr bool value = IsSharedPtr<Type_>::value || IsUniquePtr<Type_>::value;
-    };
-
-    template < typename Type_ >
-    struct IsReferenceSmartpointer {
-        static constexpr bool value = IsSharedReference<Type_>::value || IsUniqueReference<Type_>::value;
-    };
-
-
-    template < typename Type_ >
-    struct IsSmartpointer {
-        static constexpr bool value = IsSharedSmartpointer<Type_>::value || IsUniqueSmartpointer<Type_>::value;
-    };
-
+template <typename Type_>
+struct IsSmartpointer {
+    static constexpr bool value = IsSharedSmartpointer<Type_>::value || IsUniqueSmartpointer<Type_>::value;
+};
 }

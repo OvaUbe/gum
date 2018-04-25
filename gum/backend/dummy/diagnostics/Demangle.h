@@ -27,10 +27,10 @@
 namespace gum {
 namespace dummy {
 
-    struct Demangler {
-        std::string operator()(std::string const& str) const {
-            return str;
-        }
-    };
-
-}}
+struct Demangler {
+    std::string operator()(std::string const& str) const {
+        return str;
+    }
+};
+}
+}

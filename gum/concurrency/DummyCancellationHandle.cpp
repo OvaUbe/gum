@@ -26,8 +26,7 @@
 
 namespace gum {
 
-    void DummyCancellationHandle::sleep(Duration const& duration) const {
-        Thread::sleep(duration);
-    }
-
+void DummyCancellationHandle::sleep(Duration const& duration) const {
+    Thread::sleep(duration);
+}
 }

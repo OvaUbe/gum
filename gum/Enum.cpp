@@ -22,75 +22,72 @@
 
 #include <gum/Enum.h>
 
-#include <gum/string/StringLiteral.h>
 #include <gum/Optional.h>
+#include <gum/string/StringLiteral.h>
 
 namespace gum {
 namespace detail {
 
-    namespace {
+namespace {
 
-        String const EnumToStringStub = "<unavailable>";
+String const EnumToStringStub = "<unavailable>";
+}
 
-    }
+EnumToStringMapping::EnumToStringMapping(char const* mapping_) {
+    StringLiteral mapping = mapping_;
 
+    String stream;
 
-    EnumToStringMapping::EnumToStringMapping(char const* mapping_) {
-        StringLiteral mapping = mapping_;
+    String name;
+    Optional<UnderlyingIntType> number;
+    bool currently_parsing_name(true);
 
-        String stream;
-
-        String name;
-        Optional<UnderlyingIntType> number;
-        bool currently_parsing_name(true);
-
-        auto appender = [&] {
-            if (currently_parsing_name) {
-                name = std::move(stream);
-                if (number) {
-                    ++*number;
-                } else {
-                    number = 0;
-                }
+    auto appender = [&] {
+        if (currently_parsing_name) {
+            name = std::move(stream);
+            if (number) {
+                ++*number;
             } else {
-                number = std::stoi(std::string(std::move(stream)));
+                number = 0;
             }
-            _mapping[*number] = std::move(name);
+        } else {
+            number = std::stoi(std::string(std::move(stream)));
+        }
+        _mapping[*number] = std::move(name);
+
+        stream = String();
+        name = String();
+        currently_parsing_name = true;
+    };
+
+    for (auto const ch : mapping) {
+        if (ch == '\n' || ch == ' ') {
+            continue;
+        }
+        if (ch == '=') {
+            name = std::move(stream);
 
             stream = String();
-            name = String();
-            currently_parsing_name = true;
-        };
-
-        for (auto const ch : mapping) {
-            if (ch == '\n' || ch == ' ') {
-                continue;
-            }
-            if (ch == '=') {
-                name = std::move(stream);
-
-                stream = String();
-                currently_parsing_name = false;
-                continue;
-            }
-            if (ch == ',') {
-                appender();
-                continue;
-            }
-            stream << ch;
+            currently_parsing_name = false;
+            continue;
         }
-        if (!stream.empty()) {
+        if (ch == ',') {
             appender();
+            continue;
         }
+        stream << ch;
     }
-
-
-    String const& EnumToStringMapping::map(UnderlyingIntType i) {
-        auto const iter = _mapping.find(i);
-        if (iter != _mapping.end()) {
-            return iter->second;
-        }
-        return EnumToStringStub;
+    if (!stream.empty()) {
+        appender();
     }
+}
 
-}}
+String const& EnumToStringMapping::map(UnderlyingIntType i) {
+    auto const iter = _mapping.find(i);
+    if (iter != _mapping.end()) {
+        return iter->second;
+    }
+    return EnumToStringStub;
+}
+}
+}

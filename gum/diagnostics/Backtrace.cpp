@@ -23,25 +23,22 @@
 #include <gum/diagnostics/Backtrace.h>
 
 #if defined(GUM_USES_GNU_BACKEND)
-#   include <gum/backend/gnu/diagnostics/Backtrace.h>
+#include <gum/backend/gnu/diagnostics/Backtrace.h>
 #else
-#   include <gum/backend/dummy/diagnostics/Backtrace.h>
+#include <gum/backend/dummy/diagnostics/Backtrace.h>
 #endif
 
 namespace gum {
 
-    namespace {
+namespace {
 
-#   if defined(GUM_USES_GNU_BACKEND)
-        using BacktraceGetter = gnu::BacktraceGetter;
-#   else
-        using BacktraceGetter = dummy::BacktraceGetter;
-#   endif
+#if defined(GUM_USES_GNU_BACKEND)
+using BacktraceGetter = gnu::BacktraceGetter;
+#else
+using BacktraceGetter = dummy::BacktraceGetter;
+#endif
+}
 
-    }
-
-    Backtrace::Backtrace()
-        :   _backtrace(BacktraceGetter()())
-    { }
-
+Backtrace::Backtrace()
+    : _backtrace(BacktraceGetter()()) {}
 }

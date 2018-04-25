@@ -22,30 +22,29 @@
 
 #pragma once
 
+#include <gum/Optional.h>
 #include <gum/async/ITaskQueue.h>
 #include <gum/concurrency/Mutex.h>
 #include <gum/log/Logger.h>
-#include <gum/Optional.h>
 
 #include <deque>
 
 namespace gum {
 
-    class TaskQueue : public virtual ITaskQueue {
-        using Queue = std::deque<Task>;
+class TaskQueue : public virtual ITaskQueue {
+    using Queue = std::deque<Task>;
 
-    private:
-        static Logger       _logger;
+  private:
+    static Logger _logger;
 
-        Queue               _queue;
-        Mutex               _mutex;
+    Queue _queue;
+    Mutex _mutex;
 
-    public:
-        void push(Task&& task) override;
+  public:
+    void push(Task&& task) override;
 
-        void run();
-    };
-    GUM_DECLARE_PTR(TaskQueue);
-    GUM_DECLARE_REF(TaskQueue);
-
+    void run();
+};
+GUM_DECLARE_PTR(TaskQueue);
+GUM_DECLARE_REF(TaskQueue);
 }

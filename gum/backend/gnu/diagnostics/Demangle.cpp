@@ -29,12 +29,14 @@
 namespace gum {
 namespace gnu {
 
-    std::string Demangler::operator()(const std::string& s) const {
-        int status = 0;
-        char* result = abi::__cxa_demangle(s.c_str(), 0, 0, &status);
-        defer { free(result); };
+std::string Demangler::operator()(const std::string& s) const {
+    int status = 0;
+    char* result = abi::__cxa_demangle(s.c_str(), 0, 0, &status);
+    defer {
+        free(result);
+    };
 
-        return (status != 0) ? s : std::string(result);
-    }
-
-}}
+    return (status != 0) ? s : std::string(result);
+}
+}
+}

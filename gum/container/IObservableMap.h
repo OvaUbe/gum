@@ -28,23 +28,19 @@
 
 namespace gum {
 
-    template < typename Key_, typename Value_ >
-    struct IReadonlyObservableMap : public virtual IReadonlyMap<Key_, Value_> {
-        using ChangedSignature = void(MapOp, Key_ const&, Value_ const&);
+template <typename Key_, typename Value_>
+struct IReadonlyObservableMap : public virtual IReadonlyMap<Key_, Value_> {
+    using ChangedSignature = void(MapOp, Key_ const&, Value_ const&);
 
-    public:
-        virtual const SignalMutex& get_mutex() const = 0;
+  public:
+    virtual const SignalMutex& get_mutex() const = 0;
 
-        virtual SignalHandle<ChangedSignature> changed() const = 0;
-    };
+    virtual SignalHandle<ChangedSignature> changed() const = 0;
+};
 
-
-    template < typename Key_, typename Value_ >
-    struct IObservableMap :
-        public virtual IMap<Key_, Value_>,
-        public virtual IReadonlyObservableMap<Key_, Value_> {
-        using Base = IReadonlyObservableMap<Key_, Value_>;
-        using ChangedSignature = typename Base::ChangedSignature;
-    };
-
+template <typename Key_, typename Value_>
+struct IObservableMap : public virtual IMap<Key_, Value_>, public virtual IReadonlyObservableMap<Key_, Value_> {
+    using Base = IReadonlyObservableMap<Key_, Value_>;
+    using ChangedSignature = typename Base::ChangedSignature;
+};
 }

@@ -27,63 +27,58 @@
 
 namespace gum {
 
-    struct ILifeHandle {
-        virtual ~ILifeHandle() { }
+struct ILifeHandle {
+    virtual ~ILifeHandle() {}
 
-        virtual bool lock() const = 0;
-        virtual void unlock() const = 0;
-    };
-    GUM_DECLARE_PTR(ILifeHandle);
-    GUM_DECLARE_REF(ILifeHandle);
+    virtual bool lock() const = 0;
+    virtual void unlock() const = 0;
+};
+GUM_DECLARE_PTR(ILifeHandle);
+GUM_DECLARE_REF(ILifeHandle);
 
+class LifeHandle {
+    using Impl = ILifeHandle;
+    GUM_DECLARE_REF(Impl);
 
-    class LifeHandle {
-        using Impl = ILifeHandle;
-        GUM_DECLARE_REF(Impl);
-
-        struct DummyImpl : public virtual ILifeHandle {
-            bool lock() const override {
-                return true;
-            }
-
-            void unlock() const override { }
-        };
-
-    private:
-        ImplRef _impl;
-
-    public:
-        LifeHandle(ImplRef const& impl = make_shared_ref<DummyImpl>())
-            :   _impl(impl)
-        { }
-
-        bool lock() const {
-            return _impl->lock();
+    struct DummyImpl : public virtual ILifeHandle {
+        bool lock() const override {
+            return true;
         }
 
-        void unlock() const {
-            _impl->unlock();
-        }
+        void unlock() const override {}
     };
 
+  private:
+    ImplRef _impl;
 
-    class LifeHandleLock {
-        LifeHandle     _handle;
-        bool           _alive;
+  public:
+    LifeHandle(ImplRef const& impl = make_shared_ref<DummyImpl>())
+        : _impl(impl) {}
 
-    public:
-        LifeHandleLock(LifeHandle const& handle)
-            :   _handle(handle),
-                _alive(_handle.lock())
-        { }
+    bool lock() const {
+        return _impl->lock();
+    }
 
-        ~LifeHandleLock() {
-            _handle.unlock();
-        }
+    void unlock() const {
+        _impl->unlock();
+    }
+};
 
-        explicit operator bool () const {
-            return _alive;
-        }
-    };
+class LifeHandleLock {
+    LifeHandle _handle;
+    bool _alive;
 
+  public:
+    LifeHandleLock(LifeHandle const& handle)
+        : _handle(handle)
+        , _alive(_handle.lock()) {}
+
+    ~LifeHandleLock() {
+        _handle.unlock();
+    }
+
+    explicit operator bool() const {
+        return _alive;
+    }
+};
 }

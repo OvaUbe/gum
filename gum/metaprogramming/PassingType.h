@@ -26,7 +26,6 @@
 
 namespace gum {
 
-    template < typename Value_ >
-    using PassingType = std::conditional_t<std::is_integral<Value_>::value, Value_, const Value_&>;
-
+template <typename Value_>
+using PassingType = std::conditional_t<std::is_integral<Value_>::value, Value_, const Value_&>;
 }

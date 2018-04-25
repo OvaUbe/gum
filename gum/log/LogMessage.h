@@ -32,16 +32,15 @@
 
 namespace gum {
 
-    struct LogMessage {
-        LoggerId                                    logger_id;
-        TimePoint                                   when;
-        LogLevel                                    level;
-        StringConstRef                              thread;
-        StringLiteral                               author;
-        String                                      message;
+struct LogMessage {
+    LoggerId logger_id;
+    TimePoint when;
+    LogLevel level;
+    StringConstRef thread;
+    StringLiteral author;
+    String message;
 
-    public:
-        LogMessage(LoggerId logger_id, TimePoint const& when_, LogLevel level_, StringConstRef const& thread_, StringLiteral const& author_, String&& message_);
-    };
-
+  public:
+    LogMessage(LoggerId logger_id, TimePoint const& when_, LogLevel level_, StringConstRef const& thread_, StringLiteral const& author_, String&& message_);
+};
 }

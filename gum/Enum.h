@@ -22,72 +22,65 @@
 
 #pragma once
 
-#include <gum/exception/Exception.h>
 #include <gum/Singleton.h>
 #include <gum/Types.h>
+#include <gum/exception/Exception.h>
 
 #include <unordered_map>
 
 namespace gum {
 
-    namespace detail {
+namespace detail {
 
-        class EnumToStringMapping {
-        public:
-            using UnderlyingIntType = s32;
+class EnumToStringMapping {
+  public:
+    using UnderlyingIntType = s32;
 
-        private:
-            using Impl = std::unordered_map<UnderlyingIntType, String>;
+  private:
+    using Impl = std::unordered_map<UnderlyingIntType, String>;
 
-        private:
-            Impl _mapping;
+  private:
+    Impl _mapping;
 
-        public:
-            EnumToStringMapping(char const* mapping_);
+  public:
+    EnumToStringMapping(char const* mapping_);
 
-            String const& map(UnderlyingIntType e);
-        };
+    String const& map(UnderlyingIntType e);
+};
+}
 
+#define GUM_ENUM(Name_, ...)                                                                                                                                   \
+    class Name_ {                                                                                                                                              \
+        using UnderlyingIntType = gum::s32;                                                                                                                    \
+                                                                                                                                                               \
+      public:                                                                                                                                                  \
+        enum Enum : gum::detail::EnumToStringMapping::UnderlyingIntType { __VA_ARGS__ };                                                                       \
+                                                                                                                                                               \
+      private:                                                                                                                                                 \
+        struct StringMapping : public gum::detail::EnumToStringMapping, public gum::Singleton<StringMapping> {                                                 \
+            StringMapping()                                                                                                                                    \
+                : gum::detail::EnumToStringMapping(#__VA_ARGS__) {}                                                                                            \
+        };                                                                                                                                                     \
+                                                                                                                                                               \
+      private:                                                                                                                                                 \
+        Enum _e;                                                                                                                                               \
+                                                                                                                                                               \
+      public:                                                                                                                                                  \
+        Name_() = default;                                                                                                                                     \
+                                                                                                                                                               \
+        Name_(Enum e)                                                                                                                                          \
+            : _e(e) {}                                                                                                                                         \
+                                                                                                                                                               \
+        operator Enum() const {                                                                                                                                \
+            return _e;                                                                                                                                         \
+        }                                                                                                                                                      \
+                                                                                                                                                               \
+        gum::String const& to_string() const {                                                                                                                 \
+            return StringMapping::get().map(_e);                                                                                                               \
+        }                                                                                                                                                      \
+                                                                                                                                                               \
+        bool operator<(Name_ const& other) const {                                                                                                             \
+            return _e < other._e;                                                                                                                              \
+        }                                                                                                                                                      \
     }
-
-
-#   define GUM_ENUM(Name_, ...) \
-        class Name_ { \
-            using UnderlyingIntType = gum::s32; \
-        \
-        public: \
-            enum Enum : gum::detail::EnumToStringMapping::UnderlyingIntType { \
-                __VA_ARGS__ \
-            }; \
-        \
-        private: \
-            struct StringMapping : public gum::detail::EnumToStringMapping, public gum::Singleton<StringMapping> { \
-                StringMapping() \
-                    :   gum::detail::EnumToStringMapping(#__VA_ARGS__) \
-                { } \
-            }; \
-            \
-        private: \
-            Enum _e; \
-            \
-        public: \
-            Name_() = default; \
-            \
-            Name_(Enum e) \
-                :   _e(e) \
-            { } \
-            \
-            operator Enum() const { \
-                return _e; \
-            } \
-            \
-            gum::String const& to_string() const { \
-                return StringMapping::get().map(_e); \
-            } \
-            \
-            bool operator<(Name_ const& other) const { \
-                return _e < other._e;\
-            } \
-        }
-
 }

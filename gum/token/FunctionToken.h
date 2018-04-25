@@ -22,11 +22,10 @@
 
 #pragma once
 
-#include <gum/token/ObjectToken.h>
 #include <gum/Defer.h>
+#include <gum/token/ObjectToken.h>
 
 namespace gum {
 
-    using FunctionToken = ObjectToken<Defer>;
-
+using FunctionToken = ObjectToken<Defer>;
 }

@@ -26,16 +26,7 @@
 
 namespace gum {
 
-    GUM_ENUM(MapOp,
-        Added,
-        Removed,
-        Updated
-    );
+GUM_ENUM(MapOp, Added, Removed, Updated);
 
-
-    GUM_ENUM(SetOp,
-        Added,
-        Removed
-    );
-
+GUM_ENUM(SetOp, Added, Removed);
 }

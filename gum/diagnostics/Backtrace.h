@@ -26,15 +26,14 @@
 
 namespace gum {
 
-    class Backtrace {
-        std::string _backtrace;
+class Backtrace {
+    std::string _backtrace;
 
-    public:
-        Backtrace();
+  public:
+    Backtrace();
 
-        std::string to_string() const {
-            return _backtrace;
-        }
-    };
-
+    std::string to_string() const {
+        return _backtrace;
+    }
+};
 }

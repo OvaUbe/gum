@@ -28,17 +28,16 @@
 
 namespace gum {
 
-    class ThreadId {
-        using Impl = std::thread::id;
+class ThreadId {
+    using Impl = std::thread::id;
 
-    private:
-        Impl _impl;
+  private:
+    Impl _impl;
 
-    public:
-        ThreadId() = default;
-        ThreadId(Impl const& impl);
+  public:
+    ThreadId() = default;
+    ThreadId(Impl const& impl);
 
-        String to_string() const;
-    };
-
+    String to_string() const;
+};
 }

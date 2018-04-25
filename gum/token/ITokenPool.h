@@ -26,10 +26,9 @@
 
 namespace gum {
 
-    struct ITokenPool {
-        virtual ~ITokenPool() { }
+struct ITokenPool {
+    virtual ~ITokenPool() {}
 
-        virtual void operator += (Token&& token) = 0;
-    };
-
+    virtual void operator+=(Token&& token) = 0;
+};
 }
