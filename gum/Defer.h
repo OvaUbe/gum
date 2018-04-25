@@ -37,7 +37,7 @@ class Defer {
   public:
     template <typename Deferrable_>
     Defer(Deferrable_&& deferrable)
-        : _deferrable(std::forward<Deferrable_>(deferrable)) {}
+        : _deferrable(try_(std::forward<Deferrable_>(deferrable))) {}
 
     Defer(Defer const&) = default;
     Defer(Defer&&) = default;
