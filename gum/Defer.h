@@ -51,8 +51,8 @@ class Defer {
 };
 
 #ifdef defer
-#   error 'defer' pseudo-keyword is already defined
+#error 'defer' pseudo-keyword is already defined
 #else
-#   define defer gum::Defer __defer__##__LINE__ = [&]()
+#define defer gum::Defer __defer__##__LINE__ = [&]()
 #endif
 }

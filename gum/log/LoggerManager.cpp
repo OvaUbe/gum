@@ -31,8 +31,8 @@
 
 #include <boost/container/flat_set.hpp>
 
-#include <iostream>
 #include <functional>
+#include <iostream>
 #include <unordered_map>
 
 namespace gum {
