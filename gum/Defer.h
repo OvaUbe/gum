@@ -37,13 +37,13 @@ class Defer {
   public:
     template <typename Deferrable_>
     Defer(Deferrable_&& deferrable)
-        : _deferrable(try_(std::forward<Deferrable_>(deferrable))) {}
+        : _deferrable(std::forward<Deferrable_>(deferrable)) {}
 
     Defer(Defer const&) = default;
     Defer(Defer&&) = default;
 
     ~Defer() {
-        _deferrable();
+        GUM_TRY_LOGGER("Uncaught exception in Defer", LogLevel::Warning, GlobalLogger::get(), _deferrable());
     }
 
     Defer& operator=(Defer const&) = default;
