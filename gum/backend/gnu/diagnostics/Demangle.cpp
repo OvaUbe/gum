@@ -21,8 +21,7 @@
  */
 
 #include <gum/backend/gnu/diagnostics/Demangle.h>
-
-#include <gum/Defer.h>
+#include <gum/smartpointer/UniquePtr.h>
 
 #include <cxxabi.h>
 
@@ -30,13 +29,12 @@ namespace gum {
 namespace gnu {
 
 std::string Demangler::operator()(const std::string& s) const {
-    int status = 0;
-    char* result = abi::__cxa_demangle(s.c_str(), 0, 0, &status);
-    defer {
-        free(result);
-    };
+    const auto deleter = [](auto p) { free(p); };
 
-    return (status != 0) ? s : std::string(result);
+    int status = 0;
+    UniquePtr<char, decltype(deleter)> result(abi::__cxa_demangle(s.c_str(), 0, 0, &status), deleter);
+
+    return (status != 0) ? s : std::string(result.get());
 }
 }
 }
