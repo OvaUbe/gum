@@ -28,9 +28,10 @@ namespace gum {
 
 Logger::Logger(StringLiteral const& name, LogLevel default_log_level)
     : _name(name)
-    , _registration(LoggerManager::get().register_logger(get_id(), default_log_level)) {}
+    , _log_level(default_log_level)
+    , _registration(LoggerManager::get().register_logger(get_id(), *this)) {}
 
-void Logger::set_log_level(LogLevel level) const {
-    LoggerManager::get().set_logger_level(get_id(), level);
+void Logger::set_log_level(LogLevel level) {
+    _log_level = (LogLevel::Enum)level;
 }
 }

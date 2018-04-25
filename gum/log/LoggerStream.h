@@ -39,15 +39,16 @@ class LoggerStream {
     StringLiteral _logger_name;
     LogLevel _level;
 
-    String _message;
+    Optional<String> _message;
 
   public:
-    LoggerStream(LoggerId logger_id, StringLiteral const& logger_name, LogLevel level);
+    LoggerStream(LoggerId logger_id, StringLiteral const& logger_name, LogLevel level, bool mute);
     ~LoggerStream();
 
     template <typename Value_>
     Self& operator<<(const Value_& value) {
-        _message << value;
+        if (_message)
+            *_message << value;
         return *this;
     }
 };

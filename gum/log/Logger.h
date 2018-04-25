@@ -25,10 +25,13 @@
 #include <gum/log/LoggerStream.h>
 #include <gum/token/Token.h>
 
+#include <atomic>
+
 namespace gum {
 
 class Logger {
     StringLiteral _name;
+    std::atomic<LogLevel::Enum> _log_level;
     Token _registration;
 
   public:
@@ -59,10 +62,10 @@ class Logger {
     }
 
     LoggerStream log(LogLevel level) const {
-        return LoggerStream(get_id(), _name, level);
+        return LoggerStream(get_id(), _name, level, level < _log_level);
     }
 
-    void set_log_level(LogLevel level) const;
+    void set_log_level(LogLevel level);
 
   private:
     LoggerId get_id() const {

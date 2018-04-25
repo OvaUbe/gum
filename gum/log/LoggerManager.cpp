@@ -26,24 +26,26 @@
 #include <gum/compare/OwnerLess.h>
 #include <gum/concurrency/Mutex.h>
 #include <gum/concurrency/RwMutex.h>
+#include <gum/log/Logger.h>
 #include <gum/token/FunctionToken.h>
 
 #include <boost/container/flat_set.hpp>
 
 #include <iostream>
+#include <functional>
 #include <unordered_map>
 
 namespace gum {
 
 class LoggerManager::Impl {
     using Sinks = boost::container::flat_set<ILoggerSinkRef, OwnerLess>;
-    using LogLevels = std::unordered_map<LoggerId, LogLevel>;
+    using Loggers = std::unordered_map<LoggerId, std::reference_wrapper<Logger>>;
 
   private:
     Sinks _sinks;
     RwMutex _sinks_mutex;
 
-    LogLevels _log_levels;
+    Loggers _loggers;
     Mutex _log_levels_mutex;
 
   public:
@@ -59,35 +61,31 @@ class LoggerManager::Impl {
         _sinks.erase(logger_sink);
     }
 
-    void register_logger(LoggerId logger_id, LogLevel default_log_level) {
+    void register_logger(LoggerId logger_id, Logger& logger) {
         MutexLock const l(_log_levels_mutex);
 
-        GUM_CHECK(!_log_levels.count(logger_id), LogicError("Logger already registered"));
+        GUM_CHECK(!_loggers.count(logger_id), LogicError("Logger already registered"));
 
-        _log_levels[logger_id] = default_log_level;
+        _loggers.emplace(logger_id, logger);
     }
 
     void unregister_logger(LoggerId logger_id) {
         MutexLock const l(_log_levels_mutex);
 
-        _log_levels.erase(logger_id);
+        _loggers.erase(logger_id);
     }
 
     void set_logger_level(LoggerId logger_id, LogLevel level) {
         MutexLock const l(_log_levels_mutex);
 
-        auto const iter = _log_levels.find(logger_id);
-        if (iter == _log_levels.end())
+        auto const iter = _loggers.find(logger_id);
+        if (iter == _loggers.end())
             return;
 
-        iter->second = level;
+        iter->second.get().set_log_level(level);
     }
 
     void log(LogMessage const& message) {
-        Optional<LogLevel> const level = get_log_level(message.logger_id);
-        if (!level || message.level < *level)
-            return;
-
         SharedMutexLock const l(_sinks_mutex.get_shared());
 
         for (auto const& sink : _sinks) {
@@ -99,17 +97,6 @@ class LoggerManager::Impl {
                 std::cerr << "Uncaught exception from logger sink:\n<unknown exception>" << std::endl;
             }
         }
-    }
-
-  private:
-    Optional<LogLevel> get_log_level(LoggerId logger_id) const {
-        MutexLock const l(_log_levels_mutex);
-
-        auto const iter = _log_levels.find(logger_id);
-        if (iter == _log_levels.end())
-            return nullptr;
-
-        return iter->second;
     }
 };
 
@@ -126,8 +113,8 @@ Token LoggerManager::register_logger_sink(ILoggerSinkRef const& logger_sink) {
     return make_token<FunctionToken>([=, impl = _impl] { impl->unregister_logger_sink(logger_sink); });
 }
 
-Token LoggerManager::register_logger(LoggerId logger_id, LogLevel default_log_level) {
-    _impl->register_logger(logger_id, default_log_level);
+Token LoggerManager::register_logger(LoggerId logger_id, Logger& logger) {
+    _impl->register_logger(logger_id, logger);
     return make_token<FunctionToken>([=, impl = _impl] { impl->unregister_logger(logger_id); });
 }
 

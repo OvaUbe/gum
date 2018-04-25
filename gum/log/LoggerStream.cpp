@@ -29,14 +29,18 @@
 
 namespace gum {
 
-LoggerStream::LoggerStream(LoggerId logger_id, StringLiteral const& logger_name, LogLevel level)
+LoggerStream::LoggerStream(LoggerId logger_id, StringLiteral const& logger_name, LogLevel level, bool mute)
     : _logger_id(logger_id)
     , _logger_name(logger_name)
-    , _level(level) {}
+    , _level(level)
+    , _message(mute ? Optional<String>() : make_optional<String>()) {}
 
 LoggerStream::~LoggerStream() {
+    if (!_message)
+        return;
+
     try {
-        LogMessage message(_logger_id, SystemClock::now(), _level, Thread::get_own_info()->get_name(), _logger_name, std::move(_message));
+        LogMessage message(_logger_id, SystemClock::now(), _level, Thread::get_own_info()->get_name(), _logger_name, std::move(*_message));
         try {
             LoggerManager::get().log(message);
         } catch (std::exception const& ex) {

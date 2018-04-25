@@ -28,6 +28,8 @@
 
 namespace gum {
 
+class Logger;
+
 class LoggerManager {
     GUM_SINGLETON(LoggerManager)
 
@@ -45,7 +47,7 @@ class LoggerManager {
     static Self& get();
 
     Token register_logger_sink(ILoggerSinkRef const& logger_sink);
-    Token register_logger(LoggerId logger_id, LogLevel default_log_level);
+    Token register_logger(LoggerId logger_id, Logger& logger);
 
     void set_logger_level(LoggerId logger_id, LogLevel level);
 
