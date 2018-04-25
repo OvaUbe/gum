@@ -22,7 +22,7 @@
 
 #pragma once
 
-#include <gum/async/LifeHandle.h>
+#include <gum/concurrency/LifeToken.h>
 
 namespace gum {
 
@@ -35,6 +35,11 @@ namespace gum {
                 callable(std::forward<decltype(args)>(args)...);
             }
         };
+    }
+
+    template < typename Callable_ >
+    auto make_cancellable(Callable_&& callable, LifeToken const& life_token) {
+        return make_cancellable(std::forward<Callable_>(callable), life_token.get_handle());
     }
 
 }
