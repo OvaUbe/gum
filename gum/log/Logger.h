@@ -27,7 +27,7 @@
 
 namespace gum {
 
-struct Logger {
+class Logger {
     StringLiteral _name;
     Token _registration;
 
