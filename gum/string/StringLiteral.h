@@ -22,109 +22,39 @@
 
 #pragma once
 
-#include <gum/string/String.h>
+#include <gum/Slice.h>
 
 #include <cstring>
-#include <iterator>
 
 namespace gum {
 
 template <typename Char_>
-class BasicStringLiteral {
-  public:
-    using value_type = Char_ const;
-
-    using const_pointer = value_type*;
-    using pointer = const_pointer;
-    using const_reference = value_type&;
-    using reference = const_reference;
-
-    using const_iterator = pointer;
-    using iterator = const_iterator;
-    using const_reverse_iterator = std::reverse_iterator<const_iterator>;
-    using reverse_iterator = std::reverse_iterator<iterator>;
+class BasicStringLiteral : public Slice<const Char_> {
+    using Base = Slice<const Char_>;
 
   public:
-    value_type* _str;
-    size_t _size;
+    using value_type = typename Base::value_type;
+
+    using const_pointer = typename Base::const_pointer;
+    using pointer = typename Base::pointer;
+    using const_reference = typename Base::value_type;
+    using reference = typename Base::const_reference;
+
+    using const_iterator = typename Base::const_iterator;
+    using iterator = typename Base::iterator;
+    using const_reverse_iterator = typename Base::const_reverse_iterator;
+    using reverse_iterator = typename Base::reverse_iterator;
 
   public:
     BasicStringLiteral(pointer str)
-        : _str(str)
-        , _size(strlen(_str)) {}
-
-    reference at(size_t index) const {
-        GUM_CHECK_INDEX(index, size());
-        return data()[index];
-    }
-
-    reference operator[](size_t index) const {
-        return at(index);
-    }
-
-    reference front() const {
-        return at(0);
-    }
-
-    reference back() const {
-        GUM_CHECK_INDEX(0, size());
-        return data()[size() - 1];
-    }
-
-    pointer data() const {
-        return _str;
-    }
+        : Base(str, strlen(str)) {}
 
     pointer c_str() const {
-        return data();
-    }
-
-    size_t size() const {
-        return _size;
-    }
-
-    size_t length() const {
-        return size();
-    }
-
-    bool empty() const {
-        return !size();
-    }
-
-    iterator begin() const {
-        return data();
-    }
-
-    const_iterator cbegin() const {
-        return data();
-    }
-
-    iterator end() const {
-        return data() + size();
-    }
-
-    const_iterator cend() const {
-        return data() + size();
-    }
-
-    reverse_iterator rbegin() const {
-        return reverse_iterator(begin());
-    }
-
-    const_reverse_iterator crbegin() const {
-        return const_reverse_iterator(cbegin());
-    }
-
-    reverse_iterator rend() const {
-        return reverse_iterator(end());
-    }
-
-    const_reverse_iterator crend() const {
-        return const_reverse_iterator(cend());
+        return Base::data();
     }
 
     String to_string() const {
-        return String(begin(), end());
+        return String(Base::begin(), Base::end());
     }
 };
 

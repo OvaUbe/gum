@@ -187,6 +187,7 @@ set(GUM_PUBLIC_HEADERS
     Range.h
     Raw.h
     Singleton.h
+    Slice.h
     Try.h
     Types.h
 )
