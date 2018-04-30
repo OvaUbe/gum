@@ -17,6 +17,7 @@ log(info "Cmake build type:" ${CMAKE_BUILD_TYPE})
 log(info "C++ standard:" ${CMAKE_CXX_STANDARD})
 
 set_option(GUM_BUILD_TESTS OFF "Build tests")
+set_option(GUM_USES_BOOST_ASIO ON "Use boost.asio")
 
 if(CMAKE_BUILD_TYPE STREQUAL Debug)
     set(GUM_RELEASE_BUILD False)
@@ -60,7 +61,7 @@ endif()
 find_package(Threads REQUIRED)
 set(GUM_EXTERNAL_LIBS ${GUM_EXTERNAL_LIBS} ${CMAKE_THREAD_LIBS_INIT})
 
-find_package(Boost REQUIRED)
+find_package(Boost COMPONENTS system REQUIRED)
 include_directories(${Boost_INCLUDE_DIRS})
 list(APPEND GUM_EXTERNAL_LIBS ${Boost_LIBRARIES})
 
@@ -222,6 +223,12 @@ if (${GUM_USES_CLANG_COMPILER} OR ${GUM_USES_GCC_COMPILER})
     )
     register_definitions(
         GUM_USES_GNU_BACKEND
+    )
+endif()
+
+if (${GUM_USES_BOOST_ASIO})
+    register_definitions(
+        GUM_USES_BOOST_ASIO
     )
 endif()
 
