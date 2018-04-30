@@ -9,6 +9,8 @@ include(cmake/castella/Platform.cmake)
 include(cmake/castella/Options.cmake)
 include(cmake/castella/String.cmake)
 
+include(CheckCSourceCompiles)
+
 set(CMAKE_CXX_STANDARD 14)
 
 log(info "Cmake build type:" ${CMAKE_BUILD_TYPE})
@@ -40,6 +42,14 @@ endif()
 
 detect_clang_compiler(GUM_USES_CLANG_COMPILER)
 detect_gcc_compiler(GUM_USES_GCC_COMPILER)
+
+CHECK_C_SOURCE_COMPILES(
+    "#include <string.h>
+    int main() { char b[256]; strerror_r(0, b, sizeof(b)); return 0; }"
+    GUM_HAS_STRERROR_R)
+if (${GUM_HAS_STRERROR_R})
+    register_definitions(GUM_HAS_STRERROR_R)
+endif()
 
 if (${GUM_USES_CLANG_COMPILER})
     register_definitions(GUM_USES_CLANG_COMPILER)
@@ -96,6 +106,7 @@ set(GUM_SOURCES
     log/LoggerStream.cpp
     log/Logger.cpp
     string/ToString.cpp
+    sys/ErrnoToString.cpp
     Core.cpp
     Enum.cpp
 )
@@ -167,6 +178,8 @@ set(GUM_PUBLIC_HEADERS
     string/StringRef.h
     string/String.h
     string/ToString.h
+    sys/ErrnoToString.h
+    sys/SystemException.h
     time/ElapsedTime.h
     time/Types.h
     token/FunctionToken.h
