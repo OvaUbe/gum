@@ -237,6 +237,7 @@ if (${GUM_USES_BOOST_ASIO})
     )
     register_definitions(
         GUM_USES_BOOST_ASIO
+        BOOST_ASIO_DISABLE_EPOLL
     )
 endif()
 
