@@ -43,6 +43,7 @@ endif()
 
 detect_clang_compiler(GUM_USES_CLANG_COMPILER)
 detect_gcc_compiler(GUM_USES_GCC_COMPILER)
+detect_posix(GUM_USES_POSIX)
 
 CHECK_C_SOURCE_COMPILES(
     "#include <string.h>
@@ -229,6 +230,12 @@ endif()
 if (${GUM_USES_BOOST_ASIO})
     register_definitions(
         GUM_USES_BOOST_ASIO
+    )
+endif()
+
+if (${GUM_USES_POSIX})
+    register_definitions(
+        GUM_USES_POSIX
     )
 endif()
 
