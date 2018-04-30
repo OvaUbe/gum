@@ -117,13 +117,13 @@ class BoostAsyncByteStream::Impl {
 
     void submit_read(const SelfRef& self, const CancellableReadOperationRef& op) {
         boost::asio::async_read(
-            _stream_descriptor.get(), boost::asio::buffer(_read_buffer.data(), _read_buffer.size()), _read_strand.wrap(make_on_data_read(self, op)));
+            _stream_descriptor.get_handle(), boost::asio::buffer(_read_buffer.data(), _read_buffer.size()), _read_strand.wrap(make_on_data_read(self, op)));
     }
 
     void submit_read(const SelfRef& self, const CancellableReadOperationRef& op, u64 size) {
         GUM_CHECK(size, ArgumentException("size", size));
 
-        boost::asio::async_read(_stream_descriptor.get(),
+        boost::asio::async_read(_stream_descriptor.get_handle(),
                                 boost::asio::buffer(_read_buffer.data(), std::min<u64>(_read_buffer.size(), size)),
                                 _read_strand.wrap(make_on_data_read(self, op)));
     }

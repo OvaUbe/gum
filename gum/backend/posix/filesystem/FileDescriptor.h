@@ -35,7 +35,7 @@ class FileDescriptor {
   public:
     FileDescriptor(const String& path, const FileOpenFlags& flags);
 
-    int get() const {
+    int get_handle() const {
         return _fd;
     }
 };

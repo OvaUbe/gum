@@ -53,7 +53,7 @@ class BoostStreamDescriptor {
         : _service(service)
         , _impl(*_service, std::move(low_level_descriptor)) {}
 
-    Impl& get() {
+    Impl& get_handle() {
         return _impl;
     }
 };

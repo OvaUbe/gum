@@ -77,7 +77,7 @@ class FilesystemService::Impl {
 
     IFileRef open_file(const String& path, const FileOpenFlags& flags, size_t async_buffer_size) {
         FileDescriptor fd(path, flags);
-        AsyncByteStreamDescriptor sd(_worker.get_service(), fd.get());
+        AsyncByteStreamDescriptor sd(_worker.get_service(), fd.get_handle());
         asio::IAsyncByteStreamRef stream = make_shared_ref<AsyncByteStream>(_worker.get_service(), std::move(sd), async_buffer_size);
 
         return make_shared_ref<File>(std::move(fd), std::move(stream));
