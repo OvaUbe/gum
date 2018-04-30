@@ -12,7 +12,7 @@ namespace posix {
 
 namespace {
 
-int map_mode(FileMode mode) {
+int map_open_mode(FileMode mode) {
     switch (mode) {
     case FileMode::Read:
         return O_RDONLY;
@@ -28,7 +28,7 @@ int map_mode(FileMode mode) {
 
 FileDescriptor::FileDescriptor(const String& path, const FileOpenFlags& flags)
     : _fd() {
-    int internal_flags = map_mode(flags.get_mode());
+    int internal_flags = map_open_mode(flags.get_mode());
     internal_flags |= O_CLOEXEC;
     if (flags.get_create())
         internal_flags |= O_CREAT;
