@@ -243,6 +243,9 @@ if (${GUM_USES_BOOST_ASIO})
 endif()
 
 if (${GUM_USES_POSIX})
+    set(GUM_SOURCES ${GUM_SOURCES}
+        backend/posix/filesystem/FileDescriptor.cpp
+    )
     register_definitions(
         GUM_USES_POSIX
     )
