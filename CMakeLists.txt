@@ -190,6 +190,7 @@ set(GUM_PUBLIC_HEADERS
     Slice.h
     Try.h
     Types.h
+    Unit.h
 )
 
 if (${GUM_RELEASE_BUILD})
