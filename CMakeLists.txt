@@ -231,6 +231,10 @@ if (${GUM_USES_CLANG_COMPILER} OR ${GUM_USES_GCC_COMPILER})
 endif()
 
 if (${GUM_USES_BOOST_ASIO})
+    set(GUM_SOURCES ${GUM_SOURCES}
+        backend/boost/asio/BoostAsyncByteStream.cpp
+        backend/boost/asio/BoostIoWorker.cpp
+    )
     register_definitions(
         GUM_USES_BOOST_ASIO
     )
