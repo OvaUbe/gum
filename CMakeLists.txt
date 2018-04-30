@@ -192,6 +192,7 @@ set(GUM_PUBLIC_HEADERS
     Try.h
     Types.h
     Unit.h
+    Visit.h
 )
 
 if (${GUM_RELEASE_BUILD})
