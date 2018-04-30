@@ -184,6 +184,7 @@ set(GUM_PUBLIC_HEADERS
     IObservableValue.h
     ObservableValue.h
     Optional.h
+    Overload.h
     Range.h
     Raw.h
     Singleton.h
