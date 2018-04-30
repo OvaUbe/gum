@@ -39,6 +39,8 @@ class CancellationToken : public virtual ICancellationToken {
 
     CancellationToken(CancellationToken const&) = delete;
     CancellationToken& operator=(CancellationToken const&) = delete;
+    CancellationToken(CancellationToken&&) = default;
+    CancellationToken& operator=(CancellationToken&&) = default;
 
     explicit operator bool() const override;
 
