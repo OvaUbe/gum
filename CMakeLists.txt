@@ -154,6 +154,7 @@ set(GUM_PUBLIC_HEADERS
     exception/Exception.h
     functional/Invoker.h
     functional/Types.h
+    io/filesystem/FileOpenFlags.h
     io/asio/IAsyncByteStream.h
     io/Eof.h
     io/ByteData.h
