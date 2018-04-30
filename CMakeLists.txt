@@ -101,6 +101,7 @@ set(GUM_SOURCES
     diagnostics/Demangle.cpp
     exception/ExceptionDetails.cpp
     exception/Exception.cpp
+    io/filesystem/FilesystemService.cpp
     log/sinks/AnsiTerminalLoggerSink.cpp
     log/sinks/StandardLoggerSink.cpp
     log/LogMessage.cpp
@@ -155,6 +156,8 @@ set(GUM_PUBLIC_HEADERS
     functional/Invoker.h
     functional/Types.h
     io/filesystem/FileOpenFlags.h
+    io/filesystem/FilesystemService.h
+    io/filesystem/IFile.h
     io/asio/IAsyncByteStream.h
     io/Eof.h
     io/ByteData.h
