@@ -41,25 +41,23 @@ class BoostAsyncByteStream::Impl {
   private:
     static Logger _logger;
 
-    ServiceRef _service;
+    BoostStrandRef _strand;
     BoostStreamDescriptor _stream_descriptor;
 
     Buffer _read_buffer;
-    boost::asio::strand _read_strand;
     Signal<DataReadSignature> _data_read;
 
   public:
-    Impl(const ServiceRef& service, BoostStreamDescriptor&& stream_descriptor, size_t buffer_size)
-        : _service(service)
+    Impl(const BoostStrandRef& strand, BoostStreamDescriptor&& stream_descriptor, size_t buffer_size)
+        : _strand(strand)
         , _stream_descriptor(std::move(stream_descriptor))
-        , _read_buffer(buffer_size)
-        , _read_strand(*_service) {
+        , _read_buffer(buffer_size) {
         GUM_CHECK(buffer_size, ArgumentException("buffer_size", buffer_size));
     }
 
     OperationCancellatorPair read(const SelfRef& self) {
         const auto op = make_shared_ref<CancellableReadOperation>(ReadUntilEof());
-        _read_strand.post([=]() { self->submit_read(self, op); });
+        _strand->get_handle().post([=]() { self->submit_read(self, op); });
 
         return make_read_cancellators(op);
     }
@@ -68,7 +66,7 @@ class BoostAsyncByteStream::Impl {
         GUM_CHECK(size, ArgumentException("size", size));
 
         const auto op = make_shared_ref<CancellableReadOperation>(ReadSize(size));
-        _read_strand.post([=]() { self->submit_read(self, op, size); });
+        _strand->get_handle().post([=]() { self->submit_read(self, op, size); });
 
         return make_read_cancellators(op);
     }
@@ -116,8 +114,9 @@ class BoostAsyncByteStream::Impl {
     }
 
     void submit_read(const SelfRef& self, const CancellableReadOperationRef& op) {
-        boost::asio::async_read(
-            _stream_descriptor.get_handle(), boost::asio::buffer(_read_buffer.data(), _read_buffer.size()), _read_strand.wrap(make_on_data_read(self, op)));
+        boost::asio::async_read(_stream_descriptor.get_handle(),
+                                boost::asio::buffer(_read_buffer.data(), _read_buffer.size()),
+                                _strand->get_handle().wrap(make_on_data_read(self, op)));
     }
 
     void submit_read(const SelfRef& self, const CancellableReadOperationRef& op, u64 size) {
@@ -125,7 +124,7 @@ class BoostAsyncByteStream::Impl {
 
         boost::asio::async_read(_stream_descriptor.get_handle(),
                                 boost::asio::buffer(_read_buffer.data(), std::min<u64>(_read_buffer.size(), size)),
-                                _read_strand.wrap(make_on_data_read(self, op)));
+                                _strand->get_handle().wrap(make_on_data_read(self, op)));
     }
 
     Token make_read_cancellator(const CancellableReadOperationRef& op) const {
@@ -138,8 +137,8 @@ class BoostAsyncByteStream::Impl {
 };
 GUM_DEFINE_NAMED_LOGGER(BoostAsyncByteStream::Impl, "BoostAsyncByteStream");
 
-BoostAsyncByteStream::BoostAsyncByteStream(const ServiceRef& service, BoostStreamDescriptor&& stream_descriptor, size_t buffer_size)
-    : _impl(make_shared_ref<Impl>(service, std::move(stream_descriptor), buffer_size)) {}
+BoostAsyncByteStream::BoostAsyncByteStream(const BoostStrandRef& strand, BoostStreamDescriptor&& stream_descriptor, size_t buffer_size)
+    : _impl(make_shared_ref<Impl>(strand, std::move(stream_descriptor), buffer_size)) {}
 
 Token BoostAsyncByteStream::read() {
     auto operation_token_pair = _impl->read(_impl);

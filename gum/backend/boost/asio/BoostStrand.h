@@ -22,34 +22,36 @@
 
 #pragma once
 
-#include <gum/backend/boost/asio/BoostStrand.h>
-#include <gum/backend/boost/asio/BoostStreamDescriptor.h>
-#include <gum/io/async/IAsyncByteStream.h>
+#include <gum/async/ITaskQueue.h>
 
-#include <boost/asio.hpp>
+#include <boost/asio/strand.hpp>
 
 namespace gum {
 namespace asio {
 
-class BoostAsyncByteStream : public virtual IAsyncByteStream {
-    class Impl;
-    GUM_DECLARE_REF(Impl);
-
+class BoostStrand : public virtual ITaskQueue {
     using Service = boost::asio::io_service;
     GUM_DECLARE_REF(Service);
 
-  private:
-    ImplRef _impl;
+    using Impl = boost::asio::strand;
 
-    Token _readCancellator;
+  private:
+    ServiceRef _service;
+    Impl _impl;
 
   public:
-    BoostAsyncByteStream(const BoostStrandRef& strand, BoostStreamDescriptor&& stream_descriptor, size_t buffer_size);
+    BoostStrand(const ServiceRef& service)
+        : _service(service)
+        , _impl(*_service) {}
 
-    Token read() override;
-    Token read(u64 size) override;
+    virtual void push(Task&& task) override {
+        _impl.post(std::move(task));
+    }
 
-    SignalHandle<DataReadSignature> data_read() const override;
+    Impl& get_handle() {
+        return _impl;
+    }
 };
+GUM_DECLARE_REF(BoostStrand);
 }
 }

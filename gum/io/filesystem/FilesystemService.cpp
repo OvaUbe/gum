@@ -45,6 +45,8 @@ using FileDescriptor = posix::FileDescriptor;
 using AsyncByteStreamDescriptor = asio::BoostStreamDescriptor;
 using AsyncByteStream = asio::BoostAsyncByteStream;
 using IoWorker = asio::BoostIoWorker;
+using Strand = asio::BoostStrand;
+GUM_DECLARE_REF(Strand);
 #else
 #error Asio is not implemented
 #endif
@@ -78,7 +80,9 @@ class FilesystemService::Impl {
     IFileRef open_file(const String& path, const FileOpenFlags& flags, size_t async_buffer_size) {
         FileDescriptor fd(path, flags);
         AsyncByteStreamDescriptor sd(_worker.get_service(), fd.get_handle());
-        asio::IAsyncByteStreamRef stream = make_shared_ref<AsyncByteStream>(_worker.get_service(), std::move(sd), async_buffer_size);
+
+        const StrandRef strand = make_shared_ref<Strand>(_worker.get_service());
+        asio::IAsyncByteStreamRef stream = make_shared_ref<AsyncByteStream>(strand, std::move(sd), async_buffer_size);
 
         return make_shared_ref<File>(std::move(fd), std::move(stream));
     }
