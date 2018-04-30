@@ -193,6 +193,7 @@ set(GUM_PUBLIC_HEADERS
     Defer.h
     DynamicCaster.h
     Enum.h
+    ExceptionRef.h
     IBoolean.h
     IObservableValue.h
     ObservableValue.h
