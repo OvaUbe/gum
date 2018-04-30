@@ -210,7 +210,9 @@ class SignalImpl : public virtual ISignalHandle<Signature_> {
     }
 
     void do_populate(SlotType const& slot) const {
-        GUM_TRY_LOGGER("Uncaught exception from populator", LogLevel::Error, detail::SignalLogger::get(),
+        GUM_TRY_LOGGER("Uncaught exception from populator",
+                       LogLevel::Error,
+                       detail::SignalLogger::get(),
                        _populator(try_(slot, LogLevel::Error, "Uncaught exception from slot", detail::SignalLogger::get())););
     }
 

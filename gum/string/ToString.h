@@ -177,7 +177,8 @@ struct StringRepresentableTrait<Value_, std::enable_if_t<IsReferenceSmartpointer
 
 template <typename Value_>
 struct StringRepresentableTrait<
-    Value_, std::enable_if_t<IsStlIterable<Value_>::value && !HasMethod_to_string<Value_>::value && !StringRepresentableIntrinsicTrait<Value_>::value>>
+    Value_,
+    std::enable_if_t<IsStlIterable<Value_>::value && !HasMethod_to_string<Value_>::value && !StringRepresentableIntrinsicTrait<Value_>::value>>
     : std::true_type {
     static String to_string(Value_ const& value) {
         String result;

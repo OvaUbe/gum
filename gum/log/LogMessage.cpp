@@ -24,8 +24,8 @@
 
 namespace gum {
 
-LogMessage::LogMessage(LoggerId logger_id, TimePoint const& when_, LogLevel level_, StringConstRef const& thread_, StringLiteral const& author_,
-                       String&& message_)
+LogMessage::LogMessage(
+    LoggerId logger_id, TimePoint const& when_, LogLevel level_, StringConstRef const& thread_, StringLiteral const& author_, String&& message_)
     : logger_id(logger_id)
     , when(when_)
     , level(level_)
