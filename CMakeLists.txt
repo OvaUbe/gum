@@ -154,6 +154,9 @@ set(GUM_PUBLIC_HEADERS
     exception/Exception.h
     functional/Invoker.h
     functional/Types.h
+    io/asio/IAsyncByteStream.h
+    io/Eof.h
+    io/ByteData.h
     log/sinks/AnsiTerminalLoggerSink.h
     log/sinks/StandardLoggerSink.h
     log/GlobalLogger.h
