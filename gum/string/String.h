@@ -22,13 +22,16 @@
 
 #pragma once
 
-#include <gum/exception/ExceptionDetails.h>
-
 #include <boost/operators.hpp>
 
 #include <sstream>
 
 namespace gum {
+
+namespace detail {
+
+void check_string_index(size_t index, size_t size);
+}
 
 template <typename Char_>
 class BasicString : public boost::operators<BasicString<Char_>> {
@@ -92,12 +95,12 @@ class BasicString : public boost::operators<BasicString<Char_>> {
     }
 
     reference at(size_t index) {
-        check_index(index, size());
+        detail::check_string_index(index, size());
         return _impl[index];
     }
 
     const_reference at(size_t index) const {
-        check_index(index, size());
+        detail::check_string_index(index, size());
         return _impl[index];
     }
 
@@ -118,12 +121,12 @@ class BasicString : public boost::operators<BasicString<Char_>> {
     }
 
     reference back() {
-        check_index(0, size());
+        detail::check_string_index(0, size());
         return _impl.back();
     }
 
     const_reference back() const {
-        check_index(0, size());
+        detail::check_string_index(0, size());
         return _impl.back();
     }
 
@@ -283,20 +286,6 @@ class BasicString : public boost::operators<BasicString<Char_>> {
 
     friend bool operator==(const_pointer other, const Self& self) {
         return self._impl == other;
-    }
-
-  private:
-    void check_index(size_t index, size_t size) {
-        if (GUM_UNLIKELY(index >= size)) {
-            std::stringstream ss;
-            ss << "Index out of range! Index: ";
-            ss << index;
-            ss << ". Size: ";
-            ss << size;
-            ss << ".";
-
-            throw detail::do_make_exception(detail::Exception(ss.str()), GUM_WHERE, gum::Backtrace());
-        }
     }
 };
 

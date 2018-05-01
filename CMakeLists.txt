@@ -108,6 +108,7 @@ set(GUM_SOURCES
     log/LoggerManager.cpp
     log/LoggerStream.cpp
     log/Logger.cpp
+    string/String.cpp
     string/ToString.cpp
     sys/ErrnoToString.cpp
     Core.cpp
