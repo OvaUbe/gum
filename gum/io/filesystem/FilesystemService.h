@@ -20,16 +20,25 @@
  * THE SOFTWARE.
  */
 
-#include <gum/log/LogMessage.h>
+#pragma once
+
+#include <gum/io/filesystem/FileOpenFlags.h>
+#include <gum/io/filesystem/IFile.h>
 
 namespace gum {
 
-LogMessage::LogMessage(
-    LoggerId logger_id, TimePoint const& when_, LogLevel level_, StringConstRef const& thread_, StringLiteral const& author_, String&& message_)
-    : logger_id(logger_id)
-    , when(when_)
-    , level(level_)
-    , thread(thread_)
-    , author(author_)
-    , message(std::move(message_)) {}
+class FilesystemService {
+    class Impl;
+    GUM_DECLARE_UNIQUE_REF(Impl);
+
+  private:
+    ImplUniqueRef _impl;
+
+  public:
+    FilesystemService(const String& name, size_t concurrency_hint);
+    ~FilesystemService();
+
+    IFileRef open_file(const String& path, const FileOpenFlags& flags, size_t async_buffer_size);
+    IFileRef open_file(const String& path, FileMode mode, size_t async_buffer_size);
+};
 }

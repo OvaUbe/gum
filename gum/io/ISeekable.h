@@ -20,16 +20,21 @@
  * THE SOFTWARE.
  */
 
-#include <gum/log/LogMessage.h>
+#pragma once
+
+#include <gum/Enum.h>
+#include <gum/smartpointer/SharedPtr.h>
+#include <gum/smartpointer/SharedReference.h>
 
 namespace gum {
 
-LogMessage::LogMessage(
-    LoggerId logger_id, TimePoint const& when_, LogLevel level_, StringConstRef const& thread_, StringLiteral const& author_, String&& message_)
-    : logger_id(logger_id)
-    , when(when_)
-    , level(level_)
-    , thread(thread_)
-    , author(author_)
-    , message(std::move(message_)) {}
+GUM_ENUM(SeekMode, Begin, Current, End);
+
+struct ISeekable {
+    virtual ~ISeekable() {}
+
+    virtual void seek(s64 offset, SeekMode mode = SeekMode::Begin) = 0;
+};
+GUM_DECLARE_PTR(ISeekable);
+GUM_DECLARE_REF(ISeekable);
 }

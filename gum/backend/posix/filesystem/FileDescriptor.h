@@ -20,16 +20,28 @@
  * THE SOFTWARE.
  */
 
-#include <gum/log/LogMessage.h>
+#pragma once
+
+#include <gum/io/ISeekable.h>
+#include <gum/io/filesystem/FileOpenFlags.h>
+#include <gum/token/Token.h>
 
 namespace gum {
+namespace posix {
 
-LogMessage::LogMessage(
-    LoggerId logger_id, TimePoint const& when_, LogLevel level_, StringConstRef const& thread_, StringLiteral const& author_, String&& message_)
-    : logger_id(logger_id)
-    , when(when_)
-    , level(level_)
-    , thread(thread_)
-    , author(author_)
-    , message(std::move(message_)) {}
+class FileDescriptor : public virtual ISeekable {
+    int _fd;
+    Token _closeToken;
+
+  public:
+    FileDescriptor(const String& path, const FileOpenFlags& flags);
+
+    void seek(s64 offset, SeekMode mode) override;
+
+    int get_handle() const {
+        return _fd;
+    }
+};
+GUM_DECLARE_REF(FileDescriptor);
+}
 }

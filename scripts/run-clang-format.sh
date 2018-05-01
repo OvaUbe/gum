@@ -26,6 +26,7 @@ clang_format_opts="-style=file -assume-filename=.clang-format -i"
 
 src_dirs=(
     gum
+    test
 )
 
 file_list=`find "${src_dirs[@]}" -type f | grep -E "^.*\.(cpp|h)$"`

@@ -20,16 +20,18 @@
  * THE SOFTWARE.
  */
 
-#include <gum/log/LogMessage.h>
+#pragma once
+
+#include <gum/string/ToString.h>
+
+#include <boost/system/error_code.hpp>
 
 namespace gum {
 
-LogMessage::LogMessage(
-    LoggerId logger_id, TimePoint const& when_, LogLevel level_, StringConstRef const& thread_, StringLiteral const& author_, String&& message_)
-    : logger_id(logger_id)
-    , when(when_)
-    , level(level_)
-    , thread(thread_)
-    , author(author_)
-    , message(std::move(message_)) {}
+template <>
+struct StringRepresentableTrait<boost::system::error_code> : std::true_type {
+    static String to_string(const boost::system::error_code& error_code) {
+        return String() << error_code.message() << " (" << error_code.value() << ")";
+    }
+};
 }

@@ -20,16 +20,15 @@
  * THE SOFTWARE.
  */
 
-#include <gum/log/LogMessage.h>
+#pragma once
+
+#include <gum/exception/Exception.h>
+#include <gum/sys/ErrnoToString.h>
 
 namespace gum {
 
-LogMessage::LogMessage(
-    LoggerId logger_id, TimePoint const& when_, LogLevel level_, StringConstRef const& thread_, StringLiteral const& author_, String&& message_)
-    : logger_id(logger_id)
-    , when(when_)
-    , level(level_)
-    , thread(thread_)
-    , author(author_)
-    , message(std::move(message_)) {}
+struct SystemException : public Exception {
+    SystemException(const String& message)
+        : Exception(String() << message << ": " << errno_to_string(errno)) {}
+};
 }

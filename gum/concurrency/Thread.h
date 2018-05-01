@@ -54,6 +54,9 @@ class Thread {
         , _task(std::forward<Callable_>(callable))
         , _impl(&Self::thread_func, this) {}
 
+    Thread(Thread&&) = default;
+    Thread& operator=(Thread&&) = default;
+
     ~Thread();
 
     static void set_own_name(gum::String const& name);

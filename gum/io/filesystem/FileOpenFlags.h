@@ -20,16 +20,52 @@
  * THE SOFTWARE.
  */
 
-#include <gum/log/LogMessage.h>
+#pragma once
+
+#include <gum/Enum.h>
+#include <gum/string/ToString.h>
 
 namespace gum {
 
-LogMessage::LogMessage(
-    LoggerId logger_id, TimePoint const& when_, LogLevel level_, StringConstRef const& thread_, StringLiteral const& author_, String&& message_)
-    : logger_id(logger_id)
-    , when(when_)
-    , level(level_)
-    , thread(thread_)
-    , author(author_)
-    , message(std::move(message_)) {}
+GUM_ENUM(FileMode, Read, Write, ReadWrite);
+
+class FileOpenFlags {
+    using Self = FileOpenFlags;
+
+    FileMode _mode;
+    bool _create;
+    bool _truncate;
+
+  public:
+    FileOpenFlags(FileMode mode)
+        : _mode(mode)
+        , _create()
+        , _truncate() {}
+
+    Self& create() {
+        _create = true;
+        return *this;
+    }
+
+    Self& truncate() {
+        _truncate = true;
+        return *this;
+    }
+
+    FileMode get_mode() const {
+        return _mode;
+    }
+
+    bool get_create() const {
+        return _create;
+    }
+
+    bool get_truncate() const {
+        return _truncate;
+    }
+
+    String to_string() const {
+        return String() << "{ mode: " << _mode << ", create: " << _create << ", truncate: " << _truncate << " }";
+    }
+};
 }

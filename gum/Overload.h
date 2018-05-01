@@ -20,16 +20,35 @@
  * THE SOFTWARE.
  */
 
-#include <gum/log/LogMessage.h>
+#pragma once
+
+#include <utility>
 
 namespace gum {
 
-LogMessage::LogMessage(
-    LoggerId logger_id, TimePoint const& when_, LogLevel level_, StringConstRef const& thread_, StringLiteral const& author_, String&& message_)
-    : logger_id(logger_id)
-    , when(when_)
-    , level(level_)
-    , thread(thread_)
-    , author(author_)
-    , message(std::move(message_)) {}
+template <typename...>
+struct Overload;
+
+template <typename Head_, typename... Tail_>
+struct Overload<Head_, Tail_...> : Head_, Overload<Tail_...> {
+    Overload(Head_&& head, Tail_&&... tail)
+        : Head_(std::forward<Head_>(head))
+        , Overload<Tail_...>(std::forward<Tail_>(tail)...) {}
+
+    using Head_::operator();
+    using Overload<Tail_...>::operator();
+};
+
+template <typename Head_>
+struct Overload<Head_> : Head_ {
+    Overload(Head_&& head)
+        : Head_(std::forward<Head_>(head)) {}
+
+    using Head_::operator();
+};
+
+template <typename... List_>
+auto overload(List_&&... list) {
+    return Overload<List_...>(std::forward<List_>(list)...);
+}
 }

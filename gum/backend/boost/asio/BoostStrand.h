@@ -20,16 +20,38 @@
  * THE SOFTWARE.
  */
 
-#include <gum/log/LogMessage.h>
+#pragma once
+
+#include <gum/async/ITaskQueue.h>
+
+#include <boost/asio/strand.hpp>
 
 namespace gum {
+namespace asio {
 
-LogMessage::LogMessage(
-    LoggerId logger_id, TimePoint const& when_, LogLevel level_, StringConstRef const& thread_, StringLiteral const& author_, String&& message_)
-    : logger_id(logger_id)
-    , when(when_)
-    , level(level_)
-    , thread(thread_)
-    , author(author_)
-    , message(std::move(message_)) {}
+class BoostStrand : public virtual ITaskQueue {
+    using Service = boost::asio::io_service;
+    GUM_DECLARE_REF(Service);
+
+    using Impl = boost::asio::strand;
+
+  private:
+    ServiceRef _service;
+    Impl _impl;
+
+  public:
+    BoostStrand(const ServiceRef& service)
+        : _service(service)
+        , _impl(*_service) {}
+
+    virtual void push(Task&& task) override {
+        _impl.post(std::move(task));
+    }
+
+    Impl& get_handle() {
+        return _impl;
+    }
+};
+GUM_DECLARE_REF(BoostStrand);
+}
 }

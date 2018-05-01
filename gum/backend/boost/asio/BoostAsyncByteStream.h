@@ -20,16 +20,36 @@
  * THE SOFTWARE.
  */
 
-#include <gum/log/LogMessage.h>
+#pragma once
+
+#include <gum/backend/boost/asio/BoostStrand.h>
+#include <gum/backend/boost/asio/BoostStreamDescriptor.h>
+#include <gum/io/async/IAsyncByteStream.h>
+
+#include <boost/asio.hpp>
 
 namespace gum {
+namespace asio {
 
-LogMessage::LogMessage(
-    LoggerId logger_id, TimePoint const& when_, LogLevel level_, StringConstRef const& thread_, StringLiteral const& author_, String&& message_)
-    : logger_id(logger_id)
-    , when(when_)
-    , level(level_)
-    , thread(thread_)
-    , author(author_)
-    , message(std::move(message_)) {}
+class BoostAsyncByteStream : public virtual IAsyncByteStream {
+    class Impl;
+    GUM_DECLARE_REF(Impl);
+
+    using Service = boost::asio::io_service;
+    GUM_DECLARE_REF(Service);
+
+  private:
+    ImplRef _impl;
+
+    Token _readCancellator;
+
+  public:
+    BoostAsyncByteStream(const BoostStrandRef& strand, BoostStreamDescriptor&& stream_descriptor, size_t buffer_size);
+
+    Token read() override;
+    Token read(u64 size) override;
+
+    SignalHandle<DataReadSignature> data_read() const override;
+};
+}
 }

@@ -9,12 +9,15 @@ include(cmake/castella/Platform.cmake)
 include(cmake/castella/Options.cmake)
 include(cmake/castella/String.cmake)
 
+include(CheckCSourceCompiles)
+
 set(CMAKE_CXX_STANDARD 14)
 
 log(info "Cmake build type:" ${CMAKE_BUILD_TYPE})
 log(info "C++ standard:" ${CMAKE_CXX_STANDARD})
 
 set_option(GUM_BUILD_TESTS OFF "Build tests")
+set_option(GUM_USES_BOOST_ASIO ON "Use boost.asio")
 
 if(CMAKE_BUILD_TYPE STREQUAL Debug)
     set(GUM_RELEASE_BUILD False)
@@ -40,6 +43,15 @@ endif()
 
 detect_clang_compiler(GUM_USES_CLANG_COMPILER)
 detect_gcc_compiler(GUM_USES_GCC_COMPILER)
+detect_posix(GUM_USES_POSIX)
+
+CHECK_C_SOURCE_COMPILES(
+    "#include <string.h>
+    int main() { char b[256]; strerror_r(0, b, sizeof(b)); return 0; }"
+    GUM_HAS_STRERROR_R)
+if (${GUM_HAS_STRERROR_R})
+    register_definitions(GUM_HAS_STRERROR_R)
+endif()
 
 if (${GUM_USES_CLANG_COMPILER})
     register_definitions(GUM_USES_CLANG_COMPILER)
@@ -50,7 +62,7 @@ endif()
 find_package(Threads REQUIRED)
 set(GUM_EXTERNAL_LIBS ${GUM_EXTERNAL_LIBS} ${CMAKE_THREAD_LIBS_INIT})
 
-find_package(Boost REQUIRED)
+find_package(Boost COMPONENTS system REQUIRED)
 include_directories(${Boost_INCLUDE_DIRS})
 list(APPEND GUM_EXTERNAL_LIBS ${Boost_LIBRARIES})
 
@@ -89,6 +101,7 @@ set(GUM_SOURCES
     diagnostics/Demangle.cpp
     exception/ExceptionDetails.cpp
     exception/Exception.cpp
+    io/filesystem/FilesystemService.cpp
     log/sinks/AnsiTerminalLoggerSink.cpp
     log/sinks/StandardLoggerSink.cpp
     log/LogMessage.cpp
@@ -96,6 +109,7 @@ set(GUM_SOURCES
     log/LoggerStream.cpp
     log/Logger.cpp
     string/ToString.cpp
+    sys/ErrnoToString.cpp
     Core.cpp
     Enum.cpp
 )
@@ -141,6 +155,13 @@ set(GUM_PUBLIC_HEADERS
     exception/Exception.h
     functional/Invoker.h
     functional/Types.h
+    io/filesystem/FileOpenFlags.h
+    io/filesystem/FilesystemService.h
+    io/filesystem/IFile.h
+    io/asio/IAsyncByteStream.h
+    io/Eof.h
+    io/ByteData.h
+    io/ISeekable.h
     log/sinks/AnsiTerminalLoggerSink.h
     log/sinks/StandardLoggerSink.h
     log/GlobalLogger.h
@@ -167,6 +188,8 @@ set(GUM_PUBLIC_HEADERS
     string/StringRef.h
     string/String.h
     string/ToString.h
+    sys/ErrnoToString.h
+    sys/SystemException.h
     time/ElapsedTime.h
     time/Types.h
     token/FunctionToken.h
@@ -180,16 +203,20 @@ set(GUM_PUBLIC_HEADERS
     Defer.h
     DynamicCaster.h
     Enum.h
+    ExceptionRef.h
     IBoolean.h
     IObservableValue.h
     ObservableValue.h
     Optional.h
+    Overload.h
     Range.h
     Raw.h
     Singleton.h
     Slice.h
     Try.h
     Types.h
+    Unit.h
+    Visit.h
 )
 
 if (${GUM_RELEASE_BUILD})
@@ -205,6 +232,26 @@ if (${GUM_USES_CLANG_COMPILER} OR ${GUM_USES_GCC_COMPILER})
     )
     register_definitions(
         GUM_USES_GNU_BACKEND
+    )
+endif()
+
+if (${GUM_USES_BOOST_ASIO})
+    set(GUM_SOURCES ${GUM_SOURCES}
+        backend/boost/asio/BoostAsyncByteStream.cpp
+        backend/boost/asio/BoostIoWorker.cpp
+    )
+    register_definitions(
+        GUM_USES_BOOST_ASIO
+        BOOST_ASIO_DISABLE_EPOLL
+    )
+endif()
+
+if (${GUM_USES_POSIX})
+    set(GUM_SOURCES ${GUM_SOURCES}
+        backend/posix/filesystem/FileDescriptor.cpp
+    )
+    register_definitions(
+        GUM_USES_POSIX
     )
 endif()
 

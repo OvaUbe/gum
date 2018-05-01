@@ -20,16 +20,16 @@
  * THE SOFTWARE.
  */
 
-#include <gum/log/LogMessage.h>
+#pragma once
+
+#include <gum/Overload.h>
+
+#include <boost/variant.hpp>
 
 namespace gum {
 
-LogMessage::LogMessage(
-    LoggerId logger_id, TimePoint const& when_, LogLevel level_, StringConstRef const& thread_, StringLiteral const& author_, String&& message_)
-    : logger_id(logger_id)
-    , when(when_)
-    , level(level_)
-    , thread(thread_)
-    , author(author_)
-    , message(std::move(message_)) {}
+template <typename Variant_, typename... List_>
+auto visit(Variant_& variant, List_&&... list) {
+    return boost::apply_visitor(overload(std::forward<List_>(list)...), variant);
+}
 }

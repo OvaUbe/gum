@@ -20,16 +20,34 @@
  * THE SOFTWARE.
  */
 
-#include <gum/log/LogMessage.h>
+#pragma once
+
+#include <gum/concurrency/Thread.h>
+
+#include <boost/asio.hpp>
 
 namespace gum {
+namespace asio {
 
-LogMessage::LogMessage(
-    LoggerId logger_id, TimePoint const& when_, LogLevel level_, StringConstRef const& thread_, StringLiteral const& author_, String&& message_)
-    : logger_id(logger_id)
-    , when(when_)
-    , level(level_)
-    , thread(thread_)
-    , author(author_)
-    , message(std::move(message_)) {}
+class BoostIoWorker {
+    using Service = boost::asio::io_service;
+    GUM_DECLARE_REF(Service);
+
+    using ThreadPool = std::vector<Thread>;
+
+  private:
+    ServiceRef _service;
+    ThreadPool _thread_pool;
+
+  public:
+    BoostIoWorker(const String& name, size_t concurrency);
+
+    ServiceRef get_service() {
+        return _service;
+    }
+
+  private:
+    void thread_func(ICancellationHandle& handle);
+};
+}
 }

@@ -20,16 +20,31 @@
  * THE SOFTWARE.
  */
 
-#include <gum/log/LogMessage.h>
+#include <gum/backend/boost/asio/BoostIoWorker.h>
+
+#include <gum/Range.h>
+
+#include <gum/log/GlobalLogger.h>
 
 namespace gum {
+namespace asio {
 
-LogMessage::LogMessage(
-    LoggerId logger_id, TimePoint const& when_, LogLevel level_, StringConstRef const& thread_, StringLiteral const& author_, String&& message_)
-    : logger_id(logger_id)
-    , when(when_)
-    , level(level_)
-    , thread(thread_)
-    , author(author_)
-    , message(std::move(message_)) {}
+BoostIoWorker::BoostIoWorker(const String& name, size_t concurrency_hint)
+    : _service(make_shared_ref<Service>(concurrency_hint)) {
+    GUM_CHECK(concurrency_hint, ArgumentException("concurrency_hint", concurrency_hint));
+
+    _thread_pool.reserve(concurrency_hint);
+    for (auto i : range(concurrency_hint))
+        _thread_pool.emplace_back(String() << name << ":" << i, [this](auto& handle) { thread_func(handle); });
+}
+
+void BoostIoWorker::thread_func(ICancellationHandle& handle) {
+    const auto token = handle.on_cancelled([this] { _service->stop(); });
+    if (!handle)
+        return;
+
+    const boost::asio::io_service::work work(*_service);
+    _service->run();
+}
+}
 }

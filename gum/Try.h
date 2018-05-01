@@ -40,8 +40,8 @@ namespace gum {
 #define GUM_TRY(Message_, ...) GUM_TRY_LEVEL(Message_, LogLevel::Warning, __VA_ARGS__)
 
 template <typename Wrapped_>
-auto try_(Wrapped_&& wrapped, LogLevel log_level = LogLevel::Warning, StringLiteral const& message = "Uncaught exception",
-          Logger& logger = GlobalLogger::get()) {
+auto try_(
+    Wrapped_&& wrapped, LogLevel log_level = LogLevel::Warning, StringLiteral const& message = "Uncaught exception", Logger& logger = GlobalLogger::get()) {
     return [wrapped = std::forward<Wrapped_>(wrapped), log_level, message, &logger](auto&&... args) {
         GUM_TRY_LOGGER(message, log_level, logger, wrapped(std::forward<decltype(args)>(args)...));
     };

@@ -20,16 +20,17 @@
  * THE SOFTWARE.
  */
 
-#include <gum/log/LogMessage.h>
+#pragma once
+
+#include <gum/io/async/IAsyncByteStream.h>
 
 namespace gum {
 
-LogMessage::LogMessage(
-    LoggerId logger_id, TimePoint const& when_, LogLevel level_, StringConstRef const& thread_, StringLiteral const& author_, String&& message_)
-    : logger_id(logger_id)
-    , when(when_)
-    , level(level_)
-    , thread(thread_)
-    , author(author_)
-    , message(std::move(message_)) {}
+struct IFile {
+    virtual ~IFile() {}
+
+    virtual asio::ISeekableAsyncByteStreamRef get_stream() = 0;
+};
+GUM_DECLARE_PTR(IFile);
+GUM_DECLARE_REF(IFile);
 }

@@ -40,7 +40,8 @@ struct Exception : public detail::Exception {
 
 namespace detail {
 
-inline auto make_exception(std::exception const& ex, Where const& where, Backtrace const& backtrace) {
+template <typename Exception_>
+inline auto make_exception(Exception_ const& ex, Where const& where, Backtrace const& backtrace) {
     return do_make_exception(ex, where, backtrace);
 }
 
@@ -76,6 +77,7 @@ GUM_DECLARE_EXCEPTION(NullPointerException, "Accessing null pointer");
 GUM_DECLARE_EXCEPTION(InternalError, "Internal error");
 GUM_DECLARE_EXCEPTION(LogicError, "Logic error");
 GUM_DECLARE_EXCEPTION(NotImplementedException, "Not implemented");
+GUM_DECLARE_EXCEPTION(OperationCancelledException, "Operation has been cancelled");
 
 struct IndexOutOfRangeException : public Exception {
     IndexOutOfRangeException(u64 index, u64 begin, u64 end);

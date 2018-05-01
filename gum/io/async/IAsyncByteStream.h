@@ -20,16 +20,40 @@
  * THE SOFTWARE.
  */
 
-#include <gum/log/LogMessage.h>
+#pragma once
+
+#include <gum/ExceptionRef.h>
+#include <gum/async/Signal.h>
+#include <gum/io/ByteData.h>
+#include <gum/io/Eof.h>
+#include <gum/io/ISeekable.h>
+
+#include <boost/variant.hpp>
 
 namespace gum {
+namespace asio {
 
-LogMessage::LogMessage(
-    LoggerId logger_id, TimePoint const& when_, LogLevel level_, StringConstRef const& thread_, StringLiteral const& author_, String&& message_)
-    : logger_id(logger_id)
-    , when(when_)
-    , level(level_)
-    , thread(thread_)
-    , author(author_)
-    , message(std::move(message_)) {}
+struct IAsyncReadable {
+    using ReadResult = boost::variant<ConstByteData, Eof, ExceptionRef>;
+    using DataReadSignature = void(const ReadResult&);
+
+  public:
+    virtual ~IAsyncReadable() {}
+
+    virtual Token read() = 0;
+    virtual Token read(u64 size) = 0;
+
+    virtual SignalHandle<DataReadSignature> data_read() const = 0;
+};
+GUM_DECLARE_PTR(IAsyncReadable);
+GUM_DECLARE_REF(IAsyncReadable);
+
+struct IAsyncByteStream : public virtual IAsyncReadable {};
+GUM_DECLARE_PTR(IAsyncByteStream);
+GUM_DECLARE_REF(IAsyncByteStream);
+
+struct ISeekableAsyncByteStream : public virtual IAsyncByteStream, public virtual ISeekable {};
+GUM_DECLARE_PTR(ISeekableAsyncByteStream);
+GUM_DECLARE_REF(ISeekableAsyncByteStream);
+}
 }

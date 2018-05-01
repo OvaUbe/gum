@@ -20,16 +20,42 @@
  * THE SOFTWARE.
  */
 
-#include <gum/log/LogMessage.h>
+#pragma once
+
+#include <gum/smartpointer/SharedReference.h>
+
+#include <boost/asio/io_service.hpp>
+
+#ifdef GUM_USES_POSIX
+#include <boost/asio/posix/stream_descriptor.hpp>
+#endif
 
 namespace gum {
+namespace asio {
 
-LogMessage::LogMessage(
-    LoggerId logger_id, TimePoint const& when_, LogLevel level_, StringConstRef const& thread_, StringLiteral const& author_, String&& message_)
-    : logger_id(logger_id)
-    , when(when_)
-    , level(level_)
-    , thread(thread_)
-    , author(author_)
-    , message(std::move(message_)) {}
+class BoostStreamDescriptor {
+#ifdef GUM_USES_POSIX
+    using Impl = boost::asio::posix::stream_descriptor;
+#else
+#error Boost stream descriptor is not implemented
+#endif
+
+    using Service = boost::asio::io_service;
+    GUM_DECLARE_REF(Service);
+
+  private:
+    ServiceRef _service;
+    Impl _impl;
+
+  public:
+    template <typename LowLevelDescriptor_>
+    BoostStreamDescriptor(const ServiceRef& service, LowLevelDescriptor_&& low_level_descriptor)
+        : _service(service)
+        , _impl(*_service, std::move(low_level_descriptor)) {}
+
+    Impl& get_handle() {
+        return _impl;
+    }
+};
+}
 }
