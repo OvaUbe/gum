@@ -99,14 +99,15 @@ class BoostAsyncByteStream::Impl {
             return;
         }
 
-        visit(op->Op,
-              [&, this](ReadUntilEof) { submit_read(self, op); },
-              [&, this](ReadSize& size) {
-                  GUM_CHECK(size >= length, InternalError(String() << "Read operation size " << size << " is less than read length " << length));
-                  size -= length;
-                  if (size)
-                      submit_read(self, op, size);
-              });
+        visit(
+            op->Op,
+            [&, this](ReadUntilEof) { submit_read(self, op); },
+            [&, this](ReadSize& size) {
+                GUM_CHECK(size >= length, InternalError(String() << "Read operation size " << size << " is less than read length " << length));
+                size -= length;
+                if (size)
+                    submit_read(self, op, size);
+            });
     }
 
     auto make_on_data_read(const SelfRef& self, const CancellableReadOperationRef& op) {
@@ -114,17 +115,19 @@ class BoostAsyncByteStream::Impl {
     }
 
     void submit_read(const SelfRef& self, const CancellableReadOperationRef& op) {
-        boost::asio::async_read(_stream_descriptor.get_handle(),
-                                boost::asio::buffer(_read_buffer.data(), _read_buffer.size()),
-                                _strand->get_handle().wrap(make_on_data_read(self, op)));
+        boost::asio::async_read(
+            _stream_descriptor.get_handle(),
+            boost::asio::buffer(_read_buffer.data(), _read_buffer.size()),
+            _strand->get_handle().wrap(make_on_data_read(self, op)));
     }
 
     void submit_read(const SelfRef& self, const CancellableReadOperationRef& op, u64 size) {
         GUM_CHECK(size, ArgumentException("size", size));
 
-        boost::asio::async_read(_stream_descriptor.get_handle(),
-                                boost::asio::buffer(_read_buffer.data(), std::min<u64>(_read_buffer.size(), size)),
-                                _strand->get_handle().wrap(make_on_data_read(self, op)));
+        boost::asio::async_read(
+            _stream_descriptor.get_handle(),
+            boost::asio::buffer(_read_buffer.data(), std::min<u64>(_read_buffer.size(), size)),
+            _strand->get_handle().wrap(make_on_data_read(self, op)));
     }
 
     Token make_read_cancellator(const CancellableReadOperationRef& op) const {

@@ -44,14 +44,14 @@ std::enable_if_t<StringRepresentableTrait<Value_>::value, String> to_string(cons
 }
 
 template <typename Value_>
-std::enable_if_t<StringRepresentableTrait<Value_>::value && !StringRepresentableIntrinsicTrait<Value_>::value, String&> operator<<(String& string,
-                                                                                                                                   const Value_& object) {
+std::enable_if_t<StringRepresentableTrait<Value_>::value && !StringRepresentableIntrinsicTrait<Value_>::value, String&>
+operator<<(String& string, const Value_& object) {
     return string << to_string(object);
 }
 
 template <typename Value_>
-std::enable_if_t<StringRepresentableTrait<Value_>::value && !StringRepresentableIntrinsicTrait<Value_>::value, String&&> operator<<(String&& string,
-                                                                                                                                    const Value_& object) {
+std::enable_if_t<StringRepresentableTrait<Value_>::value && !StringRepresentableIntrinsicTrait<Value_>::value, String&&>
+operator<<(String&& string, const Value_& object) {
     return std::move(string).operator<<(to_string(object));
 }
 

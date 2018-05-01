@@ -76,21 +76,22 @@ void AnsiTerminalLoggerSink::log(LogMessage const& message) {
     StringLiteral const AuthorColorStart = GreenColorStart;
     StringLiteral const LogLevelColorStart = LogLevelColorMapper()(message.level);
 
-    printf("%s[%s]%s %s{%s}%s %s[%s]%s %s[%s]%s %s%s%s\n",
-           WhenColorStart.c_str(),
-           to_string(message.when).c_str(),
-           AttributeReset.c_str(),
-           ThreadNameColorStart.c_str(),
-           message.thread->c_str(),
-           AttributeReset.c_str(),
-           AuthorColorStart.c_str(),
-           message.author.c_str(),
-           AttributeReset.c_str(),
-           LogLevelColorStart.c_str(),
-           message.level.to_string().c_str(),
-           AttributeReset.c_str(),
-           LogLevelColorStart.c_str(),
-           message.message.c_str(),
-           AttributeReset.c_str());
+    printf(
+        "%s[%s]%s %s{%s}%s %s[%s]%s %s[%s]%s %s%s%s\n",
+        WhenColorStart.c_str(),
+        to_string(message.when).c_str(),
+        AttributeReset.c_str(),
+        ThreadNameColorStart.c_str(),
+        message.thread->c_str(),
+        AttributeReset.c_str(),
+        AuthorColorStart.c_str(),
+        message.author.c_str(),
+        AttributeReset.c_str(),
+        LogLevelColorStart.c_str(),
+        message.level.to_string().c_str(),
+        AttributeReset.c_str(),
+        LogLevelColorStart.c_str(),
+        message.message.c_str(),
+        AttributeReset.c_str());
 }
 }

@@ -28,13 +28,14 @@
 
 namespace gum {
 
-template <typename Derived_,
-          typename Category_,
-          typename Value_,
-          typename Difference_ = std::ptrdiff_t,
-          typename Pointer_ = Value_*,
-          typename Reference_ = Value_&,
-          typename Base_ = std::iterator<Category_, Value_, Difference_, Pointer_, Reference_>>
+template <
+    typename Derived_,
+    typename Category_,
+    typename Value_,
+    typename Difference_ = std::ptrdiff_t,
+    typename Pointer_ = Value_*,
+    typename Reference_ = Value_&,
+    typename Base_ = std::iterator<Category_, Value_, Difference_, Pointer_, Reference_>>
 class IteratorBase : public Base_ {
   public:
     using value_type = typename Base_::value_type;
@@ -97,14 +98,16 @@ class IteratorToValue {
 }
 
 template <typename Wrapped_>
-class KeyIterator : public IteratorBase<KeyIterator<Wrapped_>,
-                                        std::bidirectional_iterator_tag,
-                                        typename detail::IteratorToValue<Wrapped_>::Type,
-                                        typename Wrapped_::difference_type> {
-    using Base = IteratorBase<KeyIterator<Wrapped_>,
-                              std::bidirectional_iterator_tag,
-                              typename detail::IteratorToValue<Wrapped_>::Type,
-                              typename Wrapped_::difference_type>;
+class KeyIterator : public IteratorBase<
+                        KeyIterator<Wrapped_>,
+                        std::bidirectional_iterator_tag,
+                        typename detail::IteratorToValue<Wrapped_>::Type,
+                        typename Wrapped_::difference_type> {
+    using Base = IteratorBase<
+        KeyIterator<Wrapped_>,
+        std::bidirectional_iterator_tag,
+        typename detail::IteratorToValue<Wrapped_>::Type,
+        typename Wrapped_::difference_type>;
 
   public:
     using value_type = typename Base::value_type;

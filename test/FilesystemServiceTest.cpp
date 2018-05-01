@@ -68,48 +68,50 @@ String multiply_string(const String& str, size_t count) {
 TEST(FilesystemServiceTest, ReadUntilEof) {
     for_each({1, 2, 5, 10, 20, 50}, [&](size_t concurrency) {
         for_each({1, 2, 10, 50, 128, 512, 999}, [&](size_t buffer_size) {
-            for_each({"",
-                      "abcdefgh",
-                      "\n",
-                      "a\0b"
-                      "a\nb\nc\nd",
-                      "a\nb\nc\nd\n"},
-                     [&](const String& sample_content) {
-                         write_test_file(sample_content);
+            for_each(
+                {"",
+                 "abcdefgh",
+                 "\n",
+                 "a\0b"
+                 "a\nb\nc\nd",
+                 "a\nb\nc\nd\n"},
+                [&](const String& sample_content) {
+                    write_test_file(sample_content);
 
-                         FilesystemService service("fs_service", concurrency);
-                         const IFileRef file = service.open_file(TestFilePath, FileMode::Read, buffer_size);
-                         const asio::IAsyncByteStreamRef stream = file->get_stream();
+                    FilesystemService service("fs_service", concurrency);
+                    const IFileRef file = service.open_file(TestFilePath, FileMode::Read, buffer_size);
+                    const asio::IAsyncByteStreamRef stream = file->get_stream();
 
-                         String testee_content;
-                         bool eof = false;
+                    String testee_content;
+                    bool eof = false;
 
-                         Latch latch;
+                    Latch latch;
 
-                         const Token readConnection = stream->data_read().connect([&](const auto& result) {
-                             visit(result,
-                                   [&](ConstByteData data) { testee_content << String(data.begin(), data.end()); },
-                                   [&](Eof) {
-                                       eof = true;
-                                       latch.signal();
-                                   },
-                                   [&](ExceptionRef ex) {
-                                       ASSERT_TRUE(false) << "Read caught an error: " << to_string(ex).c_str();
-                                       latch.signal();
-                                   });
-                         });
+                    const Token readConnection = stream->data_read().connect([&](const auto& result) {
+                        visit(
+                            result,
+                            [&](ConstByteData data) { testee_content << String(data.begin(), data.end()); },
+                            [&](Eof) {
+                                eof = true;
+                                latch.signal();
+                            },
+                            [&](ExceptionRef ex) {
+                                ASSERT_TRUE(false) << "Read caught an error: " << to_string(ex).c_str();
+                                latch.signal();
+                            });
+                    });
 
-                         {
-                             const auto l = latch.lock();
+                    {
+                        const auto l = latch.lock();
 
-                             const Token readOpToken = stream->read();
+                        const Token readOpToken = stream->read();
 
-                             latch.wait(Seconds(10));
-                         }
+                        latch.wait(Seconds(10));
+                    }
 
-                         ASSERT_TRUE(eof);
-                         ASSERT_EQ(testee_content, sample_content);
-                     });
+                    ASSERT_TRUE(eof);
+                    ASSERT_EQ(testee_content, sample_content);
+                });
         });
     });
 }
@@ -133,20 +135,21 @@ TEST(FilesystemServiceTest, ReadCancelled) {
         Mutex readOpTokenMutex;
 
         const Token readConnection = stream->data_read().connect([&](const auto& result) {
-            visit(result,
-                  [&](ConstByteData data) {
-                      testee_content << String(data.begin(), data.end());
-                      {
-                          MutexLock l(readOpTokenMutex);
-                          readOpToken.release();
-                      }
-                      latch.signal();
-                  },
-                  [&](Eof) {
-                      eof = true;
-                      latch.signal();
-                  },
-                  [&](ExceptionRef) { latch.signal(); });
+            visit(
+                result,
+                [&](ConstByteData data) {
+                    testee_content << String(data.begin(), data.end());
+                    {
+                        MutexLock l(readOpTokenMutex);
+                        readOpToken.release();
+                    }
+                    latch.signal();
+                },
+                [&](Eof) {
+                    eof = true;
+                    latch.signal();
+                },
+                [&](ExceptionRef) { latch.signal(); });
         });
 
         {
@@ -179,20 +182,21 @@ TEST(FilesystemServiceTest, StreamOwnership) {
         Latch latch;
 
         const Token readConnection = stream->data_read().connect([&](const auto& result) {
-            visit(result,
-                  [&](ConstByteData data) {
-                      testee_content << String(data.begin(), data.end());
+            visit(
+                result,
+                [&](ConstByteData data) {
+                    testee_content << String(data.begin(), data.end());
 
-                      file.reset();
-                      stream.reset();
+                    file.reset();
+                    stream.reset();
 
-                      latch.signal();
-                  },
-                  [&](Eof) {
-                      eof = true;
-                      latch.signal();
-                  },
-                  [&](ExceptionRef) { latch.signal(); });
+                    latch.signal();
+                },
+                [&](Eof) {
+                    eof = true;
+                    latch.signal();
+                },
+                [&](ExceptionRef) { latch.signal(); });
         });
 
         {
@@ -211,50 +215,52 @@ TEST(FilesystemServiceTest, StreamOwnership) {
 TEST(FilesystemServiceTest, ReadSize) {
     for_each({1, 2, 5, 10, 50}, [&](size_t concurrency) {
         for_each({1, 2, 4, 50, 512, 999}, [&](size_t buffer_size) {
-            for_each({std::make_pair("", "abc"),
-                      std::make_pair("abcdefgh", "abcdefgh"),
-                      std::make_pair("abcdefgh", "abc"),
-                      std::make_pair("abcdefgh", "abcdefgh111")},
-                     [&](const auto& sample) {
-                         const String sample_content = sample.first;
-                         const String sample_part = sample.second;
-                         const String cropped_sample_part(sample_part.data(), sample_part.data() + std::min(sample_part.size(), sample_content.size()));
+            for_each(
+                {std::make_pair("", "abc"),
+                 std::make_pair("abcdefgh", "abcdefgh"),
+                 std::make_pair("abcdefgh", "abc"),
+                 std::make_pair("abcdefgh", "abcdefgh111")},
+                [&](const auto& sample) {
+                    const String sample_content = sample.first;
+                    const String sample_part = sample.second;
+                    const String cropped_sample_part(sample_part.data(), sample_part.data() + std::min(sample_part.size(), sample_content.size()));
 
-                         write_test_file(sample_content);
+                    write_test_file(sample_content);
 
-                         FilesystemService service("fs_service", concurrency);
-                         const IFileRef file = service.open_file(TestFilePath, FileMode::Read, buffer_size);
-                         const asio::IAsyncByteStreamRef stream = file->get_stream();
+                    FilesystemService service("fs_service", concurrency);
+                    const IFileRef file = service.open_file(TestFilePath, FileMode::Read, buffer_size);
+                    const asio::IAsyncByteStreamRef stream = file->get_stream();
 
-                         String testee_content;
+                    String testee_content;
 
-                         Latch latch;
+                    Latch latch;
 
-                         const Token readConnection = stream->data_read().connect([&](const auto& result) {
-                             visit(result,
-                                   [&](ConstByteData data) {
-                                       testee_content << String(data.begin(), data.end());
+                    const Token readConnection = stream->data_read().connect([&](const auto& result) {
+                        visit(
+                            result,
+                            [&](ConstByteData data) {
+                                testee_content << String(data.begin(), data.end());
 
-                                       if (testee_content.size() == cropped_sample_part.size())
-                                           latch.signal();
-                                   },
-                                   [&](Eof) { latch.signal(); },
-                                   [&](ExceptionRef ex) {
-                                       ASSERT_TRUE(false) << "Read caught an error: " << to_string(ex).c_str();
-                                       latch.signal();
-                                   });
-                         });
+                                if (testee_content.size() == cropped_sample_part.size())
+                                    latch.signal();
+                            },
+                            [&](Eof) { latch.signal(); },
+                            [&](ExceptionRef ex) {
+                                ASSERT_TRUE(false) << "Read caught an error: " << to_string(ex).c_str();
+                                latch.signal();
+                            });
+                    });
 
-                         {
-                             const auto l = latch.lock();
+                    {
+                        const auto l = latch.lock();
 
-                             const Token readOpToken = stream->read(sample_part.size());
+                        const Token readOpToken = stream->read(sample_part.size());
 
-                             latch.wait(Seconds(10));
-                         }
+                        latch.wait(Seconds(10));
+                    }
 
-                         ASSERT_EQ(testee_content, cropped_sample_part);
-                     });
+                    ASSERT_EQ(testee_content, cropped_sample_part);
+                });
         });
     });
 }
@@ -262,62 +268,64 @@ TEST(FilesystemServiceTest, ReadSize) {
 TEST(FilesystemServiceTest, MultiReadUntilEof) {
     for_each({1, 2, 5, 10, 20, 50}, [&](size_t concurrency) {
         for_each({1, 2, 10, 50, 128, 512, 999}, [&](size_t buffer_size) {
-            for_each({"",
-                      "abcdefgh",
-                      "\n",
-                      "a\0b"
-                      "a\nb\nc\nd",
-                      "a\nb\nc\nd\n"},
-                     [&](const String& sample_content) {
-                         const size_t read_count = 4;
-                         const String multi_sample_content = multiply_string(sample_content, read_count);
+            for_each(
+                {"",
+                 "abcdefgh",
+                 "\n",
+                 "a\0b"
+                 "a\nb\nc\nd",
+                 "a\nb\nc\nd\n"},
+                [&](const String& sample_content) {
+                    const size_t read_count = 4;
+                    const String multi_sample_content = multiply_string(sample_content, read_count);
 
-                         write_test_file(sample_content);
+                    write_test_file(sample_content);
 
-                         FilesystemService service("fs_service", concurrency);
-                         const IFileRef file = service.open_file(TestFilePath, FileMode::Read, buffer_size);
-                         const asio::ISeekableAsyncByteStreamRef stream = file->get_stream();
+                    FilesystemService service("fs_service", concurrency);
+                    const IFileRef file = service.open_file(TestFilePath, FileMode::Read, buffer_size);
+                    const asio::ISeekableAsyncByteStreamRef stream = file->get_stream();
 
-                         String testee_content;
-                         size_t eof_count = 0;
+                    String testee_content;
+                    size_t eof_count = 0;
 
-                         Latch latch;
-                         Token readOpToken;
-                         Mutex readOpTokenMutex;
+                    Latch latch;
+                    Token readOpToken;
+                    Mutex readOpTokenMutex;
 
-                         const Token readConnection = stream->data_read().connect([&](const auto& result) {
-                             visit(result,
-                                   [&](ConstByteData data) { testee_content << String(data.begin(), data.end()); },
-                                   [&](Eof) {
-                                       ++eof_count;
+                    const Token readConnection = stream->data_read().connect([&](const auto& result) {
+                        visit(
+                            result,
+                            [&](ConstByteData data) { testee_content << String(data.begin(), data.end()); },
+                            [&](Eof) {
+                                ++eof_count;
 
-                                       if (eof_count != read_count) {
-                                           stream->seek(0);
+                                if (eof_count != read_count) {
+                                    stream->seek(0);
 
-                                           MutexLock l(readOpTokenMutex);
-                                           readOpToken = stream->read();
-                                       } else {
-                                           latch.signal();
-                                       }
-                                   },
-                                   [&](ExceptionRef ex) {
-                                       ASSERT_TRUE(false) << "Read caught an error: " << to_string(ex).c_str();
-                                       latch.signal();
-                                   });
-                         });
+                                    MutexLock l(readOpTokenMutex);
+                                    readOpToken = stream->read();
+                                } else {
+                                    latch.signal();
+                                }
+                            },
+                            [&](ExceptionRef ex) {
+                                ASSERT_TRUE(false) << "Read caught an error: " << to_string(ex).c_str();
+                                latch.signal();
+                            });
+                    });
 
-                         {
-                             const auto l = latch.lock();
-                             {
-                                 MutexLock l(readOpTokenMutex);
-                                 readOpToken = stream->read();
-                             }
-                             latch.wait(Seconds(10));
-                         }
+                    {
+                        const auto l = latch.lock();
+                        {
+                            MutexLock l(readOpTokenMutex);
+                            readOpToken = stream->read();
+                        }
+                        latch.wait(Seconds(10));
+                    }
 
-                         ASSERT_EQ(eof_count, read_count);
-                         ASSERT_EQ(testee_content, multi_sample_content);
-                     });
+                    ASSERT_EQ(eof_count, read_count);
+                    ASSERT_EQ(testee_content, multi_sample_content);
+                });
         });
     });
 }
@@ -350,35 +358,36 @@ TEST(FilesystemServiceTest, PatternRead) {
             String command_holder;
 
             const Token readConnection = stream->data_read().connect([&](const auto& result) {
-                visit(result,
-                      [&](ConstByteData data) {
-                          command_holder << String(data.begin(), data.end());
-                          ASSERT_LE(command_holder.size(), sample_command_length);
+                visit(
+                    result,
+                    [&](ConstByteData data) {
+                        command_holder << String(data.begin(), data.end());
+                        ASSERT_LE(command_holder.size(), sample_command_length);
 
-                          if (command_holder.size() != sample_command_length)
-                              return;
+                        if (command_holder.size() != sample_command_length)
+                            return;
 
-                          ASSERT_EQ(command_holder.back(), command_separator);
+                        ASSERT_EQ(command_holder.back(), command_separator);
 
-                          if (command_holder.front() == eod_command) {
-                              latch.signal();
-                              return;
-                          }
+                        if (command_holder.front() == eod_command) {
+                            latch.signal();
+                            return;
+                        }
 
-                          const s64 command = boost::lexical_cast<s64>(std::string(command_holder.data(), command_holder.data() + command_holder.size() - 1));
-                          testee_sequence.push_back(command);
+                        const s64 command = boost::lexical_cast<s64>(std::string(command_holder.data(), command_holder.data() + command_holder.size() - 1));
+                        testee_sequence.push_back(command);
 
-                          command_holder = String();
+                        command_holder = String();
 
-                          stream->seek(command * s64(sample_command_length));
-                          MutexLock l(readOpTokenMutex);
-                          readOpToken = stream->read(sample_command_length);
-                      },
-                      [&](Eof) {},
-                      [&](ExceptionRef ex) {
-                          ASSERT_TRUE(false) << "Read caught an error: " << to_string(ex).c_str();
-                          latch.signal();
-                      });
+                        stream->seek(command * s64(sample_command_length));
+                        MutexLock l(readOpTokenMutex);
+                        readOpToken = stream->read(sample_command_length);
+                    },
+                    [&](Eof) {},
+                    [&](ExceptionRef ex) {
+                        ASSERT_TRUE(false) << "Read caught an error: " << to_string(ex).c_str();
+                        latch.signal();
+                    });
             });
 
             {
