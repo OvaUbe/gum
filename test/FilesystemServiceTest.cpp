@@ -4,9 +4,11 @@
 #include <gum/concurrency/DummyCancellationHandle.h>
 #include <gum/io/filesystem/FilesystemService.h>
 
-#include <gtest/gtest.h>
-
 #include <fstream>
+
+#include <boost/lexical_cast.hpp>
+
+#include <gtest/gtest.h>
 
 using namespace gum;
 
@@ -316,6 +318,79 @@ TEST(FilesystemServiceTest, MultiReadUntilEof) {
                          ASSERT_EQ(eof_count, read_count);
                          ASSERT_EQ(testee_content, multi_sample_content);
                      });
+        });
+    });
+}
+
+TEST(FilesystemServiceTest, PatternRead) {
+    for_each({1, 2, 5, 10, 20, 50}, [&](size_t concurrency) {
+        for_each({1, 2, 10, 50, 128, 512, 999}, [&](size_t buffer_size) {
+            const String sample_content = "3;"
+                                          "5;"
+                                          "0;"
+                                          "4;"
+                                          "1;"
+                                          "e;";
+            const size_t sample_command_length = 2;
+            const char command_separator = ';';
+            const char eod_command = 'e';
+            const std::vector<s64> sample_sequence = {3, 4, 1, 5};
+
+            write_test_file(sample_content);
+
+            FilesystemService service("fs_service", concurrency);
+            const IFileRef file = service.open_file(TestFilePath, FileMode::Read, buffer_size);
+            const asio::ISeekableAsyncByteStreamRef stream = file->get_stream();
+
+            std::vector<s64> testee_sequence;
+
+            Latch latch;
+            Token readOpToken;
+            Mutex readOpTokenMutex;
+            String command_holder;
+
+            const Token readConnection = stream->data_read().connect([&](const auto& result) {
+                visit(result,
+                      [&](ConstByteData data) {
+                          command_holder << String(data.begin(), data.end());
+                          ASSERT_LE(command_holder.size(), sample_command_length);
+
+                          if (command_holder.size() != sample_command_length)
+                              return;
+
+                          ASSERT_EQ(command_holder.back(), command_separator);
+
+                          if (command_holder.front() == eod_command) {
+                              latch.signal();
+                              return;
+                          }
+
+                          const s64 command = boost::lexical_cast<s64>(std::string(command_holder.data(), command_holder.data() + command_holder.size() - 1));
+                          testee_sequence.push_back(command);
+
+                          command_holder = String();
+
+                          stream->seek(command * s64(sample_command_length));
+                          MutexLock l(readOpTokenMutex);
+                          readOpToken = stream->read(sample_command_length);
+                      },
+                      [&](Eof) {},
+                      [&](ExceptionRef ex) {
+                          ASSERT_TRUE(false) << "Read caught an error: " << to_string(ex).c_str();
+                          latch.signal();
+                      });
+            });
+
+            {
+                const auto l = latch.lock();
+                {
+                    MutexLock l(readOpTokenMutex);
+                    readOpToken = stream->read(sample_command_length);
+                }
+                latch.wait(Seconds(10));
+            }
+
+            ASSERT_EQ(testee_sequence, sample_sequence);
         });
     });
 }
