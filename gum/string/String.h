@@ -127,7 +127,7 @@ class BasicString : public boost::operators<BasicString<Char_>> {
         return _impl.back();
     }
 
-    pointer data() {
+    const_pointer data() {
         return _impl.data();
     }
 
