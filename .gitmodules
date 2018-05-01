@@ -1,3 +1,6 @@
 [submodule "cmake/castella"]
 	path = cmake/castella
 	url = https://github.com/OvaUbe/castella
+[submodule "clang-format"]
+	path = clang-format
+	url = https://github.com/OvaUbe/clang-format-utils.git
