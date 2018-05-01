@@ -22,21 +22,52 @@
 
 #pragma once
 
-#include <gum/diagnostics/Demangle.h>
-#include <gum/exception/ExceptionDetails.h>
-
+#include <gum/Core.h>
 #include <gum/Types.h>
+#include <gum/diagnostics/Backtrace.h>
+#include <gum/diagnostics/Demangle.h>
 #include <gum/string/String.h>
+
+#include <stdexcept>
+#include <typeinfo>
 
 namespace gum {
 
-struct Exception : public detail::Exception {
+struct Exception : public std::runtime_error {
     Exception(String const& message)
-        : detail::Exception(std::string(message)) {}
+        : std::runtime_error(std::string(message)) {}
+
+    Exception(std::string const& message)
+        : std::runtime_error(message) {}
 
     Exception(char const* message)
-        : detail::Exception(message) {}
+        : std::runtime_error(message) {}
 };
+
+namespace detail {
+
+String get_diagnostics_message(char const* message, std::type_info const& client_type_info, Where const& where, Backtrace const& backtrace);
+
+template <typename ClientException_>
+class ExceptionTemplate : public ClientException_ {
+    String _what;
+
+  public:
+    template <typename ClientException__>
+    ExceptionTemplate(ClientException__&& ex, Where const& where, Backtrace const& backtrace)
+        : ClientException_(std::forward<ClientException__>(ex))
+        , _what(get_diagnostics_message(ex.what(), typeid(ClientException_), where, backtrace)) {}
+
+    char const* what() const noexcept override {
+        return _what.c_str();
+    }
+};
+
+template <typename Exception_>
+inline auto do_make_exception(Exception_&& ex, Where const& where, Backtrace const& backtrace) {
+    return ExceptionTemplate<std::decay_t<Exception_>>(std::forward<Exception_>(ex), where, backtrace);
+}
+}
 
 namespace detail {
 
@@ -70,7 +101,7 @@ inline auto make_exception(char const* message, Where const& where, Backtrace co
             : gum::Exception(DefaultMessage_) {}                                                                                                               \
                                                                                                                                                                \
         Type_(const String& message)                                                                                                                           \
-            : gum::Exception(gum::String() << DefaultMessage_ << ": " << message) {}                                                                                \
+            : gum::Exception(gum::String() << DefaultMessage_ << ": " << message) {}                                                                           \
     }
 
 GUM_DECLARE_EXCEPTION(NullPointerException, "Accessing null pointer");

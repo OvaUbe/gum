@@ -99,7 +99,6 @@ set(GUM_SOURCES
     concurrency/Worker.cpp
     diagnostics/Backtrace.cpp
     diagnostics/Demangle.cpp
-    exception/ExceptionDetails.cpp
     exception/Exception.cpp
     io/filesystem/FilesystemService.cpp
     log/sinks/AnsiTerminalLoggerSink.cpp
@@ -152,7 +151,6 @@ set(GUM_PUBLIC_HEADERS
     container/TwoQ.h
     diagnostics/Backtrace.h
     diagnostics/Demangle.h
-    exception/ExceptionDetails.h
     exception/Exception.h
     functional/Invoker.h
     functional/Types.h
