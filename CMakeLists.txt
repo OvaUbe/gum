@@ -161,6 +161,7 @@ set(GUM_PUBLIC_HEADERS
     io/asio/IAsyncByteStream.h
     io/Eof.h
     io/ByteData.h
+    io/ISeekable.h
     log/sinks/AnsiTerminalLoggerSink.h
     log/sinks/StandardLoggerSink.h
     log/GlobalLogger.h
