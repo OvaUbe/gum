@@ -25,7 +25,12 @@
 #include <gum/exception/Exception.h>
 #include <gum/smartpointer/SharedReference.h>
 
+#include <boost/variant.hpp>
+
 namespace gum {
 
 using ExceptionRef = SharedReference<std::exception>;
+
+template <typename... Args_>
+using ErrorOr = boost::variant<ExceptionRef, Args_...>;
 }

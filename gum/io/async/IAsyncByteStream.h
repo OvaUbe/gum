@@ -22,7 +22,7 @@
 
 #pragma once
 
-#include <gum/ExceptionRef.h>
+#include <gum/ErrorOr.h>
 #include <gum/async/Signal.h>
 #include <gum/io/ByteData.h>
 #include <gum/io/Eof.h>
@@ -34,7 +34,7 @@ namespace gum {
 namespace asio {
 
 struct IAsyncReadable {
-    using ReadResult = boost::variant<ConstByteData, Eof, ExceptionRef>;
+    using ReadResult = ErrorOr<ConstByteData, Eof>;
     using DataReadSignature = void(const ReadResult&);
 
   public:
