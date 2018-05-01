@@ -36,6 +36,10 @@ class FilesystemService {
 
   public:
     FilesystemService(const String& name, size_t concurrency_hint);
+
+    FilesystemService(FilesystemService&&) = default;
+    FilesystemService& operator=(FilesystemService&&) = default;
+
     ~FilesystemService();
 
     IFileRef open_file(const String& path, const FileOpenFlags& flags, size_t async_buffer_size);

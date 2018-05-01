@@ -57,6 +57,10 @@ class OwnerInfo {
 
   public:
     OwnerInfo();
+
+    OwnerInfo(OwnerInfo&&) = default;
+    OwnerInfo& operator=(OwnerInfo&&) = default;
+
     ~OwnerInfo();
 
     void acquire();
