@@ -29,7 +29,7 @@ namespace gum {
 struct IFile {
     virtual ~IFile() {}
 
-    virtual asio::IAsyncByteStreamRef get_stream() = 0;
+    virtual asio::ISeekableAsyncByteStreamRef get_stream() = 0;
 };
 GUM_DECLARE_PTR(IFile);
 GUM_DECLARE_REF(IFile);

@@ -24,6 +24,19 @@ int map_open_mode(FileMode mode) {
         GUM_THROW(NotImplementedException());
     }
 }
+
+int map_seek_mode(SeekMode mode) {
+    switch (mode) {
+    case SeekMode::Begin:
+        return SEEK_SET;
+    case SeekMode::Current:
+        return SEEK_CUR;
+    case SeekMode::End:
+        return SEEK_END;
+    default:
+        GUM_THROW(NotImplementedException());
+    }
+}
 }
 
 FileDescriptor::FileDescriptor(const String& path, const FileOpenFlags& flags)
@@ -39,6 +52,11 @@ FileDescriptor::FileDescriptor(const String& path, const FileOpenFlags& flags)
     GUM_CHECK(_fd >= 0, SystemException(String() << "open('" << path << "', " << flags << ") failed"));
 
     _closeToken = make_token<FunctionToken>([fd = _fd]() { close(fd); });
+}
+
+void FileDescriptor::seek(s64 offset, SeekMode mode) {
+    const off_t result = lseek(_fd, offset, map_seek_mode(mode));
+    GUM_CHECK(result >= 0, SystemException(String() << "lseek(" << offset << ", " << mode << ") failed"));
 }
 }
 }

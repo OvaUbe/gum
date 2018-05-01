@@ -26,6 +26,7 @@
 #include <gum/async/Signal.h>
 #include <gum/io/ByteData.h>
 #include <gum/io/Eof.h>
+#include <gum/io/ISeekable.h>
 
 #include <boost/variant.hpp>
 
@@ -50,5 +51,9 @@ GUM_DECLARE_REF(IAsyncReadable);
 struct IAsyncByteStream : public virtual IAsyncReadable {};
 GUM_DECLARE_PTR(IAsyncByteStream);
 GUM_DECLARE_REF(IAsyncByteStream);
+
+struct ISeekableAsyncByteStream : public virtual IAsyncByteStream, public virtual ISeekable {};
+GUM_DECLARE_PTR(ISeekableAsyncByteStream);
+GUM_DECLARE_REF(ISeekableAsyncByteStream);
 }
 }

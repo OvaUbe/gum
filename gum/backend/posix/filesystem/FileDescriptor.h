@@ -22,22 +22,26 @@
 
 #pragma once
 
+#include <gum/io/ISeekable.h>
 #include <gum/io/filesystem/FileOpenFlags.h>
 #include <gum/token/Token.h>
 
 namespace gum {
 namespace posix {
 
-class FileDescriptor {
+class FileDescriptor : public virtual ISeekable {
     int _fd;
     Token _closeToken;
 
   public:
     FileDescriptor(const String& path, const FileOpenFlags& flags);
 
+    void seek(s64 offset, SeekMode mode) override;
+
     int get_handle() const {
         return _fd;
     }
 };
+GUM_DECLARE_REF(FileDescriptor);
 }
 }

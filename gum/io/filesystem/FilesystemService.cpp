@@ -37,6 +37,7 @@ namespace {
 
 #ifdef GUM_USES_POSIX
 using FileDescriptor = posix::FileDescriptor;
+GUM_DECLARE_REF(FileDescriptor);
 #else
 #error File is not implemented
 #endif
@@ -51,16 +52,44 @@ GUM_DECLARE_REF(Strand);
 #error Asio is not implemented
 #endif
 
-class File : public virtual IFile {
-    FileDescriptor _fd;
-    asio::IAsyncByteStreamRef _stream;
+class SeekableStreamAdaptor : public virtual asio::ISeekableAsyncByteStream {
+    ITaskQueueRef _task_queue;
+    ISeekableRef _seekable;
+    asio::IAsyncByteStreamRef _wrapped_stream;
+
+    LifeToken _life_token;
 
   public:
-    File(FileDescriptor&& fd, asio::IAsyncByteStreamRef&& stream)
-        : _fd(std::move(fd))
-        , _stream(std::move(stream)) {}
+    SeekableStreamAdaptor(const ITaskQueueRef& task_queue, const ISeekableRef& seekable, asio::IAsyncByteStreamRef&& wrapped_stream)
+        : _task_queue(task_queue)
+        , _seekable(seekable)
+        , _wrapped_stream(std::move(wrapped_stream)) {}
 
-    asio::IAsyncByteStreamRef get_stream() override {
+    Token read() {
+        return _wrapped_stream->read();
+    }
+
+    Token read(u64 size) {
+        return _wrapped_stream->read(size);
+    }
+
+    SignalHandle<DataReadSignature> data_read() const {
+        return _wrapped_stream->data_read();
+    }
+
+    void seek(s64 offset, SeekMode mode) {
+        _task_queue->push(make_cancellable([this, offset, mode] { _seekable->seek(offset, mode); }, _life_token));
+    }
+};
+
+class File : public virtual IFile {
+    asio::ISeekableAsyncByteStreamRef _stream;
+
+  public:
+    File(asio::ISeekableAsyncByteStreamRef&& stream)
+        : _stream(std::move(stream)) {}
+
+    asio::ISeekableAsyncByteStreamRef get_stream() override {
         return _stream;
     }
 };
@@ -78,13 +107,14 @@ class FilesystemService::Impl {
         : _worker(name, concurrency_hint) {}
 
     IFileRef open_file(const String& path, const FileOpenFlags& flags, size_t async_buffer_size) {
-        FileDescriptor fd(path, flags);
-        AsyncByteStreamDescriptor sd(_worker.get_service(), fd.get_handle());
+        const FileDescriptorRef fd = make_shared_ref<FileDescriptor>(path, flags);
+        AsyncByteStreamDescriptor sd(_worker.get_service(), fd->get_handle());
 
         const StrandRef strand = make_shared_ref<Strand>(_worker.get_service());
         asio::IAsyncByteStreamRef stream = make_shared_ref<AsyncByteStream>(strand, std::move(sd), async_buffer_size);
+        asio::ISeekableAsyncByteStreamRef seekable_stream = make_shared_ref<SeekableStreamAdaptor>(strand, fd, std::move(stream));
 
-        return make_shared_ref<File>(std::move(fd), std::move(stream));
+        return make_shared_ref<File>(std::move(seekable_stream));
     }
 };
 
