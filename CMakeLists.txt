@@ -158,6 +158,7 @@ set(GUM_PUBLIC_HEADERS
     io/filesystem/FileOpenFlags.h
     io/filesystem/FilesystemService.h
     io/filesystem/IFile.h
+    io/filesystem/IFilesystemService.h
     io/asio/IAsyncByteStream.h
     io/Eof.h
     io/ByteData.h

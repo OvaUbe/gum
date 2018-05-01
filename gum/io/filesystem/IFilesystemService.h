@@ -22,26 +22,17 @@
 
 #pragma once
 
-#include <gum/io/filesystem/IFilesystemService.h>
+#include <gum/io/filesystem/FileOpenFlags.h>
+#include <gum/io/filesystem/IFile.h>
 
 namespace gum {
 
-class FilesystemService : public virtual IFilesystemService {
-    class Impl;
-    GUM_DECLARE_UNIQUE_REF(Impl);
+struct IFilesystemService {
+    virtual ~IFilesystemService() {}
 
-  private:
-    ImplUniqueRef _impl;
-
-  public:
-    FilesystemService(const String& name, size_t concurrency_hint);
-
-    FilesystemService(FilesystemService&&) = default;
-    FilesystemService& operator=(FilesystemService&&) = default;
-
-    ~FilesystemService() override;
-
-    IFileRef open_file(const String& path, const FileOpenFlags& flags, size_t async_buffer_size) override;
-    IFileRef open_file(const String& path, FileMode mode, size_t async_buffer_size) override;
+    virtual IFileRef open_file(const String& path, const FileOpenFlags& flags, size_t async_buffer_size) = 0;
+    virtual IFileRef open_file(const String& path, FileMode mode, size_t async_buffer_size) = 0;
 };
+GUM_DECLARE_PTR(IFilesystemService);
+GUM_DECLARE_REF(IFilesystemService);
 }
