@@ -70,7 +70,7 @@ inline auto make_exception(char const* message, Where const& where, Backtrace co
             : gum::Exception(DefaultMessage_) {}                                                                                                               \
                                                                                                                                                                \
         Type_(const String& message)                                                                                                                           \
-            : gum::Exception(String() << DefaultMessage_ << ": " << message) {}                                                                                \
+            : gum::Exception(gum::String() << DefaultMessage_ << ": " << message) {}                                                                                \
     }
 
 GUM_DECLARE_EXCEPTION(NullPointerException, "Accessing null pointer");
