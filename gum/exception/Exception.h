@@ -132,4 +132,29 @@ struct ArgumentException : public Exception {
     ArgumentException(String const& name, Arg_ const& arg)
         : Exception(String() << "Unwanted argument '" << name << "':" << arg) {}
 };
+
+GUM_DECLARE_EXCEPTION(AssertionFailedException, "Assertion failed");
+
+#if defined(__GNUC__) || defined(__clang__)
+
+#define GUM_ASSERT(Value_)                                                                                                                                     \
+    ({                                                                                                                                                         \
+        GUM_CHECK(Value_, gum::AssertionFailedException());                                                                                                    \
+        Value_;                                                                                                                                                \
+    })
+
+#else
+
+namespace detail {
+
+template <typename Value_>
+Value_ perform_assert_check(Value_ value) {
+    GUM_CHECK(value, AssertionFailedException());
+    return value;
+}
+}
+
+#define GUM_ASSERT(Value_) gum::detail::perform_assert_check(Value_)
+
+#endif
 }
