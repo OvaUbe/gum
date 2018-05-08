@@ -100,7 +100,7 @@ inline auto make_exception(char const* message, Where const& where, Backtrace co
         Type_()                                                                                                                                                \
             : gum::Exception(DefaultMessage_) {}                                                                                                               \
                                                                                                                                                                \
-        Type_(const gum::String& message)                                                                                                                           \
+        Type_(const gum::String& message)                                                                                                                      \
             : gum::Exception(gum::String() << DefaultMessage_ << ": " << message) {}                                                                           \
     }
 

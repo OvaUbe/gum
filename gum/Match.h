@@ -29,7 +29,7 @@
 namespace gum {
 
 template <typename Variant_, typename... List_>
-auto visit(Variant_& variant, List_&&... list) {
+auto match(Variant_& variant, List_&&... list) {
     return boost::apply_visitor(overload(std::forward<List_>(list)...), variant);
 }
 }

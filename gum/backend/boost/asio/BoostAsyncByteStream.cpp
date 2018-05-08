@@ -1,7 +1,7 @@
 #include <gum/backend/boost/asio/BoostAsyncByteStream.h>
 
+#include <gum/Match.h>
 #include <gum/Unit.h>
-#include <gum/Visit.h>
 #include <gum/backend/boost/BoostSystemException.h>
 
 namespace gum {
@@ -99,7 +99,7 @@ class BoostAsyncByteStream::Impl {
             return;
         }
 
-        visit(
+        match(
             op->Op,
             [&, this](ReadUntilEof) { submit_read(self, op); },
             [&, this](ReadSize& size) {

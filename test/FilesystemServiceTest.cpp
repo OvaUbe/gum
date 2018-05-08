@@ -1,5 +1,5 @@
+#include <gum/Match.h>
 #include <gum/Range.h>
-#include <gum/Visit.h>
 #include <gum/concurrency/ConditionVariable.h>
 #include <gum/concurrency/DummyCancellationHandle.h>
 #include <gum/io/filesystem/FilesystemService.h>
@@ -88,7 +88,7 @@ TEST(FilesystemServiceTest, ReadUntilEof) {
                     Latch latch;
 
                     const Token readConnection = stream->data_read().connect([&](const auto& result) {
-                        visit(
+                        match(
                             result,
                             [&](ConstByteData data) { testee_content << String(data.begin(), data.end()); },
                             [&](Eof) {
@@ -135,7 +135,7 @@ TEST(FilesystemServiceTest, ReadCancelled) {
         Mutex readOpTokenMutex;
 
         const Token readConnection = stream->data_read().connect([&](const auto& result) {
-            visit(
+            match(
                 result,
                 [&](ConstByteData data) {
                     testee_content << String(data.begin(), data.end());
@@ -182,7 +182,7 @@ TEST(FilesystemServiceTest, StreamOwnership) {
         Latch latch;
 
         const Token readConnection = stream->data_read().connect([&](const auto& result) {
-            visit(
+            match(
                 result,
                 [&](ConstByteData data) {
                     testee_content << String(data.begin(), data.end());
@@ -236,7 +236,7 @@ TEST(FilesystemServiceTest, ReadSize) {
                     Latch latch;
 
                     const Token readConnection = stream->data_read().connect([&](const auto& result) {
-                        visit(
+                        match(
                             result,
                             [&](ConstByteData data) {
                                 testee_content << String(data.begin(), data.end());
@@ -293,7 +293,7 @@ TEST(FilesystemServiceTest, MultiReadUntilEof) {
                     Mutex readOpTokenMutex;
 
                     const Token readConnection = stream->data_read().connect([&](const auto& result) {
-                        visit(
+                        match(
                             result,
                             [&](ConstByteData data) { testee_content << String(data.begin(), data.end()); },
                             [&](Eof) {
@@ -358,7 +358,7 @@ TEST(FilesystemServiceTest, PatternRead) {
             String command_holder;
 
             const Token readConnection = stream->data_read().connect([&](const auto& result) {
-                visit(
+                match(
                     result,
                     [&](ConstByteData data) {
                         command_holder << String(data.begin(), data.end());

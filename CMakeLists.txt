@@ -206,6 +206,7 @@ set(GUM_PUBLIC_HEADERS
     ErrorOr.h
     IBoolean.h
     IObservableValue.h
+    Match.h
     ObservableValue.h
     Optional.h
     Overload.h
@@ -216,7 +217,6 @@ set(GUM_PUBLIC_HEADERS
     Try.h
     Types.h
     Unit.h
-    Visit.h
 )
 
 if (${GUM_RELEASE_BUILD})
