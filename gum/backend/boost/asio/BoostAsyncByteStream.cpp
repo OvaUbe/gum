@@ -138,7 +138,7 @@ class BoostAsyncByteStream::Impl {
         return std::make_pair(make_read_cancellator(op), make_read_cancellator(op));
     }
 };
-GUM_DEFINE_NAMED_LOGGER(BoostAsyncByteStream::Impl, "BoostAsyncByteStream");
+GUM_DEFINE_NAMED_LOGGER(BoostAsyncByteStream::Impl, BoostAsyncByteStream);
 
 BoostAsyncByteStream::BoostAsyncByteStream(const BoostStrandRef& strand, BoostStreamDescriptor&& stream_descriptor, size_t buffer_size)
     : _impl(make_shared_ref<Impl>(strand, std::move(stream_descriptor), buffer_size)) {}
