@@ -55,6 +55,9 @@ class Where {
 };
 }
 
+#define GUM_DETAIL_CAT(Lhs_, Rhs_) Lhs_##Rhs_
+#define GUM_CAT(Lhs_, Rhs_) GUM_DETAIL_CAT(Lhs_, Rhs_)
+
 #define GUM_WHERE gum::detail::Where(__FILE__, __LINE__, GUM_FUNCTION)
 
 static constexpr auto null = nullptr;
