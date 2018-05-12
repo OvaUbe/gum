@@ -138,7 +138,7 @@ GUM_DECLARE_EXCEPTION(AssertionFailedException, "Assertion failed");
 #if defined(__GNUC__) || defined(__clang__)
 
 #define GUM_ASSERT(Value_)                                                                                                                                     \
-    ({                                                                                                                                                         \
+    __extension__({                                                                                                                                            \
         GUM_CHECK(Value_, gum::AssertionFailedException());                                                                                                    \
         Value_;                                                                                                                                                \
     })
