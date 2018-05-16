@@ -67,9 +67,6 @@ template <typename Exception_>
 inline auto do_make_exception(Exception_&& ex, Where const& where, Backtrace const& backtrace) {
     return ExceptionTemplate<std::decay_t<Exception_>>(std::forward<Exception_>(ex), where, backtrace);
 }
-}
-
-namespace detail {
 
 template <typename Exception_>
 inline auto make_exception(Exception_ const& ex, Where const& where, Backtrace const& backtrace) {
